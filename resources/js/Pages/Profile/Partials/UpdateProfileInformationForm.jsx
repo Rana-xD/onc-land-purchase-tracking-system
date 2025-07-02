@@ -1,16 +1,14 @@
 import React from 'react';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import { Transition } from '@headlessui/react';
 import { Link, useForm, usePage } from '@inertiajs/react';
+import { Form, Input, Button, Card, Typography, message, Space, Divider } from 'antd';
+import { UserOutlined, MailOutlined, SaveOutlined, CheckCircleOutlined } from '@ant-design/icons';
 
 export default function UpdateProfileInformation({
     mustVerifyEmail,
     status,
     className = '',
 }) {
+    const { Title, Text } = Typography;
     const user = usePage().props.auth.user;
 
     const { data, setData, patch, errors, processing, recentlySuccessful } =
@@ -22,93 +20,107 @@ export default function UpdateProfileInformation({
     const submit = (e) => {
         e.preventDefault();
 
-        patch(route('profile.update'));
+        patch(route('profile.update'), {
+            onSuccess: () => {
+                message.success('ព័ត៌មានគណនីត្រូវបានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ');
+            }
+        });
     };
 
     return (
-        <section className={className}>
-            <header>
-                <h2 className="text-lg font-medium text-gray-900">
-                    Profile Information
-                </h2>
+        <Card 
+            className={className}
+            bordered={false}
+            style={{ boxShadow: '0 1px 2px 0 rgba(0,0,0,0.03)' }}
+        >
+            <div className="mb-6">
+                <Title level={4} className="khmer-heading mb-2">ព័ត៌មានគណនី</Title>
+                <Text type="secondary" className="khmer-text">
+                    ធ្វើបច្ចុប្បន្នភាពព័ត៌មានគណនីនិងអាសយដ្ឋានអ៊ីមែលរបស់អ្នក។
+                </Text>
+            </div>
 
-                <p className="mt-1 text-sm text-gray-600">
-                    Update your account's profile information and email address.
-                </p>
-            </header>
-
-            <form onSubmit={submit} className="mt-6 space-y-6">
-                <div>
-                    <InputLabel htmlFor="name" value="Name" />
-
-                    <TextInput
-                        id="name"
-                        className="mt-1 block w-full"
+            <Form
+                layout="vertical"
+                onSubmitCapture={submit}
+                initialValues={data}
+                className="khmer-text"
+            >
+                <Form.Item 
+                    label="ឈ្មោះ" 
+                    validateStatus={errors.name ? 'error' : ''}
+                    help={errors.name}
+                >
+                    <Input 
+                        prefix={<UserOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                         value={data.name}
                         onChange={(e) => setData('name', e.target.value)}
-                        required
-                        isFocused
+                        size="large"
                         autoComplete="name"
+                        placeholder="បញ្ចូលឈ្មោះរបស់អ្នក"
                     />
+                </Form.Item>
 
-                    <InputError className="mt-2" message={errors.name} />
-                </div>
-
-                <div>
-                    <InputLabel htmlFor="email" value="Email" />
-
-                    <TextInput
-                        id="email"
+                <Form.Item 
+                    label="អ៊ីមែល" 
+                    validateStatus={errors.email ? 'error' : ''}
+                    help={errors.email}
+                >
+                    <Input 
+                        prefix={<MailOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                         type="email"
-                        className="mt-1 block w-full"
                         value={data.email}
                         onChange={(e) => setData('email', e.target.value)}
-                        required
-                        autoComplete="username"
+                        size="large"
+                        autoComplete="email"
+                        placeholder="បញ្ចូលអាសយដ្ឋានអ៊ីមែលរបស់អ្នក"
                     />
-
-                    <InputError className="mt-2" message={errors.email} />
-                </div>
+                </Form.Item>
 
                 {mustVerifyEmail && user.email_verified_at === null && (
-                    <div>
-                        <p className="mt-2 text-sm text-gray-800">
-                            Your email address is unverified.
-                            <Link
-                                href={route('verification.send')}
-                                method="post"
-                                as="button"
-                                className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                            >
-                                Click here to re-send the verification email.
-                            </Link>
-                        </p>
+                    <div className="mb-4">
+                        <Text type="warning" className="khmer-text block mb-2">
+                            អាសយដ្ឋានអ៊ីមែលរបស់អ្នកមិនទាន់បានផ្ទៀងផ្ទាត់នៅឡើយទេ។
+                        </Text>
+                        <Link
+                            href={route('verification.send')}
+                            method="post"
+                            as="button"
+                            className="khmer-text text-blue-600 hover:text-blue-800"
+                        >
+                            ចុចទីនេះដើម្បីផ្ញើអ៊ីមែលផ្ទៀងផ្ទាត់ម្តងទៀត។
+                        </Link>
 
                         {status === 'verification-link-sent' && (
-                            <div className="mt-2 text-sm font-medium text-green-600">
-                                A new verification link has been sent to your
-                                email address.
-                            </div>
+                            <Text type="success" className="khmer-text block mt-2">
+                                តំណភ្ជាប់ផ្ទៀងផ្ទាត់ថ្មីត្រូវបានផ្ញើទៅអាសយដ្ឋានអ៊ីមែលរបស់អ្នក។
+                            </Text>
                         )}
                     </div>
                 )}
 
-                <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>Save</PrimaryButton>
-
-                    <Transition
-                        show={recentlySuccessful}
-                        enter="transition ease-in-out"
-                        enterFrom="opacity-0"
-                        leave="transition ease-in-out"
-                        leaveTo="opacity-0"
+                <Divider />
+                
+                <div className="flex justify-between items-center">
+                    <Button 
+                        type="primary" 
+                        htmlType="submit" 
+                        loading={processing}
+                        icon={<SaveOutlined />}
+                        size="large"
+                        className="khmer-text"
                     >
-                        <p className="text-sm text-gray-600">
-                            Saved.
-                        </p>
-                    </Transition>
+                        រក្សាទុក
+                    </Button>
+
+                    {recentlySuccessful && (
+                        <Space>
+                            <CheckCircleOutlined style={{ color: '#52c41a' }} />
+                            <Text type="success" className="khmer-text">បានរក្សាទុក</Text>
+                        </Space>
+                    )}
                 </div>
-            </form>
-        </section>
+            </Form>
+        </Card>
     );
 }

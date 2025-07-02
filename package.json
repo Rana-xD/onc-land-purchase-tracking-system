@@ -4,6 +4,7 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
+        "hot": "vite --host",
         "format": "prettier --write 'resources/**/*.{js,jsx,css,md}'",
         "lint": "eslint 'resources/**/*.{js,jsx}' --fix"
     },

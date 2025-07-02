@@ -1,14 +1,10 @@
 import React, { useRef } from 'react';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import { Transition } from '@headlessui/react';
 import { useForm } from '@inertiajs/react';
+import { Form, Input, Button, Card, Typography, message, Space, Divider } from 'antd';
+import { LockOutlined, SaveOutlined, CheckCircleOutlined } from '@ant-design/icons';
 
-export default function UpdatePasswordForm({
-    className = '',
-}) {
+export default function UpdatePasswordForm() {
+    const { Title, Text } = Typography;
     const passwordInput = useRef(null);
     const currentPasswordInput = useRef(null);
 
@@ -31,7 +27,10 @@ export default function UpdatePasswordForm({
 
         put(route('password.update'), {
             preserveScroll: true,
-            onSuccess: () => reset(),
+            onSuccess: () => {
+                reset();
+                message.success('ពាក្យសម្ងាត់ត្រូវបានប្តូរដោយជោគជ័យ');
+            },
             onError: (errors) => {
                 if (errors.password) {
                     reset('password', 'password_confirmation');
@@ -47,98 +46,90 @@ export default function UpdatePasswordForm({
     };
 
     return (
-        <section className={className}>
-            <header>
-                <h2 className="text-lg font-medium text-gray-900">
-                    Update Password
-                </h2>
+        <Card 
+            bordered={false}
+            style={{ boxShadow: '0 1px 2px 0 rgba(0,0,0,0.03)' }}
+        >
+            <div className="mb-6">
+                <Title level={4} className="khmer-heading mb-2">ប្តូរពាក្យសម្ងាត់</Title>
+                <Text type="secondary" className="khmer-text">
+                    ប្រាកដថាគណនីរបស់អ្នកប្រើពាក្យសម្ងាត់វែងនិងពិបាកដើម្បីរក្សាសុវត្ថិភាព។
+                </Text>
+            </div>
 
-                <p className="mt-1 text-sm text-gray-600">
-                    Ensure your account is using a long, random password to stay
-                    secure.
-                </p>
-            </header>
-
-            <form onSubmit={updatePassword} className="mt-6 space-y-6">
-                <div>
-                    <InputLabel
-                        htmlFor="current_password"
-                        value="Current Password"
-                    />
-
-                    <TextInput
-                        id="current_password"
-                        ref={currentPasswordInput}
+            <Form
+                layout="vertical"
+                onSubmitCapture={updatePassword}
+                initialValues={data}
+                className="khmer-text"
+            >
+                <Form.Item 
+                    label="ពាក្យសម្ងាត់បច្ចុប្បន្ន" 
+                    validateStatus={errors.current_password ? 'error' : ''}
+                    help={errors.current_password}
+                >
+                    <Input.Password
+                        prefix={<LockOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                         value={data.current_password}
-                        onChange={(e) =>
-                            setData('current_password', e.target.value)
-                        }
-                        type="password"
-                        className="mt-1 block w-full"
+                        onChange={(e) => setData('current_password', e.target.value)}
+                        size="large"
                         autoComplete="current-password"
+                        placeholder="បញ្ចូលពាក្យសម្ងាត់បច្ចុប្បន្នរបស់អ្នក"
                     />
+                </Form.Item>
 
-                    <InputError
-                        message={errors.current_password}
-                        className="mt-2"
-                    />
-                </div>
-
-                <div>
-                    <InputLabel htmlFor="password" value="New Password" />
-
-                    <TextInput
-                        id="password"
-                        ref={passwordInput}
+                <Form.Item 
+                    label="ពាក្យសម្ងាត់ថ្មី" 
+                    validateStatus={errors.password ? 'error' : ''}
+                    help={errors.password}
+                >
+                    <Input.Password 
+                        prefix={<LockOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                         value={data.password}
                         onChange={(e) => setData('password', e.target.value)}
-                        type="password"
-                        className="mt-1 block w-full"
+                        size="large"
                         autoComplete="new-password"
+                        placeholder="បញ្ចូលពាក្យសម្ងាត់ថ្មី"
                     />
+                </Form.Item>
 
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
-
-                <div>
-                    <InputLabel
-                        htmlFor="password_confirmation"
-                        value="Confirm Password"
-                    />
-
-                    <TextInput
-                        id="password_confirmation"
+                <Form.Item 
+                    label="បញ្ជាក់ពាក្យសម្ងាត់ថ្មី" 
+                    validateStatus={errors.password_confirmation ? 'error' : ''}
+                    help={errors.password_confirmation}
+                >
+                    <Input.Password 
+                        prefix={<LockOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
                         value={data.password_confirmation}
-                        onChange={(e) =>
-                            setData('password_confirmation', e.target.value)
-                        }
-                        type="password"
-                        className="mt-1 block w-full"
+                        onChange={(e) => setData('password_confirmation', e.target.value)}
+                        size="large"
                         autoComplete="new-password"
+                        placeholder="បញ្ចូលពាក្យសម្ងាត់ថ្មីម្តងទៀត"
                     />
+                </Form.Item>
 
-                    <InputError
-                        message={errors.password_confirmation}
-                        className="mt-2"
-                    />
-                </div>
-
-                <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>Save</PrimaryButton>
-
-                    <Transition
-                        show={recentlySuccessful}
-                        enter="transition ease-in-out"
-                        enterFrom="opacity-0"
-                        leave="transition ease-in-out"
-                        leaveTo="opacity-0"
+                <Divider />
+                
+                <div className="flex justify-between items-center">
+                    <Button 
+                        type="primary" 
+                        htmlType="submit" 
+                        loading={processing}
+                        icon={<SaveOutlined />}
+                        size="large"
+                        className="khmer-text"
                     >
-                        <p className="text-sm text-gray-600">
-                            Saved.
-                        </p>
-                    </Transition>
+                        រក្សាទុក
+                    </Button>
+
+                    {recentlySuccessful && (
+                        <Space>
+                            <CheckCircleOutlined style={{ color: '#52c41a' }} />
+                            <Text type="success" className="khmer-text">បានរក្សាទុក</Text>
+                        </Space>
+                    )}
                 </div>
-            </form>
-        </section>
+            </Form>
+        </Card>
     );
 }

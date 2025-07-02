@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { 
+import {
     Layout, 
     Menu, 
     Button, 
     Avatar, 
     Dropdown, 
     theme,
-    ConfigProvider 
+    ConfigProvider,
+    Badge,
+    Space,
+    Divider
 } from 'antd';
 import {
     MenuFoldOutlined,
@@ -25,6 +28,8 @@ import {
     PercentageOutlined,
     HistoryOutlined,
     AuditOutlined,
+    SearchOutlined,
+    QuestionCircleOutlined,
 } from '@ant-design/icons';
 import khKH from 'antd/locale/km_KH';
 
@@ -136,8 +141,8 @@ export default function AdminLayout({ children, title }) {
                         theme="dark"
                         mode="inline"
                         defaultSelectedKeys={['dashboard']}
-                        items={items}
                         className="khmer-text"
+                        style={{ fontSize: '16px' }}
                         onClick={({ key }) => {
                             if (key === 'dashboard') {
                                 window.location.href = route('dashboard');
@@ -147,25 +152,112 @@ export default function AdminLayout({ children, title }) {
                                 window.location.href = route('activities.index');
                             }
                         }}
-                    />
+                    >
+                        {items.map(item => {
+                            if (item.children) {
+                                return (
+                                    <Menu.SubMenu 
+                                        key={item.key} 
+                                        icon={<span style={{ fontSize: '18px' }}>{item.icon}</span>} 
+                                        title={item.label}
+                                    >
+                                        {item.children.map(child => (
+                                            <Menu.Item 
+                                                key={child.key} 
+                                                icon={<span style={{ fontSize: '18px' }}>{child.icon}</span>}
+                                            >
+                                                {child.label}
+                                            </Menu.Item>
+                                        ))}
+                                    </Menu.SubMenu>
+                                );
+                            }
+                            return (
+                                <Menu.Item 
+                                    key={item.key} 
+                                    icon={<span style={{ fontSize: '18px' }}>{item.icon}</span>}
+                                >
+                                    {item.label}
+                                </Menu.Item>
+                            );
+                        })}
+                    </Menu>
                 </Sider>
                 <Layout style={{ marginLeft: collapsed ? 80 : 200, transition: 'all 0.2s' }}>
-                    <Header style={{ padding: 0, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Button
-                            type="text"
-                            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                            onClick={() => setCollapsed(!collapsed)}
-                            style={{ fontSize: '16px', width: 64, height: 64 }}
-                        />
-                        <div className="flex items-center mr-6">
-                            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-                                <div className="cursor-pointer flex items-center">
-                                    <Avatar icon={<UserOutlined />} />
-                                    {!collapsed && (
-                                        <span className="khmer-text ml-2">{user?.name}</span>
-                                    )}
-                                </div>
-                            </Dropdown>
+                    <Header 
+                        style={{ 
+                            padding: '0 16px', 
+                            background: '#fff', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'space-between',
+                            boxShadow: '0 1px 4px rgba(0,21,41,0.08)',
+                            height: '64px',
+                            position: 'sticky',
+                            top: 0,
+                            zIndex: 1000
+                        }}
+                    >
+                        <div className="flex items-center">
+                            <Button
+                                type="text"
+                                icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                                onClick={() => setCollapsed(!collapsed)}
+                                style={{ fontSize: '18px', width: 48, height: 48 }}
+                            />
+                            <div className="ml-4 khmer-heading hidden md:block">
+                                <span style={{ fontSize: '18px', fontWeight: 500 }}>{title || 'ប្រព័ន្ធតាមដានដី'}</span>
+                            </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-4">
+                            <Space size="large">
+
+                                
+                                <Dropdown 
+                                    menu={{ 
+                                        items: [
+                                            {
+                                                key: 'notifications',
+                                                label: <span className="khmer-text">ការជូនដំណឹងទាំងអស់</span>,
+                                                icon: <BellOutlined />
+                                            },
+                                            {
+                                                type: 'divider'
+                                            },
+                                            {
+                                                key: 'mark-all-read',
+                                                label: <span className="khmer-text">គូសចំណាំថាបានអានទាំងអស់</span>
+                                            }
+                                        ] 
+                                    }} 
+                                    placement="bottomRight"
+                                    arrow
+                                >
+                                    <Badge count={5} size="small">
+                                        <Button 
+                                            type="text" 
+                                            icon={<BellOutlined style={{ fontSize: '18px' }} />} 
+                                            style={{ height: 40, width: 40 }}
+                                        />
+                                    </Badge>
+                                </Dropdown>
+                                
+
+                                
+                                <Divider type="vertical" style={{ height: 24, margin: '0 8px' }} />
+                                
+                                <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
+                                    <div className="cursor-pointer flex items-center">
+                                        <Avatar 
+                                            icon={<UserOutlined />} 
+                                            style={{ backgroundColor: '#1890ff' }} 
+                                            size="large" 
+                                        />
+                                        <span className="khmer-text ml-2 hidden md:inline">{user?.name}</span>
+                                    </div>
+                                </Dropdown>
+                            </Space>
                         </div>
                     </Header>
                     <Content style={{ margin: '24px 16px', padding: 24, background: '#fff', minHeight: 280 }}>

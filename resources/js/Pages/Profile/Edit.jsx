@@ -1,43 +1,53 @@
 import React from 'react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AdminLayout from '@/Layouts/AdminLayout';
 import { Head } from '@inertiajs/react';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
+import { Row, Col, Tabs } from 'antd';
 
 export default function Edit({
     mustVerifyEmail,
     status,
 }) {
+    const items = [
+        {
+            key: 'profile',
+            label: <span className="khmer-text">ព័ត៌មានគណនី</span>,
+            children: (
+                <UpdateProfileInformationForm
+                    mustVerifyEmail={mustVerifyEmail}
+                    status={status}
+                />
+            ),
+        },
+        {
+            key: 'password',
+            label: <span className="khmer-text">ពាក្យសម្ងាត់</span>,
+            children: <UpdatePasswordForm />,
+        },
+        {
+            key: 'delete',
+            label: <span className="khmer-text">លុបគណនី</span>,
+            children: <DeleteUserForm />,
+        },
+    ];
+
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Profile
-                </h2>
-            }
-        >
-            <Head title="Profile" />
-
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <UpdateProfileInformationForm
-                            mustVerifyEmail={mustVerifyEmail}
-                            status={status}
-                            className="max-w-xl"
-                        />
-                    </div>
-
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <UpdatePasswordForm className="max-w-xl" />
-                    </div>
-
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <DeleteUserForm className="max-w-xl" />
-                    </div>
-                </div>
-            </div>
-        </AuthenticatedLayout>
+        <AdminLayout title="គណនី">
+            <Head title="គណនី" />
+            
+            <Row justify="center">
+                <Col xs={24} sm={24} md={20} lg={18} xl={16}>
+                    <Tabs 
+                        defaultActiveKey="profile" 
+                        items={items}
+                        size="large"
+                        className="khmer-text"
+                        tabBarStyle={{ marginBottom: 24 }}
+                    />
+                </Col>
+            </Row>
+        </AdminLayout>
     );
 }
