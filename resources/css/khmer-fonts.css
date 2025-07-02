@@ -1,0 +1,21 @@
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Koh+Santepheap:wght@300;400;700&display=swap');
+
+/* Local font files as fallback */
+@font-face {
+  font-family: 'Koh Santepheap';
+  src: url('../fonts/khmer/KohSantepheap-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.khmer-text {
+  font-family: 'Koh Santepheap', Arial, sans-serif;
+  line-height: 1.6;
+}
+
+.khmer-heading {
+  font-family: 'Koh Santepheap', Arial, sans-serif;
+  font-weight: 700;
+  line-height: 1.4;
+}

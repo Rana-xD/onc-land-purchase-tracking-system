@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Khmer fonts */
+@import './khmer-fonts.css';
+
+/* Ant Design customization */
+:root {
+  --primary-color: #1890ff;
+  --success-color: #52c41a;
+  --warning-color: #faad14;
+  --error-color: #f5222d;
+}
+
+/* Global styles */
+body {
+  font-family: 'Koh Santepheap', Arial, sans-serif;
+}
+
+/* Custom utility classes */
+.text-primary { color: var(--primary-color); }
+.text-success { color: var(--success-color); }
+.text-warning { color: var(--warning-color); }
+.text-error { color: var(--error-color); }
