@@ -16,6 +16,12 @@ Route::get('/', function () {
 // Dashboard accessible to all authenticated users
 Route::middleware(['auth', 'verified', 'web'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Dashboard API endpoints
+    Route::prefix('api/dashboard')->group(function () {
+        Route::get('/payment-overview', [DashboardController::class, 'paymentOverview']);
+        Route::get('/upcoming-payments', [DashboardController::class, 'upcomingPayments']);
+    });
 });
 
 // Routes for all authenticated users

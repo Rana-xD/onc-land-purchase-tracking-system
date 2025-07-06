@@ -1,7 +1,7 @@
 // Theme index file - exports all theme-related components and utilities
 import ThemeProvider from './ThemeProvider';
 import antdTheme from './antd-theme';
-import uiPatterns from './ui-patterns';
+import uiPatterns from './ui-patterns.jsx';
 
 // Re-export individual UI pattern components and utilities for easier imports
 export const {

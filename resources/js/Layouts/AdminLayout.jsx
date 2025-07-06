@@ -51,25 +51,23 @@ function getItem(
 
 const items = [
     getItem('ផ្ទាំងគ្រប់គ្រង', 'dashboard', <DashboardOutlined />),
-    getItem('គ្រប់គ្រងដី', 'land', <BankOutlined />, [
-        getItem('កំណត់ត្រាដី', 'land-records', <FileOutlined />),
-        getItem('ផ្ទុកឯកសារ', 'document-upload', <FileTextOutlined />),
-        getItem('ស្ថានភាពដី', 'land-status', <FileTextOutlined />),
+    getItem('ទិន្នន័យបញ្ចូល', 'data-entry', <FileTextOutlined />, [
+        getItem('ព័ត៌មានអ្នកទិញ', 'buyer-info', <UserOutlined />),
+        getItem('ព័ត៌មានអ្នកលក់', 'seller-info', <UserOutlined />),
+        getItem('ព័ត៌មានដី', 'land-info', <BankOutlined />),
     ]),
-    getItem('គ្រប់គ្រងការទូទាត់', 'payment', <DollarOutlined />, [
-        getItem('គម្រោងទូទាត់', 'payment-plans', <FileOutlined />),
-        getItem('តាមដានការទូទាត់', 'payment-tracking', <FileOutlined />),
-        getItem('របាយការណ៍ទូទាត់', 'payment-reports', <FileOutlined />),
+    getItem('បង្កើតឯកសារ', 'create-docs', <FileOutlined />, [
+        getItem('កិច្ចសន្យាលក់ដី', 'land-sale-contract', <FileTextOutlined />),
+        getItem('កិច្ចសន្យាកក់ប្រាក់', 'deposit-contract', <FileTextOutlined />),
     ]),
-    getItem('គ្រប់គ្រងកូម៉ីសិន', 'commission', <PercentageOutlined />),
-    getItem('គ្រប់គ្រងឯកសារ', 'documents', <FileTextOutlined />),
-    getItem('របាយការណ៍ និង វិភាគ', 'reports', <FileOutlined />),
-    getItem('កំណត់ត្រាសកម្មភាព', 'activities', <AuditOutlined />, [
-        getItem('សកម្មភាពរបស់ខ្ញុំ', 'my-activities', <HistoryOutlined />),
-        getItem('សកម្មភាពទាំងអស់', 'all-activities', <AuditOutlined />),
+    getItem('របាយការណ៍', 'reports', <FileOutlined />, [
+        getItem('របាយការណ៍កិច្ចសន្យា', 'contract-report', <FileOutlined />),
+        getItem('របាយការណ៍ប្រចាំខែ', 'monthly-report', <FileOutlined />),
+        getItem('របាយការណ៍ប្រចាំឆ្នាំ', 'yearly-report', <FileOutlined />),
+        getItem('របាយការណ៍ចំនួនទឹកប្រាក់ទូទាត់ហើយនិងមិនទាន់ទូទាត់', 'payment-status-report', <DollarOutlined />),
     ]),
-    getItem('ការជូនដំណឹង', 'notifications', <BellOutlined />),
-    getItem('ការកំណត់ប្រព័ន្ធ', 'settings', <SettingOutlined />),
+    getItem('គ្រប់គ្រងកម៉ីសិន', 'commission', <PercentageOutlined />),
+    getItem('គ្រប់គ្រងអ្នកប្រើប្រាស់', 'user-management', <TeamOutlined />),
 ];
 
 export default function AdminLayout({ children, title }) {
