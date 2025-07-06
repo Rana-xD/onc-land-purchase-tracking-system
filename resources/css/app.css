@@ -5,21 +5,126 @@
 /* Import Khmer fonts */
 @import './khmer-fonts.css';
 
-/* Ant Design customization */
+/* Design System Constants */
 :root {
-  --primary-color: #1890ff;
-  --success-color: #52c41a;
-  --warning-color: #faad14;
-  --error-color: #f5222d;
+  /* Colors */
+  --primary: #1890ff;
+  --success: #52c41a;
+  --warning: #faad14;
+  --error: #f5222d;
+  --text: rgba(0, 0, 0, 0.85);
+  --text-secondary: rgba(0, 0, 0, 0.45);
+  --border: #d9d9d9;
+  --background: #f0f2f5;
+
+  /* Spacing */
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Typography */
+  --font-khmer: 'Koh Santepheap', sans-serif;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+
+  /* Layout */
+  --header-height: 64px;
+  --sidebar-width: 256px;
+  --content-max-width: 1200px;
+
+  /* Components */
+  --border-radius: 4px;
+  --card-padding: 16px;
+  --modal-padding: 24px;
 }
 
 /* Global styles */
 body {
-  font-family: 'Koh Santepheap', Arial, sans-serif;
+  font-family: var(--font-khmer), Arial, sans-serif;
+  color: var(--text);
+  background-color: var(--background);
+  font-size: var(--font-size-base);
+  line-height: 1.6;
 }
 
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-khmer);
+  color: var(--text);
+  margin-bottom: var(--spacing-md);
+}
+
+h1 { font-size: 28px; }
+h2 { font-size: 24px; }
+h3 { font-size: 20px; }
+h4 { font-size: 18px; }
+h5 { font-size: 16px; }
+h6 { font-size: 14px; }
+
 /* Custom utility classes */
-.text-primary { color: var(--primary-color); }
-.text-success { color: var(--success-color); }
-.text-warning { color: var(--warning-color); }
-.text-error { color: var(--error-color); }
+.text-primary { color: var(--primary); }
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.text-error { color: var(--error); }
+.text-secondary { color: var(--text-secondary); }
+
+.bg-primary { background-color: var(--primary); }
+.bg-success { background-color: var(--success); }
+.bg-warning { background-color: var(--warning); }
+.bg-error { background-color: var(--error); }
+.bg-background { background-color: var(--background); }
+
+/* Spacing utilities */
+.p-xs { padding: var(--spacing-xs); }
+.p-sm { padding: var(--spacing-sm); }
+.p-md { padding: var(--spacing-md); }
+.p-lg { padding: var(--spacing-lg); }
+.p-xl { padding: var(--spacing-xl); }
+
+.m-xs { margin: var(--spacing-xs); }
+.m-sm { margin: var(--spacing-sm); }
+.m-md { margin: var(--spacing-md); }
+.m-lg { margin: var(--spacing-lg); }
+.m-xl { margin: var(--spacing-xl); }
+
+/* Layout utilities */
+.container {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+/* Responsive utilities */
+@media (max-width: 576px) {
+  .hide-xs {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .hide-sm {
+    display: none;
+  }
+}
+
+@media (max-width: 992px) {
+  .hide-md {
+    display: none;
+  }
+}
+
+@media (max-width: 1200px) {
+  .hide-lg {
+    display: none;
+  }
+}
+
+@media (max-width: 1600px) {
+  .hide-xl {
+    display: none;
+  }
+}
