@@ -50,7 +50,11 @@ function getItem(
 }
 
 const items = [
-    getItem('ផ្ទាំងគ្រប់គ្រង', 'dashboard', <DashboardOutlined />),
+    getItem(
+        <Link href={route('dashboard')}>ផ្ទាំងគ្រប់គ្រង</Link>, 
+        'dashboard', 
+        <DashboardOutlined />
+    ),
     getItem('ទិន្នន័យបញ្ចូល', 'data-entry', <FileTextOutlined />, [
         getItem('ព័ត៌មានអ្នកទិញ', 'buyer-info', <UserOutlined />),
         getItem('ព័ត៌មានអ្នកលក់', 'seller-info', <UserOutlined />),
@@ -67,7 +71,11 @@ const items = [
         getItem('របាយការណ៍ចំនួនទឹកប្រាក់ទូទាត់ហើយនិងមិនទាន់ទូទាត់', 'payment-status-report', <DollarOutlined />),
     ]),
     getItem('គ្រប់គ្រងកម៉ីសិន', 'commission', <PercentageOutlined />),
-    getItem('គ្រប់គ្រងអ្នកប្រើប្រាស់', 'user-management', <TeamOutlined />),
+    getItem(
+        <Link href={route('users.management')}>គ្រប់គ្រងអ្នកប្រើប្រាស់</Link>, 
+        'user-management', 
+        <TeamOutlined />
+    ),
 ];
 
 export default function AdminLayout({ children, title }) {
@@ -92,11 +100,6 @@ export default function AdminLayout({ children, title }) {
         },
         {
             key: '3',
-            label: <Link href={route('activities.my')} className="khmer-text">សកម្មភាពរបស់ខ្ញុំ</Link>,
-            icon: <HistoryOutlined />,
-        },
-        {
-            key: '4',
             label: (
                 <Link href={route('logout')} method="post" as="button" className="khmer-text w-full text-left">
                     ចាកចេញ

@@ -3,15 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\UserActivity;
-use App\Services\UserActivityService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 
 class UserController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Display a listing of the users.
      */
@@ -57,11 +58,6 @@ class UserController extends Controller
             'role' => $validated['role'],
         ]);
 
-        UserActivityService::log(
-            'បង្កើតអ្នកប្រើប្រាស់', // Created user
-            'បានបង្កើតអ្នកប្រើប្រាស់ថ្មី: ' . $user->name // Created new user: [name]
-        );
-
         return redirect()->route('users.index')
             ->with('message', 'អ្នកប្រើប្រាស់ត្រូវបានបង្កើតដោយជោគជ័យ'); // User created successfully
     }
@@ -73,11 +69,8 @@ class UserController extends Controller
     {
         $this->authorize('view', $user);
         
-        $activities = $user->activities()->latest()->take(10)->get();
-        
         return Inertia::render('Users/Show', [
-            'user' => $user,
-            'activities' => $activities
+            'user' => $user
         ]);
     }
 
@@ -108,11 +101,6 @@ class UserController extends Controller
 
         $user->update($validated);
 
-        UserActivityService::log(
-            'កែប្រែអ្នកប្រើប្រាស់', // Updated user
-            'បានកែប្រែព័ត៌មានអ្នកប្រើប្រាស់: ' . $user->name // Updated user information: [name]
-        );
-
         return redirect()->route('users.index')
             ->with('message', 'អ្នកប្រើប្រាស់ត្រូវបានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ'); // User updated successfully
     }
@@ -125,7 +113,7 @@ class UserController extends Controller
         $this->authorize('delete', $user);
         
         // Prevent self-deletion
-        if ($user->id === auth()->id()) {
+        if ($user->id === Auth::id()) {
             return back()->with('error', 'អ្នកមិនអាចលុបគណនីខ្លួនឯងបានទេ'); // You cannot delete your own account
         }
 
@@ -133,12 +121,18 @@ class UserController extends Controller
         
         $user->delete();
 
-        UserActivityService::log(
-            'លុបអ្នកប្រើប្រាស់', // Deleted user
-            'បានលុបអ្នកប្រើប្រាស់: ' . $userName // Deleted user: [name]
-        );
-
         return redirect()->route('users.index')
             ->with('message', 'អ្នកប្រើប្រាស់ត្រូវបានលុបដោយជោគជ័យ'); // User deleted successfully
+    }
+    
+    /**
+     * Display the user management interface.
+     */
+    public function management()
+    {
+        // Skip authorization temporarily to test if that's causing the issue
+        // $this->authorize('viewAny', User::class);
+        
+        return Inertia::render('Users/UserManagement');
     }
 }

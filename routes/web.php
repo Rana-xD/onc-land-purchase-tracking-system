@@ -1,16 +1,17 @@
 <?php
 
+use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\UserActivityController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // Redirect root to dashboard if authenticated, otherwise to login page
 Route::get('/', function () {
-    return auth()->check() ? redirect('/dashboard') : Inertia::render('Auth/Login');
+    return Auth::check() ? redirect('/dashboard') : Inertia::render('Auth/Login');
 });
 
 // Dashboard accessible to all authenticated users
@@ -31,16 +32,24 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
-    // User activity routes for all users
-    Route::get('/my-activities', [UserActivityController::class, 'myActivities'])->name('activities.my');
+    // User routes
     
     // User routes with role-based access control
     Route::middleware('role:administrator,manager')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
         
-        // User activity logs - accessible to administrators and managers
-        Route::get('/activities', [UserActivityController::class, 'index'])->name('activities.index');
+        // Administrator and manager routes
+    });
+    
+    // User management page - with auth middleware only
+    Route::middleware('auth')->get('/user-management', function () {
+        return Inertia::render('Users/UserManagement');
+    })->name('users.management');
+    
+    // Simple test route to isolate the issue
+    Route::get('/test-page', function () {
+        return Inertia::render('Dashboard');
     });
     
     // Administrator-only routes
@@ -48,6 +57,19 @@ Route::middleware('auth')->group(function () {
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    });
+    
+    // User Management API Routes
+    Route::prefix('api')->middleware(['auth', 'verified'])->group(function () {
+        // User management endpoints
+        Route::prefix('users')->group(function () {
+            Route::get('/', [UserApiController::class, 'index']);
+            Route::get('/{id}', [UserApiController::class, 'show']);
+            Route::post('/', [UserApiController::class, 'store']);
+            Route::put('/{id}', [UserApiController::class, 'update']);
+            Route::delete('/{id}', [UserApiController::class, 'destroy']);
+            Route::post('/{id}/toggle-status', [UserApiController::class, 'toggleStatus']);
+        });
     });
 });
 

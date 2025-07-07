@@ -19,7 +19,7 @@ export default function UserShow({ user, activities, auth }) {
     const getRoleName = (role) => {
         switch (role) {
             case 'administrator':
-                return 'អ្នកគ្រប់គ្រងប្រព័ន្ធ';
+                return 'អេតមីន';
             case 'manager':
                 return 'អ្នកគ្រប់គ្រង';
             default:

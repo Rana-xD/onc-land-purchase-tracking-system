@@ -3,23 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\UserActivity;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
     /**
-     * Display the dashboard with statistics and recent activities.
+     * Display the dashboard with statistics.
      */
     public function index()
     {
-        // Get recent activities (last 10)
-        $recentActivities = UserActivity::with('user')
-            ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get();
-        
         // Get user count
         $userCount = User::count();
         
@@ -36,7 +29,6 @@ class DashboardController extends Controller
                 'paymentTotal' => $paymentTotal,
                 'documentCount' => $documentCount,
             ],
-            'recentActivities' => $recentActivities,
         ]);
     }
     

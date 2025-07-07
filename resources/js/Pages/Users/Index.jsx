@@ -172,7 +172,7 @@ export default function UsersIndex({ users, auth }) {
     const getRoleName = (role) => {
         switch (role) {
             case 'administrator':
-                return 'អ្នកគ្រប់គ្រងប្រព័ន្ធ';
+                return 'អេតមីន';
             case 'manager':
                 return 'អ្នកគ្រប់គ្រង';
             default:
@@ -213,7 +213,7 @@ export default function UsersIndex({ users, auth }) {
                 </Tag>
             ),
             filters: [
-                { text: 'អ្នកគ្រប់គ្រងប្រព័ន្ធ', value: 'administrator' },
+                { text: 'អេតមីន', value: 'administrator' },
                 { text: 'អ្នកគ្រប់គ្រង', value: 'manager' },
                 { text: 'បុគ្គលិក', value: 'staff' },
             ],

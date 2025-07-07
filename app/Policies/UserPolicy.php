@@ -14,7 +14,7 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin() || $user->isManager();
+        return $user->role === 'administrator' || $user->role === 'manager';
     }
 
     /**
@@ -22,7 +22,7 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-        return $user->isAdmin() || $user->isManager() || $user->id === $model->id;
+        return $user->role === 'administrator' || $user->role === 'manager' || $user->id === $model->id;
     }
 
     /**
@@ -30,7 +30,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isAdmin();
+        return $user->role === 'administrator';
     }
 
     /**
@@ -39,13 +39,13 @@ class UserPolicy
     public function update(User $user, User $model): bool
     {
         // Admin can update any user
-        if ($user->isAdmin()) {
+        if ($user->role === 'administrator') {
             return true;
         }
         
         // Manager can update staff but not other managers or admins
-        if ($user->isManager()) {
-            return $model->isStaff();
+        if ($user->role === 'manager') {
+            return $model->role === 'staff';
         }
         
         // Users can update their own profile
@@ -58,13 +58,36 @@ class UserPolicy
     public function delete(User $user, User $model): bool
     {
         // Admin can delete any user except themselves (handled in controller)
-        if ($user->isAdmin()) {
+        if ($user->role === 'administrator') {
             return true;
         }
         
         // Manager can delete staff but not other managers or admins
-        if ($user->isManager()) {
-            return $model->isStaff();
+        if ($user->role === 'manager') {
+            return $model->role === 'staff';
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Determine whether the user can toggle the active status of the model.
+     */
+    public function toggleStatus(User $user, User $model): bool
+    {
+        // Prevent users from deactivating themselves
+        if ($user->id === $model->id) {
+            return false;
+        }
+        
+        // Admin can toggle status for any user except themselves
+        if ($user->role === 'administrator') {
+            return true;
+        }
+        
+        // Manager can toggle status for staff only
+        if ($user->role === 'manager') {
+            return $model->role === 'staff';
         }
         
         return false;

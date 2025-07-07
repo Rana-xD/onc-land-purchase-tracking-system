@@ -4,13 +4,14 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -20,9 +21,9 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'username',
-        'email',
         'password',
         'role',
+        'is_active',
     ];
 
     /**
@@ -45,16 +46,11 @@ class User extends Authenticatable
         return [
             'password' => 'hashed',
             'role' => 'string',
+            'is_active' => 'boolean',
+            'deleted_at' => 'datetime',
         ];
     }
     
-    /**
-     * Get the user activities for the user.
-     */
-    public function activities()
-    {
-        return $this->hasMany(UserActivity::class);
-    }
     
     /**
      * Check if the user has the given role.
