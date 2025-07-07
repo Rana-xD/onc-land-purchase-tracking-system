@@ -82,6 +82,15 @@ export default function AdminLayout({ children, title }) {
     const [collapsed, setCollapsed] = useState(false);
     const { defaultAlgorithm, darkAlgorithm } = theme;
     const { user } = usePage().props.auth;
+    const { url } = usePage();
+    
+    // Determine which menu item should be selected based on the current URL
+    const getSelectedKeys = () => {
+        if (url.startsWith('/dashboard')) return ['dashboard'];
+        if (url.startsWith('/user-management')) return ['user-management'];
+        // Add more conditions for other routes as needed
+        return [];
+    };
 
     const userMenuItems = [
         {
@@ -141,48 +150,11 @@ export default function AdminLayout({ children, title }) {
                     <Menu
                         theme="dark"
                         mode="inline"
-                        defaultSelectedKeys={['dashboard']}
+                        selectedKeys={getSelectedKeys()}
+                        items={items}
                         className="khmer-text"
                         style={{ fontSize: '16px' }}
-                        onClick={({ key }) => {
-                            if (key === 'dashboard') {
-                                window.location.href = route('dashboard');
-                            } else if (key === 'my-activities') {
-                                window.location.href = route('activities.my');
-                            } else if (key === 'all-activities') {
-                                window.location.href = route('activities.index');
-                            }
-                        }}
-                    >
-                        {items.map(item => {
-                            if (item.children) {
-                                return (
-                                    <Menu.SubMenu 
-                                        key={item.key} 
-                                        icon={<span style={{ fontSize: '18px' }}>{item.icon}</span>} 
-                                        title={item.label}
-                                    >
-                                        {item.children.map(child => (
-                                            <Menu.Item 
-                                                key={child.key} 
-                                                icon={<span style={{ fontSize: '18px' }}>{child.icon}</span>}
-                                            >
-                                                {child.label}
-                                            </Menu.Item>
-                                        ))}
-                                    </Menu.SubMenu>
-                                );
-                            }
-                            return (
-                                <Menu.Item 
-                                    key={item.key} 
-                                    icon={<span style={{ fontSize: '18px' }}>{item.icon}</span>}
-                                >
-                                    {item.label}
-                                </Menu.Item>
-                            );
-                        })}
-                    </Menu>
+                    />
                 </Sider>
                 <Layout style={{ marginLeft: collapsed ? 80 : 200, transition: 'all 0.2s' }}>
                     <Header 
