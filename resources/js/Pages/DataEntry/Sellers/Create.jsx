@@ -35,16 +35,20 @@ export default function Create() {
         {
             title: 'បញ្ចូលព័ត៌មាន',
             icon: <FormOutlined />,
-            content: <SellerForm formData={formData} setFormData={setFormData} displayImage={displayImage} />,
-        },
-        {
-            title: 'បញ្ជាក់',
-            icon: <CheckCircleOutlined />,
             content: (
-                <div className="confirmation-content">
-                    <p>សូមពិនិត្យមើលព័ត៌មានអ្នកលក់មុនពេលរក្សាទុក។</p>
-                    <p>ចំនួនឯកសារបានបញ្ចូល៖ {fileList.length}</p>
-                </div>
+                <>
+                    <SellerForm formData={formData} setFormData={setFormData} displayImage={displayImage} />
+                    <div className="mt-6 text-right">
+                        <Button 
+                            type="primary" 
+                            onClick={handleSubmit}
+                            loading={loading}
+                            disabled={!formData.name || !formData.identity_number || fileList.length === 0}
+                        >
+                            រក្សាទុក
+                        </Button>
+                    </div>
+                </>
             ),
         },
     ];
@@ -148,15 +152,7 @@ export default function Create() {
                                     បន្ទាប់
                                 </Button>
                             )}
-                            {current === steps.length - 1 && (
-                                <Button 
-                                    type="primary" 
-                                    onClick={handleSubmit}
-                                    loading={loading}
-                                >
-                                    រក្សាទុក
-                                </Button>
-                            )}
+
                         </Col>
                     </Row>
                 </div>

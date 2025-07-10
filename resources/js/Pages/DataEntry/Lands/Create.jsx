@@ -40,23 +40,24 @@ export default function Create() {
         {
             title: 'បញ្ចូលព័ត៌មាន',
             icon: <FormOutlined />,
-            content: <LandForm 
-                formData={formData} 
-                setFormData={setFormData} 
-                displayImage={fileList.find(file => file.isDisplay)}
-            />,
-        },
-        {
-            title: 'បញ្ជាក់',
-            icon: <CheckCircleOutlined />,
             content: (
-                <div className="confirmation-content">
-                    <p>សូមពិនិត្យមើលព័ត៌មានដីមុនពេលរក្សាទុក។</p>
-                    <p>ចំនួនឯកសារបានបញ្ចូល៖ {fileList.length}</p>
-                    {fileList.find(file => file.isDisplay) && (
-                        <p>រូបភាពបង្ហាញ៖ {fileList.find(file => file.isDisplay).fileName || fileList.find(file => file.isDisplay).name}</p>
-                    )}
-                </div>
+                <>
+                    <LandForm 
+                        formData={formData} 
+                        setFormData={setFormData} 
+                        displayImage={fileList.find(file => file.isDisplay)}
+                    />
+                    <div className="mt-6 text-right">
+                        <Button 
+                            type="primary" 
+                            onClick={handleSubmit}
+                            loading={loading}
+                            disabled={!formData.title_deed_number || !formData.location || fileList.length === 0}
+                        >
+                            រក្សាទុក
+                        </Button>
+                    </div>
+                </>
             ),
         },
     ];
@@ -154,15 +155,7 @@ export default function Create() {
                                     បន្ទាប់
                                 </Button>
                             )}
-                            {current === steps.length - 1 && (
-                                <Button 
-                                    type="primary" 
-                                    onClick={handleSubmit}
-                                    loading={loading}
-                                >
-                                    រក្សាទុក
-                                </Button>
-                            )}
+
                         </Col>
                     </Row>
                 </div>

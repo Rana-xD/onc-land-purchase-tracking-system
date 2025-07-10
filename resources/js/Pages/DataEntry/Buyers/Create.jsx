@@ -11,7 +11,6 @@ import messageUtil from '@/utils/message';
 export default function Create() {
     const [current, setCurrent] = useState(0);
     const [fileList, setFileList] = useState([]);
-    const [displayImage, setDisplayImage] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
         sex: 'male',
@@ -22,15 +21,18 @@ export default function Create() {
     });
     const [loading, setLoading] = useState(false);
     
-    // Update display image whenever fileList changes
+    // The display image is now derived directly from the fileList state.
+    // Make sure to preserve all properties including base64 data
+    const displayImage = fileList.find(file => file.isDisplay) || fileList[0] || null;
+    
+    // Debug the display image object to ensure base64 data is present
     useEffect(() => {
-        console.log('FileList updated:', fileList);
-        const newDisplayImage = fileList.find(file => file.isDisplay);
-        console.log('New display image:', newDisplayImage);
-        if (newDisplayImage) {
-            setDisplayImage(newDisplayImage);
+        if (displayImage) {
+            console.log('Display image in Create.jsx:', displayImage);
+            console.log('Base64 data present:', !!displayImage.base64);
+            console.log('URL present:', !!displayImage.url);
         }
-    }, [fileList]);
+    }, [displayImage]);
 
     const steps = [
         {
@@ -38,11 +40,9 @@ export default function Create() {
             icon: <UploadOutlined />,
             content: <FileUpload 
                 category="buyer"
-                fileList={fileList} 
+                fileList={fileList} // Pass fileList as a prop
                 onFilesChange={(files) => {
-                    console.log('Files received from FileUpload:', files);
-                    // Preserve all file information
-                    setFileList(files);
+                    setFileList(files); // Update the state in the parent
                 }} 
                 maxFiles={4}
             />,
@@ -50,23 +50,24 @@ export default function Create() {
         {
             title: 'បញ្ចូលព័ត៌មាន',
             icon: <FormOutlined />,
-            content: <BuyerForm 
-                formData={formData} 
-                setFormData={setFormData} 
-                displayImage={displayImage}
-            />,
-        },
-        {
-            title: 'បញ្ជាក់',
-            icon: <CheckCircleOutlined />,
             content: (
-                <div className="confirmation-content">
-                    <p>សូមពិនិត្យមើលព័ត៌មានអ្នកទិញមុនពេលរក្សាទុក។</p>
-                    <p>ចំនួនឯកសារបានបញ្ចូល៖ {fileList.length}</p>
-                    {fileList.find(file => file.isDisplay) && (
-                        <p>រូបភាពបង្ហាញ៖ {fileList.find(file => file.isDisplay).fileName || fileList.find(file => file.isDisplay).name}</p>
-                    )}
-                </div>
+                <>
+                    <BuyerForm 
+                        formData={formData} 
+                        setFormData={setFormData} 
+                        displayImage={displayImage}
+                    />
+                    <div className="mt-6 text-right">
+                        <Button 
+                            type="primary" 
+                            onClick={handleSubmit}
+                            loading={loading}
+                            disabled={!formData.name || !formData.identity_number || fileList.length === 0}
+                        >
+                            រក្សាទុក
+                        </Button>
+                    </div>
+                </>
             ),
         },
     ];
@@ -103,7 +104,6 @@ export default function Create() {
                 message.error('មានបញ្ហាក្នុងការរក្សាទុកព័ត៌មានអ្នកទិញ។');
             }
         } catch (error) {
-            console.error('Error saving buyer:', error);
             message.error('មានបញ្ហាក្នុងការរក្សាទុកព័ត៌មានអ្នកទិញ។');
         } finally {
             setLoading(false);
@@ -164,15 +164,7 @@ export default function Create() {
                                     បន្ទាប់
                                 </Button>
                             )}
-                            {current === steps.length - 1 && (
-                                <Button 
-                                    type="primary" 
-                                    onClick={handleSubmit}
-                                    loading={loading}
-                                >
-                                    រក្សាទុក
-                                </Button>
-                            )}
+
                         </Col>
                     </Row>
                 </div>

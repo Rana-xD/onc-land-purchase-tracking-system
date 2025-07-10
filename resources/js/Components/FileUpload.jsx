@@ -81,13 +81,13 @@ export default function FileUpload({
     const [previewTitle, setPreviewTitle] = useState('');
     
     useEffect(() => {
-        if (initialFiles && initialFiles.length > 0) {
+        if (initialFiles && initialFiles.length > 0 && fileList.length === 0) {
             const files = initialFiles.map(file => ({
                 uid: file.id,
                 name: file.file_name,
                 status: 'done',
                 url: `/storage/${file.file_path}`,
-                response: { id: file.id },
+                response: { id: file.id, path: file.file_path },
                 isDisplay: file.is_display,
                 isExisting: true,
             }));
@@ -141,8 +141,44 @@ export default function FileUpload({
         
         try {
             setUploading(true);
-            const response = await axios.post('/api/files/upload-temp', formData);
-            onSuccess(response.data);
+            
+            // Convert image to base64 first for reliable display
+            if (file.type.startsWith('image/')) {
+                const base64Promise = new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                });
+                
+                try {
+                    const base64Data = await base64Promise;
+                    
+                    // Upload to server
+                    const response = await axios.post('/api/files/upload-temp', formData);
+                    
+                    // Enhance the response with the base64 data
+                    const enhancedResponse = {
+                        ...response.data,
+                        file: {
+                            ...response.data.file,
+                            base64: base64Data,  // Store base64 data for reliable display
+                            url: base64Data,     // Use base64 as URL for immediate preview
+                        }
+                    };
+                    
+                    onSuccess(enhancedResponse);
+                    console.log('Image uploaded and converted to base64 successfully');
+                } catch (error) {
+                    console.error('Error converting image to base64:', error);
+                    onError('Base64 conversion failed');
+                }
+            } else {
+                // For non-image files, proceed normally
+                const response = await axios.post('/api/files/upload-temp', formData);
+                onSuccess(response.data);
+            }
+            
             messageUtil.success('ឯកសារត្រូវបានផ្ទុកឡើងដោយជោគជ័យ');
         } catch (error) {
             console.error('Error uploading file:', error);
@@ -154,45 +190,49 @@ export default function FileUpload({
     };
 
     const handleChange = ({ fileList: newFileList }) => {
-        // Filter out files with error status
-        const filteredList = newFileList.filter(file => file.status !== 'error');
+        // As uploads complete, AntD provides the server response in the file object.
+        // We update the file object to use the permanent path from the response as its URL.
+        const updatedList = newFileList.map(file => {
+            // First check if we have base64 data from our enhanced upload response
+            if (file.status === 'done' && file.response && file.response.file?.base64) {
+                // Use the base64 data as the URL for reliable display
+                return { ...file, url: file.response.file.base64 };
+            }
+            // Then check for server path
+            else if (file.status === 'done' && file.response) {
+                const tempPath = file.response.file?.tempPath || file.response.path;
+                if (tempPath) {
+                    // Clone the file object and replace the temporary blob/data URL with the permanent one.
+                    return { ...file, url: `/storage/${tempPath}` };
+                }
+            }
+            // If the file is still uploading, it might have a temporary blob url.
+            // If not, let's ensure it has one for preview.
+            if (!file.url && file.originFileObj) {
+                return { ...file, url: URL.createObjectURL(file.originFileObj) };
+            }
+            return file;
+        });
+
+        const filteredList = updatedList.filter(file => file.status !== 'error');
         setFileList(filteredList);
         
         // Notify parent component of changes
-        const files = filteredList.map(file => {
-            if (file.isExisting) {
-                return {
-                    id: file.response?.id,
-                    isExisting: true,
-                    isDisplay: file.isDisplay || false,
-                    url: file.url,  // Preserve URL for existing files
-                    response: file.response  // Preserve the complete response
-                };
-            } else {
-                // For new files, preserve all important information
-                // Create a direct URL to the uploaded file - NEVER use just the filename
-                // Always use the complete path from the response with the timestamp prefix
-                const fileUrl = file.response?.file?.url || 
-                               (file.response?.file?.tempPath ? `/storage/${file.response.file.tempPath}` : null) ||
-                               (file.response?.path ? `/storage/${file.response.path}` : null);
-                
-                console.log('Creating file URL:', fileUrl, 'from file:', file);
-                
-                return {
-                    tempPath: file.response?.file?.tempPath || file.response?.path,
-                    url: fileUrl,
-                    fileName: file.name,
-                    isDisplay: file.isDisplay || false,
-                    response: file.response  // Preserve the complete response
-                };
-            }
-        });
+        const filesForParent = filteredList.map(file => ({
+            id: file.response?.id,
+            isExisting: file.isExisting || false,
+            tempPath: file.response?.file?.tempPath || file.response?.path,
+            url: file.url, // This should now be consistently present.
+            base64: file.response?.file?.base64, // Include base64 data if available
+            fileName: file.name,
+            isDisplay: file.isDisplay || false,
+            response: file.response,
+        }));
         
-        console.log('Files being sent to parent component:', files);
+        console.log('Files being sent to parent component:', filesForParent);
         
-        // Only call onFilesChange if it exists and is a function
         if (onFilesChange && typeof onFilesChange === 'function') {
-            onFilesChange(files);
+            onFilesChange(filesForParent);
         }
     };
 
@@ -220,120 +260,104 @@ export default function FileUpload({
 
     const setAsDisplay = async (file) => {
         console.log('Setting as display image:', file);
-        
-        // Store the original file object to ensure we have all the data
+
+        // Find the original file with all its data
         const originalFile = fileList.find(f => f.uid === file.uid);
-        console.log('Original file from fileList:', originalFile);
+        console.log('Original file data:', originalFile);
         
-        // Extract the complete path information from the original file
-        const tempPath = originalFile?.response?.file?.tempPath || originalFile?.response?.path;
-        const fileUrl = originalFile?.response?.file?.url || 
-                      (originalFile?.response?.file?.tempPath ? `/storage/${originalFile.response.file.tempPath}` : null) ||
-                      (originalFile?.response?.path ? `/storage/${originalFile.response.path}` : null);
+        // Extract base64 data from all possible sources
+        const base64Data = originalFile?.response?.file?.base64 || 
+                         (originalFile?.url?.startsWith('data:') ? originalFile.url : null) ||
+                         originalFile?.base64;
         
-        console.log('Extracted tempPath:', tempPath);
-        console.log('Extracted fileUrl:', fileUrl);
+        console.log('Base64 data found:', !!base64Data);
+
+        const newFileList = fileList.map(f => ({
+            ...f,
+            isDisplay: f.uid === file.uid
+        }));
+
+        setFileList(newFileList);
+
+        const filesForParent = newFileList.map(f => {
+            // Start with a complete result object with all possible data sources
+            const result = {
+                id: f.response?.id,
+                isExisting: f.isExisting || false,
+                tempPath: f.response?.file?.tempPath || f.response?.path,
+                url: f.url, // The URL is now reliable from the file object itself
+                base64: f.response?.file?.base64 || (f.url?.startsWith('data:') ? f.url : null) || f.base64,
+                fileName: f.name,
+                isDisplay: f.isDisplay,
+                response: f.response
+            };
+            
+            // If this is the display image, ensure it has all the data we need
+            if (f.isDisplay) {
+                console.log('New file object for display:', result);
+                
+                // For display images, make sure we have a valid URL by checking all possible sources
+                if (!result.url || !result.url.startsWith('data:')) {
+                    // Try base64 first
+                    if (result.base64) {
+                        result.url = result.base64;
+                        console.log('Using base64 data as URL for display image');
+                    }
+                    // Then try tempPath
+                    else if (result.tempPath) {
+                        result.url = `/storage/${result.tempPath}`;
+                        console.log('Using tempPath as URL for display image');
+                    }
+                    // If we still don't have a URL and have an originFileObj, create one
+                    else if (f.originFileObj) {
+                        // Create a base64 URL synchronously if possible
+                        if (window.FileReader) {
+                            const reader = new FileReader();
+                            reader.readAsDataURL(f.originFileObj);
+                            reader.onload = () => {
+                                // This happens asynchronously, so we need to update the parent again
+                                const updatedFiles = filesForParent.map(file => {
+                                    if (file.isDisplay) {
+                                        return {
+                                            ...file,
+                                            url: reader.result,
+                                            base64: reader.result
+                                        };
+                                    }
+                                    return file;
+                                });
+                                
+                                console.log('Created base64 URL for display image');
+                                
+                                // Update the parent with the new URL
+                                if (onFilesChange && typeof onFilesChange === 'function') {
+                                    onFilesChange(updatedFiles);
+                                }
+                            };
+                        }
+                    }
+                }
+            }
+
+            return result;
+        });
         
+        console.log('Files being sent to parent component (new):', filesForParent);
+
+        if (onFilesChange && typeof onFilesChange === 'function') {
+            onFilesChange(filesForParent);
+        }
+
         if (file.isExisting && referenceId) {
             try {
                 await axios.put(`/api/${category}s/${referenceId}/documents/${file.response.id}/set-display`);
-                
-                // Update file list to reflect the change
-                const newFileList = fileList.map(f => ({
-                    ...f,
-                    isDisplay: f.uid === file.uid
-                }));
-                
-                setFileList(newFileList);
-                
-                // Notify parent component
-                const files = newFileList.map(f => {
-                    if (f.isExisting) {
-                        return {
-                            id: f.response.id,
-                            isExisting: true,
-                            isDisplay: f.uid === file.uid,
-                            url: f.url,  // Preserve URL for existing files
-                            response: f.response  // Preserve the complete response
-                        };
-                    } else {
-                        return {
-                            tempPath: f.response?.file?.tempPath || f.response?.path,
-                            url: f.response?.file?.url || `/storage/${f.response?.path}`,  // Ensure URL is properly formatted
-                            fileName: f.name,
-                            isDisplay: f.uid === file.uid,
-                            response: f.response  // Preserve the complete response
-                        };
-                    }
-                });
-                
-                console.log('Files being sent to parent component (existing):', files);
-                
-                if (onFilesChange && typeof onFilesChange === 'function') {
-                    onFilesChange(files);
-                }
                 messageUtil.success('ឯកសារត្រូវបានកំណត់ជាឯកសារបង្ហាញដោយជោគជ័យ');
             } catch (error) {
                 console.error('Error setting display document:', error);
                 messageUtil.error('មានបញ្ហាក្នុងការកំណត់ឯកសារបង្ហាញ');
+                setFileList(fileList); // Revert on failure
             }
         } else {
-            // For new files, just update the state
-            const newFileList = fileList.map(f => ({
-                ...f,
-                isDisplay: f.uid === file.uid
-            }));
-            
-            setFileList(newFileList);
-            
-            // Notify parent component
-            const files = newFileList.map(f => {
-                if (f.isExisting) {
-                    return {
-                        id: f.response.id,
-                        isExisting: true,
-                        isDisplay: f.uid === file.uid,
-                        url: f.url,  // Preserve URL for existing files
-                        response: f.response  // Preserve the complete response
-                    };
-                } else {
-                    // Find the original file with complete data
-                    const origFile = fileList.find(orig => orig.uid === f.uid);
-                    
-                    // Create a direct URL to the uploaded file - NEVER use just the filename
-                    // Always use the complete path from the response
-                    const fileUrl = origFile?.response?.file?.url || 
-                                   (origFile?.response?.file?.tempPath ? `/storage/${origFile.response.file.tempPath}` : null) ||
-                                   (origFile?.response?.path ? `/storage/${origFile.response.path}` : null)
-                    
-                    console.log('Creating display image URL:', fileUrl, 'from file:', origFile);
-                    
-                    // For new files, ensure we have the complete path information
-                    const result = {
-                        tempPath: origFile?.response?.file?.tempPath || origFile?.response?.path,
-                        url: fileUrl,
-                        fileName: f.name,
-                        isDisplay: f.uid === file.uid,
-                        response: origFile?.response  // Preserve the complete response
-                    };
-                    
-                    // If this is the display image, make sure it has the tempPath and url
-                    if (f.uid === file.uid) {
-                        result.tempPath = tempPath || result.tempPath;
-                        result.url = fileUrl || result.url;
-                        console.log('Setting display image with tempPath and url:', result);
-                    }
-                    
-                    console.log('New file object for display:', result);
-                    return result;
-                }
-            });
-            
-            console.log('Files being sent to parent component (new):', files);
-            
-            if (onFilesChange && typeof onFilesChange === 'function') {
-                onFilesChange(files);
-            }
             messageUtil.success('ឯកសារត្រូវបានកំណត់ជាឯកសារបង្ហាញដោយជោគជ័យ');
         }
     };
