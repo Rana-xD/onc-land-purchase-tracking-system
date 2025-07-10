@@ -37,8 +37,16 @@ class Buyer extends Model
      */
     public function documents()
     {
-        return $this->hasMany(Document::class, 'reference_id')
-            ->where('category', 'buyer');
+        // Support both relationship types during transition
+        $polymorphicDocs = $this->morphMany(Document::class, 'documentable');
+        
+        // If no polymorphic documents exist yet, fall back to the old relationship
+        if ($polymorphicDocs->count() === 0) {
+            return $this->hasMany(Document::class, 'reference_id')
+                ->where('category', 'buyer');
+        }
+        
+        return $polymorphicDocs;
     }
 
     /**
@@ -46,8 +54,17 @@ class Buyer extends Model
      */
     public function displayDocument()
     {
-        return $this->hasOne(Document::class, 'reference_id')
-            ->where('category', 'buyer')
+        // Support both relationship types during transition
+        $polymorphicDoc = $this->morphOne(Document::class, 'documentable')
             ->where('is_display', true);
+        
+        // If no polymorphic display document exists yet, fall back to the old relationship
+        if ($polymorphicDoc->count() === 0) {
+            return $this->hasOne(Document::class, 'reference_id')
+                ->where('category', 'buyer')
+                ->where('is_display', true);
+        }
+        
+        return $polymorphicDoc;
     }
 }

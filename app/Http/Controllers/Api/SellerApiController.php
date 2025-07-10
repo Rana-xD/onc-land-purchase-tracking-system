@@ -294,8 +294,8 @@ class SellerApiController extends Controller
                         'is_display' => $isDisplay,
                     ]);
                 }
-            } elseif (isset($document['tempPath']) && isset($document['fileName'])) {
-                // Create new document from temp file
+            } elseif (isset($document['base64']) && isset($document['fileName'])) {
+                // Create new document from base64 data
                 $isDisplay = isset($document['isDisplay']) && $document['isDisplay'];
                 
                 if ($isDisplay && !$displayDocumentSet) {
@@ -307,16 +307,44 @@ class SellerApiController extends Controller
                     $displayDocumentSet = true;
                 }
                 
-                $permanentPath = $this->fileUploadService->moveFromTemp(
-                    $document['tempPath'],
-                    'sellers/' . $seller->id
-                );
+                // Ensure the sellers directory exists
+                $directory = 'sellers/' . $seller->id;
+                if (!Storage::disk('public')->exists($directory)) {
+                    Storage::disk('public')->makeDirectory($directory);
+                }
+                
+                // Generate a unique filename
+                $fileName = $document['fileName'];
+                $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+                if (empty($extension)) {
+                    $extension = 'jpg'; // Default extension if none provided
+                }
+                
+                $uniqueFileName = uniqid() . '.' . $extension;
+                $filePath = $directory . '/' . $uniqueFileName;
+                
+                // Decode and save the base64 image
+                $base64Data = $document['base64'];
+                $base64Data = substr($base64Data, strpos($base64Data, ',') + 1);
+                $decodedData = base64_decode($base64Data);
+                
+                Storage::disk('public')->put($filePath, $decodedData);
+                
+                // Calculate file size
+                $fileSize = strlen($decodedData);
+                
+                // Get mime type
+                $mimeType = $document['mimeType'] ?? 'application/octet-stream';
                 
                 Document::create([
                     'documentable_id' => $seller->id,
                     'documentable_type' => get_class($seller),
-                    'file_name' => $document['fileName'],
-                    'file_path' => $permanentPath,
+                    'category' => 'seller',  // Keep for backwards compatibility
+                    'reference_id' => $seller->id,  // Keep for backwards compatibility
+                    'file_name' => $fileName,
+                    'file_path' => $filePath,
+                    'file_size' => $fileSize,
+                    'mime_type' => $mimeType,
                     'is_display' => $isDisplay,
                 ]);
             }

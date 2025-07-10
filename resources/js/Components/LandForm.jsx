@@ -28,45 +28,53 @@ export default function LandForm({ formData, setFormData, displayImage }) {
     const getPreviewUrl = (file) => {
         if (!file) return null;
         
-        console.log('Display image file object:', file);
+        // Handle base64 data directly
+        if (file.base64) {
+            return file.base64;
+        }
         
         // Handle file.url directly if available
         if (file.url) {
-            console.log('Using file.url:', file.url);
             return file.url;
         }
         
         // Handle file.response from Upload component
         if (file.response && file.response.file && file.response.file.url) {
-            console.log('Using file.response.file.url:', file.response.file.url);
             return file.response.file.url;
         }
         
         // Handle originFileObj (for newly selected files)
         if (file.originFileObj) {
-            console.log('Using URL.createObjectURL for originFileObj');
             return URL.createObjectURL(file.originFileObj);
         }
         
         // Handle tempPath directly
         if (file.tempPath) {
-            console.log('Using tempPath directly:', `/storage/${file.tempPath}`);
             return `/storage/${file.tempPath}`;
         }
         
         // Handle tempPath from response
         if (file.response && file.response.file && file.response.file.tempPath) {
-            console.log('Using response.file.tempPath:', `/storage/${file.response.file.tempPath}`);
             return `/storage/${file.response.file.tempPath}`;
         }
         
-        console.log('No valid URL found in file object');
         return null;
     };
 
     // Helper function to check if file is an image
     const isImage = (file) => {
         if (!file) return false;
+        
+        // If file has base64 data that starts with image/jpeg or image/png, it's an image
+        if (file.base64 && (
+            file.base64.startsWith('data:image/jpeg') || 
+            file.base64.startsWith('data:image/png') || 
+            file.base64.startsWith('data:image/jpg')
+        )) {
+            return true;
+        }
+        
+        // Check file.type if available
         const imageTypes = ['image/jpeg', 'image/png', 'image/jpg'];
         return file.type && imageTypes.includes(file.type);
     };

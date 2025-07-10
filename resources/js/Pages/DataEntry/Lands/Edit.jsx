@@ -72,7 +72,7 @@ export default function LandEdit({ land, documents }) {
                     <FileUpload
                         fileList={fileList}
                         setFileList={setFileList}
-                        maxFiles={4}
+                        maxFiles={2}
                     />
                 </Card>
             ),
@@ -221,81 +221,10 @@ export default function LandEdit({ land, documents }) {
                 </Card>
             ),
         },
-        {
-            title: 'បញ្ជាក់',
-            icon: <CheckCircleOutlined />,
-            content: (
-                <Card title="បញ្ជាក់ព័ត៌មាន" className="mb-6">
-                    <div className="confirmation-content">
-                        <Row gutter={[16, 16]}>
-                            <Col span={24}>
-                                <Card title="ឯកសារ" size="small">
-                                    {fileList.length > 0 ? (
-                                        <ul className="document-list">
-                                            {fileList.map((file, index) => (
-                                                <li key={index}>
-                                                    {file.name} {file.isDisplay && <span className="display-badge">(ឯកសារបង្ហាញ)</span>}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <Text type="secondary">គ្មានឯកសារ</Text>
-                                    )}
-                                </Card>
-                            </Col>
-                            <Col span={24}>
-                                <Card title="ព័ត៌មានដី" size="small">
-                                    <Row gutter={[16, 8]}>
-                                        <Col xs={24} md={12}>
-                                            <Text strong>លេខប្លង់:</Text> {formValues.title_deed_number}
-                                        </Col>
-                                        <Col xs={24} md={12}>
-                                            <Text strong>ទីតាំង:</Text> {formValues.location}
-                                        </Col>
-                                        <Col xs={24} md={12}>
-                                            <Text strong>ខេត្ត/ក្រុង:</Text> {formValues.province}
-                                        </Col>
-                                        <Col xs={24} md={12}>
-                                            <Text strong>ស្រុក/ខណ្ឌ:</Text> {formValues.district}
-                                        </Col>
-                                        <Col xs={24} md={12}>
-                                            <Text strong>ឃុំ/សង្កាត់:</Text> {formValues.commune}
-                                        </Col>
-                                        <Col xs={24} md={12}>
-                                            <Text strong>ភូមិ:</Text> {formValues.village}
-                                        </Col>
-                                        <Col xs={24} md={12}>
-                                            <Text strong>ទំហំ:</Text> {formValues.size} {
-                                                formValues.size_unit === 'sqm' ? 'ម៉ែត្រការ៉េ' : 
-                                                formValues.size_unit === 'hectare' ? 'ហិកតា' : 
-                                                formValues.size_unit === 'acre' ? 'អាក្រ' : ''
-                                            }
-                                        </Col>
-                                        <Col xs={24} md={12}>
-                                            <Text strong>តម្លៃក្នុងមួយឯកតា:</Text> ${formValues.price_per_unit?.toLocaleString()}
-                                        </Col>
-                                        <Col xs={24} md={12}>
-                                            <Text strong>តម្លៃសរុប:</Text> ${formValues.total_price?.toLocaleString()}
-                                        </Col>
-                                    </Row>
-                                </Card>
-                            </Col>
-                        </Row>
-                    </div>
-                </Card>
-            ),
-        },
     ];
 
     const next = async () => {
-        if (currentStep === 1) {
-            try {
-                await form.validateFields();
-                setCurrentStep(currentStep + 1);
-            } catch (error) {
-                console.error('Validation failed:', error);
-            }
-        } else {
+        if (currentStep === 0) {
             setCurrentStep(currentStep + 1);
         }
     };

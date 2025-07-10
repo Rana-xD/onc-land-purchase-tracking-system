@@ -8,6 +8,7 @@ use App\Models\Document;
 use App\Services\FileUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -87,6 +88,15 @@ class BuyerApiController extends Controller
      */
     public function store(Request $request)
     {
+        // Debug logging
+        $logPrefix = '[BuyerApiController:store] ';
+        
+        // Log the incoming request data (excluding base64 data to avoid log bloat)
+        $requestData = $request->except(['documents']);
+        $documentsCount = count($request->input('documents', []));
+        Log::info($logPrefix . 'Received request with ' . $documentsCount . ' documents');
+        
+        // Validate the request
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'sex' => 'required|in:male,female',
@@ -95,9 +105,14 @@ class BuyerApiController extends Controller
             'address' => 'required|string',
             'phone_number' => 'required|string|max:20',
             'documents' => 'nullable|array',
+            'documents.*.fileName' => 'required|string',
+            'documents.*.base64' => 'required|string',
+            'documents.*.mimeType' => 'nullable|string',
+            'documents.*.isDisplay' => 'nullable|boolean',
         ]);
 
         if ($validator->fails()) {
+            Log::error($logPrefix . 'Validation failed: ' . json_encode($validator->errors()));
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
@@ -113,10 +128,27 @@ class BuyerApiController extends Controller
                 'address' => $request->address,
                 'phone_number' => $request->phone_number,
             ]);
+            
+            Log::info($logPrefix . 'Buyer created with ID: ' . $buyer->id);
 
             // Process documents if any
             if ($request->has('documents') && is_array($request->documents) && count($request->documents) > 0) {
+                Log::info($logPrefix . 'Processing ' . count($request->documents) . ' documents');
+                
+                // Log document metadata without base64 data
+                $documentsMeta = collect($request->documents)->map(function($doc) {
+                    return [
+                        'fileName' => $doc['fileName'] ?? null,
+                        'mimeType' => $doc['mimeType'] ?? null,
+                        'isDisplay' => $doc['isDisplay'] ?? false,
+                        'hasBase64' => isset($doc['base64']) && !empty($doc['base64']),
+                    ];
+                })->toArray();
+                Log::info($logPrefix . 'Documents metadata: ' . json_encode($documentsMeta));
+                
                 $this->processDocuments($request->documents, $buyer);
+            } else {
+                Log::warning($logPrefix . 'No documents found in request');
             }
 
             DB::commit();
@@ -264,61 +296,79 @@ class BuyerApiController extends Controller
     }
     
     /**
-     * Process documents for a buyer.
+     * Process documents for a buyer
      *
-     * @param  array  $documents
-     * @param  \App\Models\Buyer  $buyer
+     * @param array $documents
+     * @param Buyer $buyer
      * @return void
      */
     private function processDocuments(array $documents, Buyer $buyer)
     {
-        $displayDocumentSet = false;
+        $logPrefix = '[BuyerApiController:processDocuments] ';
+        Log::info($logPrefix . 'Processing ' . count($documents) . ' documents for buyer ID: ' . $buyer->id);
         
-        foreach ($documents as $document) {
-            if (isset($document['id']) && isset($document['isExisting']) && $document['isExisting']) {
-                // Update existing document
-                $existingDoc = Document::find($document['id']);
-                if ($existingDoc) {
-                    $isDisplay = isset($document['isDisplay']) && $document['isDisplay'];
-                    
-                    if ($isDisplay) {
-                        // Reset all other documents to not display
-                        Document::where('documentable_id', $buyer->id)
-                            ->where('documentable_type', get_class($buyer))
-                            ->update(['is_display' => false]);
-                            
-                        $displayDocumentSet = true;
-                    }
-                    
-                    $existingDoc->update([
-                        'is_display' => $isDisplay,
-                    ]);
-                }
-            } elseif (isset($document['tempPath']) && isset($document['fileName'])) {
-                // Create new document from temp file
-                $isDisplay = isset($document['isDisplay']) && $document['isDisplay'];
+        $fileUploadService = app(FileUploadService::class);
+        $displaySet = false;
+        $displayDocumentSet = false;
+
+        foreach ($documents as $index => $document) {
+            Log::info($logPrefix . 'Processing document ' . ($index + 1));
+            
+            // Reset is_display flag for all documents
+            $isDisplay = false;
+
+            // If this document is marked as display or no display document has been set yet
+            if ((isset($document['isDisplay']) && $document['isDisplay']) || !$displaySet) {
+                $isDisplay = true;
+                $displaySet = true;
+                Log::info($logPrefix . 'Setting document ' . ($index + 1) . ' as display document');
+            }
+
+            // Process base64 image data
+            if (isset($document['base64']) && isset($document['fileName'])) {
+                Log::info($logPrefix . 'Processing base64 image data for file: ' . $document['fileName']);
                 
-                if ($isDisplay && !$displayDocumentSet) {
-                    // Reset all other documents to not display
-                    Document::where('documentable_id', $buyer->id)
-                        ->where('documentable_type', get_class($buyer))
-                        ->update(['is_display' => false]);
+                try {
+                    // Create target directory path
+                    $targetDir = 'buyers/' . $buyer->id;
+                    
+                    // Use the FileUploadService to store the base64 file
+                    $fileInfo = $fileUploadService->storeBase64File(
+                        $document['base64'],
+                        $targetDir,
+                        $document['fileName']
+                    );
+                    
+                    if ($fileInfo) {
+                        Log::info($logPrefix . 'File saved successfully to: ' . $fileInfo['file_path']);
                         
-                    $displayDocumentSet = true;
+                        // Get mime type
+                        $mimeType = $document['mimeType'] ?? 'application/octet-stream';
+                        
+                        // Create document record
+                        $newDocument = Document::create([
+                            'documentable_id' => $buyer->id,
+                            'documentable_type' => get_class($buyer),
+                            'category' => 'buyer',  // Keep for backwards compatibility
+                            'reference_id' => $buyer->id,  // Keep for backwards compatibility
+                            'file_name' => $fileInfo['file_name'],
+                            'file_path' => $fileInfo['file_path'],
+                            'file_size' => $fileInfo['file_size'],
+                            'mime_type' => $mimeType,
+                            'is_display' => $isDisplay,
+                        ]);
+                        
+                        Log::info($logPrefix . 'Document record created with ID: ' . $newDocument->id);
+                        $displayDocumentSet = true;
+                    } else {
+                        Log::error($logPrefix . 'Failed to save file to storage');
+                    }
+                } catch (\Exception $e) {
+                    Log::error($logPrefix . 'Exception while processing document: ' . $e->getMessage());
+                    Log::error($logPrefix . 'Exception trace: ' . $e->getTraceAsString());
                 }
-                
-                $permanentPath = $this->fileUploadService->moveFromTemp(
-                    $document['tempPath'],
-                    'buyers/' . $buyer->id
-                );
-                
-                Document::create([
-                    'documentable_id' => $buyer->id,
-                    'documentable_type' => get_class($buyer),
-                    'file_name' => $document['fileName'],
-                    'file_path' => $permanentPath,
-                    'is_display' => $isDisplay,
-                ]);
+            } else {
+                Log::warning($logPrefix . 'Document missing base64 or fileName: ' . json_encode($document));
             }
         }
         
@@ -327,6 +377,7 @@ class BuyerApiController extends Controller
             $firstDocument = $buyer->documents()->first();
             if ($firstDocument) {
                 $firstDocument->update(['is_display' => true]);
+                Log::info($logPrefix . 'Set first document as display document');
             }
         }
     }

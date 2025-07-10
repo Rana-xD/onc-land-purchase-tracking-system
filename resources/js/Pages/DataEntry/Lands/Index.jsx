@@ -4,12 +4,11 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import { 
     Table, Button, Input, Space, Popconfirm, 
     Typography, Card, Row, Col, Breadcrumb, message,
-    Tag, Select, Form, Divider, InputNumber, DatePicker
+    Tag
 } from 'antd';
 import { 
     SearchOutlined, PlusOutlined, EditOutlined, 
-    DeleteOutlined, FileAddOutlined, EyeOutlined,
-    FilterOutlined, ClearOutlined
+    DeleteOutlined, FileAddOutlined, EyeOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
 
@@ -24,20 +23,7 @@ export default function LandsList({ lands, pagination }) {
         pageSize: 10,
         total: 0
     });
-    const [showFilters, setShowFilters] = useState(false);
-    const [filters, setFilters] = useState({
-        province: '',
-        district: '',
-        commune: '',
-        village: '',
-        size_min: null,
-        size_max: null,
-        price_min: null,
-        price_max: null,
-        date_from: null,
-        date_to: null
-    });
-    const [form] = Form.useForm();
+    // Removed advanced filters as requested
 
     useEffect(() => {
         if (lands) {
@@ -55,70 +41,62 @@ export default function LandsList({ lands, pagination }) {
 
     const handleSearch = (value) => {
         setSearchText(value);
-        fetchData(1, paginationInfo.pageSize, value, filters);
+        fetchData(1, paginationInfo.pageSize, value);
     };
 
     const handleTableChange = (pagination) => {
-        fetchData(pagination.current, pagination.pageSize, searchText, filters);
-    };
-
-    const handleFilterChange = (changedValues, allValues) => {
-        const newFilters = {
-            province: allValues.province || '',
-            district: allValues.district || '',
-            commune: allValues.commune || '',
-            village: allValues.village || '',
-            size_min: allValues.size_min,
-            size_max: allValues.size_max,
-            price_min: allValues.price_min,
-            price_max: allValues.price_max,
-            date_from: allValues.date_from ? allValues.date_from.format('YYYY-MM-DD') : null,
-            date_to: allValues.date_to ? allValues.date_to.format('YYYY-MM-DD') : null
-        };
+        // Update the pagination info state to persist the page size
+        setPaginationInfo(prev => ({
+            ...prev,
+            current: pagination.current,
+            pageSize: pagination.pageSize
+        }));
         
-        setFilters(newFilters);
-        fetchData(1, paginationInfo.pageSize, searchText, newFilters);
+        // Fetch data with the new pagination parameters
+        fetchData(pagination.current, pagination.pageSize, searchText);
     };
 
-    const resetFilters = () => {
-        form.resetFields();
-        const emptyFilters = {
-            province: '',
-            district: '',
-            commune: '',
-            village: '',
-            size_min: null,
-            size_max: null,
-            price_min: null,
-            price_max: null,
-            date_from: null,
-            date_to: null
-        };
-        setFilters(emptyFilters);
-        fetchData(1, paginationInfo.pageSize, searchText, emptyFilters);
-    };
+    // Removed filter handling functions as requested
 
-    const fetchData = async (page, pageSize, search = '', filters = {}) => {
+    const fetchData = async (page, pageSize, search = '') => {
         setLoading(true);
         try {
+            // Store the requested page size in a variable to ensure it's used consistently
+            const requestedPageSize = pageSize || paginationInfo.pageSize || 10;
+            
             const response = await axios.get('/api/lands', {
                 params: {
                     page,
-                    per_page: pageSize,
-                    search,
-                    ...filters
+                    per_page: requestedPageSize,
+                    search
                 }
             });
             
-            setData(response.data.data);
-            setPaginationInfo({
-                current: response.data.meta.current_page,
-                pageSize: response.data.meta.per_page,
-                total: response.data.meta.total
-            });
+            // Set data safely
+            if (response.data && response.data.data) {
+                setData(response.data.data);
+            } else {
+                setData([]);
+            }
+            
+            // Set pagination info safely, preserving the requested page size
+            if (response.data && response.data.meta) {
+                setPaginationInfo({
+                    current: response.data.meta.current_page || 1,
+                    pageSize: requestedPageSize, // Use the requested page size, not what comes back from API
+                    total: response.data.meta.total || 0
+                });
+            } else {
+                setPaginationInfo({
+                    current: 1,
+                    pageSize: requestedPageSize, // Use the requested page size as fallback
+                    total: 0
+                });
+            }
         } catch (error) {
             console.error('Error fetching lands:', error);
             message.error('មានបញ្ហាក្នុងការទាញយកទិន្នន័យដី');
+            setData([]);
         } finally {
             setLoading(false);
         }
@@ -169,18 +147,18 @@ export default function LandsList({ lands, pagination }) {
             title: 'កាលបរិច្ឆេទចុះបញ្ជី',
             dataIndex: 'date_of_registration',
             key: 'date_of_registration',
+            render: (dateString) => {
+                if (!dateString) return '';
+                // Format date as YYYY-MM-DD
+                const date = new Date(dateString);
+                return date.toISOString().split('T')[0];
+            },
         },
         {
             title: 'សកម្មភាព',
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
-                    <Button 
-                        type="primary" 
-                        icon={<EyeOutlined />} 
-                        size="small"
-                        onClick={() => router.visit(route('data-entry.lands.show', record.id))}
-                    />
                     <Button 
                         type="default" 
                         icon={<EditOutlined />} 
@@ -233,13 +211,6 @@ export default function LandsList({ lands, pagination }) {
                                     style={{ width: 250 }}
                                 />
                                 <Button 
-                                    type={showFilters ? "primary" : "default"}
-                                    icon={<FilterOutlined />}
-                                    onClick={() => setShowFilters(!showFilters)}
-                                >
-                                    តម្រង
-                                </Button>
-                                <Button 
                                     type="primary" 
                                     icon={<PlusOutlined />}
                                     onClick={() => router.visit(route('data-entry.lands.create'))}
@@ -250,109 +221,7 @@ export default function LandsList({ lands, pagination }) {
                         </Col>
                     </Row>
                     
-                    {showFilters && (
-                        <div className="filter-section mb-4">
-                            <Divider orientation="left">តម្រងទិន្នន័យ</Divider>
-                            <Form
-                                form={form}
-                                layout="vertical"
-                                onValuesChange={handleFilterChange}
-                                initialValues={filters}
-                            >
-                                <Row gutter={16}>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Form.Item name="province" label="ខេត្ត/ក្រុង">
-                                            <Input placeholder="ខេត្ត/ក្រុង" />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Form.Item name="district" label="ស្រុក/ខណ្ឌ">
-                                            <Input placeholder="ស្រុក/ខណ្ឌ" />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Form.Item name="commune" label="ឃុំ/សង្កាត់">
-                                            <Input placeholder="ឃុំ/សង្កាត់" />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Form.Item name="village" label="ភូមិ">
-                                            <Input placeholder="ភូមិ" />
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                                <Row gutter={16}>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Form.Item name="size_min" label="ទំហំអប្បបរមា">
-                                            <InputNumber 
-                                                style={{ width: '100%' }} 
-                                                placeholder="ទំហំអប្បបរមា" 
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Form.Item name="size_max" label="ទំហំអតិបរមា">
-                                            <InputNumber 
-                                                style={{ width: '100%' }} 
-                                                placeholder="ទំហំអតិបរមា" 
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Form.Item name="price_min" label="តម្លៃអប្បបរមា">
-                                            <InputNumber 
-                                                style={{ width: '100%' }} 
-                                                placeholder="តម្លៃអប្បបរមា" 
-                                                formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                                parser={value => value.replace(/\$\s?|(,*)/g, '')}
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Form.Item name="price_max" label="តម្លៃអតិបរមា">
-                                            <InputNumber 
-                                                style={{ width: '100%' }} 
-                                                placeholder="តម្លៃអតិបរមា" 
-                                                formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                                parser={value => value.replace(/\$\s?|(,*)/g, '')}
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                                <Row gutter={16}>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Form.Item name="date_from" label="ចាប់ពីកាលបរិច្ឆេទ">
-                                            <DatePicker 
-                                                style={{ width: '100%' }} 
-                                                format="DD/MM/YYYY" 
-                                                placeholder="ចាប់ពីកាលបរិច្ឆេទ"
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Form.Item name="date_to" label="ដល់កាលបរិច្ឆេទ">
-                                            <DatePicker 
-                                                style={{ width: '100%' }} 
-                                                format="DD/MM/YYYY" 
-                                                placeholder="ដល់កាលបរិច្ឆេទ"
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={12} className="text-right">
-                                        <Form.Item>
-                                            <Button 
-                                                type="default" 
-                                                icon={<ClearOutlined />} 
-                                                onClick={resetFilters}
-                                            >
-                                                សម្អាតតម្រង
-                                            </Button>
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                            </Form>
-                        </div>
-                    )}
+                    {/* Advanced filter section removed as requested */}
                     
                     <Table
                         columns={columns}
@@ -364,6 +233,7 @@ export default function LandsList({ lands, pagination }) {
                             pageSize: paginationInfo.pageSize,
                             total: paginationInfo.total,
                             showSizeChanger: true,
+                            pageSizeOptions: ['10', '20', '50','100'],
                             showTotal: (total, range) => `${range[0]}-${range[1]} នៃ ${total} ធាតុ`,
                         }}
                         onChange={handleTableChange}

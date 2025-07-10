@@ -17,6 +17,8 @@ class Document extends Model
     protected $fillable = [
         'category',
         'reference_id',
+        'documentable_id',
+        'documentable_type',
         'file_name',
         'file_path',
         'file_size',
@@ -39,11 +41,25 @@ class Document extends Model
      */
     public function owner()
     {
+        // Support both old and new relationship styles during transition
+        if ($this->documentable_type && $this->documentable_id) {
+            return $this->documentable();
+        }
+        
+        // Legacy relationship using category and reference_id
         return match($this->category) {
             'buyer' => $this->belongsTo(Buyer::class, 'reference_id'),
             'seller' => $this->belongsTo(Seller::class, 'reference_id'),
             'land' => $this->belongsTo(Land::class, 'reference_id'),
             default => null,
         };
+    }
+    
+    /**
+     * Get the parent documentable model (buyer, seller, land, etc).
+     */
+    public function documentable()
+    {
+        return $this->morphTo();
     }
 }

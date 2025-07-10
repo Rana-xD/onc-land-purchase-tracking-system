@@ -17,9 +17,9 @@ const { Title, Text } = Typography;
 const styles = {
     fileGridContainer: {
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-        gap: '16px',
-        marginBottom: '16px'
+        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+        gap: '24px',
+        marginBottom: '24px'
     },
     fileCard: {
         width: '100%',
@@ -28,16 +28,16 @@ const styles = {
         flexDirection: 'column'
     },
     fileCardCover: {
-        padding: '8px',
+        padding: '12px',
         textAlign: 'center',
-        height: '120px',
+        height: '180px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden'
     },
     filePreviewImage: {
-        maxHeight: '100px',
+        maxHeight: '160px',
         maxWidth: '100%',
         objectFit: 'contain'
     },
@@ -71,7 +71,7 @@ export default function FileUpload({
     referenceId = null,
     initialFiles = [],
     onFilesChange,
-    maxFiles = 4,
+    maxFiles = 2,
     maxSize = 10, // MB
 }) {
     const [fileList, setFileList] = useState([]);
@@ -130,55 +130,35 @@ export default function FileUpload({
         
         const isLessThanMaxSize = file.size / 1024 / 1024 < maxSize;
         if (!isLessThanMaxSize) {
-            messageUtil.error(`ឯកសារត្រូវតែមានទំហំតិចជាង ${maxSize}MB!`);
+            messageUtil.error(`អ្នកអាចផ្ទុកឡើងបានតែឯកសារទំហំតូចជាង ${maxSize}MB ប៉ុណ្ណោះ!`);
             onError('File size error');
             return;
         }
         
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('category', category);
+        setUploading(true);
         
         try {
-            setUploading(true);
-            
-            // Convert image to base64 first for reliable display
-            if (file.type.startsWith('image/')) {
-                const base64Promise = new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.readAsDataURL(file);
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = error => reject(error);
-                });
+            // Generate base64 data for the file
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                const base64Data = reader.result;
                 
-                try {
-                    const base64Data = await base64Promise;
-                    
-                    // Upload to server
-                    const response = await axios.post('/api/files/upload-temp', formData);
-                    
-                    // Enhance the response with the base64 data
-                    const enhancedResponse = {
-                        ...response.data,
-                        file: {
-                            ...response.data.file,
-                            base64: base64Data,  // Store base64 data for reliable display
-                            url: base64Data,     // Use base64 as URL for immediate preview
-                        }
-                    };
-                    
-                    onSuccess(enhancedResponse);
-                    console.log('Image uploaded and converted to base64 successfully');
-                } catch (error) {
-                    console.error('Error converting image to base64:', error);
-                    onError('Base64 conversion failed');
-                }
-            } else {
-                // For non-image files, proceed normally
-                const response = await axios.post('/api/files/upload-temp', formData);
-                onSuccess(response.data);
-            }
-            
+                // Create response with file info and base64 data
+                const response = {
+                    success: true,
+                    file: {
+                        fileName: file.name,
+                        base64: base64Data,
+                        mimeType: file.type,
+                        size: file.size
+                    }
+                };
+                
+                // Call the onSuccess callback with the response
+                onSuccess(response);
+                setUploading(false);
+            };
             messageUtil.success('ឯកសារត្រូវបានផ្ទុកឡើងដោយជោគជ័យ');
         } catch (error) {
             console.error('Error uploading file:', error);
@@ -189,47 +169,92 @@ export default function FileUpload({
         }
     };
 
-    const handleChange = ({ fileList: newFileList }) => {
-        // As uploads complete, AntD provides the server response in the file object.
-        // We update the file object to use the permanent path from the response as its URL.
-        const updatedList = newFileList.map(file => {
-            // First check if we have base64 data from our enhanced upload response
-            if (file.status === 'done' && file.response && file.response.file?.base64) {
-                // Use the base64 data as the URL for reliable display
-                return { ...file, url: file.response.file.base64 };
+    const handleChange = async ({ file, fileList: newFileList }) => {
+        console.log('FileUpload handleChange called', { file, fileList: newFileList.length });
+        
+        // Process each file to ensure it has base64 data
+        const processedFiles = await Promise.all(newFileList.map(async (fileItem) => {
+            // If file already has base64 data, return it as is
+            if (fileItem.base64) {
+                return fileItem;
             }
-            // Then check for server path
-            else if (file.status === 'done' && file.response) {
-                const tempPath = file.response.file?.tempPath || file.response.path;
-                if (tempPath) {
-                    // Clone the file object and replace the temporary blob/data URL with the permanent one.
-                    return { ...file, url: `/storage/${tempPath}` };
+            
+            // If file has response with base64 data, use that
+            if (fileItem.status === 'done' && fileItem.response && fileItem.response.file?.base64) {
+                return { 
+                    ...fileItem, 
+                    url: fileItem.response.file.base64,
+                    base64: fileItem.response.file.base64,
+                    tempPath: fileItem.response.file?.tempPath || null,
+                    fileName: fileItem.name
+                };
+            }
+            
+            // If file has originFileObj, generate base64 data
+            if (fileItem.originFileObj) {
+                try {
+                    const base64Data = await getBase64(fileItem.originFileObj);
+                    return { 
+                        ...fileItem, 
+                        url: fileItem.url || URL.createObjectURL(fileItem.originFileObj),
+                        base64: base64Data,
+                        fileName: fileItem.name,
+                        tempPath: fileItem.tempPath || fileItem.response?.file?.tempPath || fileItem.response?.path
+                    };
+                } catch (error) {
+                    console.error('Error generating base64 for file:', error);
                 }
             }
-            // If the file is still uploading, it might have a temporary blob url.
-            // If not, let's ensure it has one for preview.
-            if (!file.url && file.originFileObj) {
-                return { ...file, url: URL.createObjectURL(file.originFileObj) };
+            
+            // If file has a URL but no base64 (e.g., existing files), try to fetch and convert
+            if (fileItem.url && !fileItem.base64 && !fileItem.url.startsWith('data:')) {
+                try {
+                    // For existing files with URLs, we'll use the URL as is
+                    return {
+                        ...fileItem,
+                        base64: fileItem.url, // Use URL as fallback
+                        fileName: fileItem.name,
+                        tempPath: fileItem.tempPath || fileItem.response?.file?.tempPath || fileItem.response?.path
+                    };
+                } catch (error) {
+                    console.error('Error handling existing file URL:', error);
+                }
             }
-            return file;
-        });
+            
+            return fileItem;
+        }));
 
-        const filteredList = updatedList.filter(file => file.status !== 'error');
+        const filteredList = processedFiles.filter(file => file.status !== 'error');
         setFileList(filteredList);
         
         // Notify parent component of changes
-        const filesForParent = filteredList.map(file => ({
-            id: file.response?.id,
-            isExisting: file.isExisting || false,
-            tempPath: file.response?.file?.tempPath || file.response?.path,
-            url: file.url, // This should now be consistently present.
-            base64: file.response?.file?.base64, // Include base64 data if available
-            fileName: file.name,
-            isDisplay: file.isDisplay || false,
-            response: file.response,
-        }));
+        const filesForParent = filteredList.map(file => {
+            // Log each file's data for debugging (without full base64 content)
+            console.log('Processing file for parent:', {
+                name: file.name,
+                tempPath: file.tempPath,
+                status: file.status,
+                hasBase64: !!file.base64,
+                base64Length: file.base64 ? file.base64.substring(0, 30) + '...' : null
+            });
+            
+            return {
+                id: file.response?.id,
+                isExisting: file.isExisting || false,
+                tempPath: file.tempPath,
+                url: file.url,
+                base64: file.base64, // Include base64 data
+                fileName: file.name,
+                mimeType: file.type || (file.originFileObj ? file.originFileObj.type : 'image/jpeg'),
+                isDisplay: file.isDisplay || false,
+                response: file.response,
+            };
+        });
         
-        console.log('Files being sent to parent component:', filesForParent);
+        console.log('Files being sent to parent component:', filesForParent.map(f => ({
+            ...f,
+            base64: f.base64 ? `${f.base64.substring(0, 30)}...` : null // Truncate base64 for logging
+        })));
         
         if (onFilesChange && typeof onFilesChange === 'function') {
             onFilesChange(filesForParent);

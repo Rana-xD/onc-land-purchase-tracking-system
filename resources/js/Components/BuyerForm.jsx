@@ -17,15 +17,15 @@ export default function BuyerForm({ formData, setFormData, displayImage }) {
     // Helper function to get preview URL for display image
     const getPreviewUrl = (file) => {
         if (!file) {
-            console.log('No file provided to getPreviewUrl');
+
             return null;
         }
         
-        console.log('getPreviewUrl input file:', file);
+
         
         // Try base64 first - most reliable since it's embedded data
         if (file.base64) {
-            console.log('Using base64 data for preview URL');
+
             return file.base64;
         }
         
@@ -33,39 +33,39 @@ export default function BuyerForm({ formData, setFormData, displayImage }) {
         if (file.url) {
             // If URL is already a data URI, use it directly
             if (file.url.startsWith('data:')) {
-                console.log('Using file.url as data URI for preview URL');
+
                 return file.url;
             }
             
             // If URL is a relative path, make sure it has the right prefix
             if (file.url.startsWith('/')) {
-                console.log('Using file.url (path) for preview URL');
+
                 return file.url;
             }
         }
         
         // Handle tempPath or path from response
         if (file.response?.file?.tempPath) {
-            console.log('Using file.response.file.tempPath:', `/storage/${file.response.file.tempPath}`);
+
             return `/storage/${file.response.file.tempPath}`;
         } else if (file.response?.path) {
-            console.log('Using file.response.path:', `/storage/${file.response.path}`);
+
             return `/storage/${file.response.path}`;
         } else if (file.tempPath) {
-            console.log('Using file.tempPath:', `/storage/${file.tempPath}`);
+
             return `/storage/${file.tempPath}`;
         }
         
         // Handle originFileObj (for newly selected files)
         if (file.originFileObj) {
-            console.log('Creating URL from originFileObj');
+
             return URL.createObjectURL(file.originFileObj);
         } else if (file.originFileObj?.response?.file?.tempPath) {
-            console.log('Using file.originFileObj.response.file.tempPath:', `/storage/${file.originFileObj.response.file.tempPath}`);
+
             return `/storage/${file.originFileObj.response.file.tempPath}`;
         }
         
-        console.log('No valid URL found in file object');
+
         return null;
     };
 
@@ -75,20 +75,20 @@ export default function BuyerForm({ formData, setFormData, displayImage }) {
         
         // Check if we have base64 data that starts with image data URI
         if (file.base64 && file.base64.startsWith('data:image/')) {
-            console.log('File identified as image via base64 data');
+
             return true;
         }
         
         // Check if URL is a base64 image
         if (file.url && file.url.startsWith('data:image/')) {
-            console.log('File identified as image via URL data');
+
             return true;
         }
         
         // Check file name for image extensions
         const fileName = file.name || file.fileName || '';
         if (fileName && /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(fileName)) {
-            console.log('File identified as image via file extension');
+
             return true;
         }
         
@@ -96,28 +96,28 @@ export default function BuyerForm({ formData, setFormData, displayImage }) {
         const imageTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp', 'image/bmp'];
         const isImageType = file.type && imageTypes.includes(file.type);
         if (isImageType) {
-            console.log('File identified as image via MIME type');
+
             return true;
         }
         
-        console.log('File not identified as an image:', file);
+
         return false;
     };
 
     // Render display image preview
     const renderDisplayImage = () => {
         if (!displayImage) {
-            console.log('No display image available');
+
             return null;
         }
         
-        console.log('Rendering display image:', displayImage);
+
         
         // Force image detection based on file name if available
         const fileName = displayImage.name || displayImage.fileName || '';
         const isImageFile = isImage(displayImage) || (fileName && /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(fileName));
         
-        console.log('Is image file check result:', isImageFile);
+
         
         // Get preview URL with more aggressive checks
         let previewUrl = null;
@@ -125,35 +125,35 @@ export default function BuyerForm({ formData, setFormData, displayImage }) {
         // Try all possible sources for a URL
         if (displayImage.base64) {
             previewUrl = displayImage.base64;
-            console.log('Using base64 directly for preview');
+
         } else if (displayImage.url) {
             previewUrl = displayImage.url;
-            console.log('Using URL directly for preview');
+
         } else if (displayImage.response?.file?.base64) {
             previewUrl = displayImage.response.file.base64;
-            console.log('Using response.file.base64 for preview');
+
         } else if (displayImage.tempPath) {
             previewUrl = `/storage/${displayImage.tempPath}`;
-            console.log('Using tempPath for preview');
+
         } else if (fileName) {
             // Last resort - try to construct a URL from the file name
             previewUrl = `/storage/temp/${fileName}`;
-            console.log('Constructed URL from filename:', previewUrl);
+
         }
         
-        console.log('Final preview URL:', previewUrl ? 'Found URL' : 'No URL found');
+
         
         // Debug all possible URL sources
-        console.log('URL sources check:', {
-            'displayImage.base64 exists': !!displayImage.base64,
-            'displayImage.url exists': !!displayImage.url,
-            'displayImage.url is base64': displayImage.url?.startsWith('data:'),
-            'response.file.base64 exists': !!displayImage.response?.file?.base64,
-            'response.file.url exists': !!displayImage.response?.file?.url,
-            'tempPath exists': !!displayImage.tempPath,
-            'fileName exists': !!fileName,
-            'isImageFile result': isImageFile
-        });
+
+
+
+
+
+
+
+
+
+
         
         return (
             <Card 
@@ -163,9 +163,6 @@ export default function BuyerForm({ formData, setFormData, displayImage }) {
             >
                 {isImageFile && previewUrl ? (
                     <div style={{ maxWidth: '500px', margin: '0 auto' }}>
-                        <div style={{ marginBottom: '10px', color: 'green' }}>
-                            Image URL found: {fileName || 'Unknown file'}
-                        </div>
                         <Image
                             src={previewUrl}
                             alt={displayImage.name || displayImage.fileName || 'Image'}

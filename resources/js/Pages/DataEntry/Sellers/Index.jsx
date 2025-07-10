@@ -3,13 +3,11 @@ import { Head, Link, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { 
     Table, Button, Input, Space, Popconfirm, Tag, 
-    Typography, Card, Row, Col, Breadcrumb, message,
-    Select, Form, Divider, DatePicker, Radio
+    Typography, Card, Row, Col, Breadcrumb, message
 } from 'antd';
 import { 
     SearchOutlined, PlusOutlined, EditOutlined, 
-    DeleteOutlined, FileAddOutlined, EyeOutlined,
-    FilterOutlined, ClearOutlined
+    DeleteOutlined, FileAddOutlined, EyeOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
 
@@ -24,16 +22,7 @@ export default function SellersList({ sellers, pagination }) {
         pageSize: 10,
         total: 0
     });
-    const [showFilters, setShowFilters] = useState(false);
-    const [filters, setFilters] = useState({
-        sex: '',
-        date_of_birth_from: null,
-        date_of_birth_to: null,
-        identity_type: '',
-        phone_number: '',
-        address: ''
-    });
-    const [form] = Form.useForm();
+    // Removed advanced filters as requested
 
     useEffect(() => {
         if (sellers) {
@@ -51,62 +40,62 @@ export default function SellersList({ sellers, pagination }) {
 
     const handleSearch = (value) => {
         setSearchText(value);
-        fetchData(1, paginationInfo.pageSize, value, filters);
+        fetchData(1, paginationInfo.pageSize, value);
     };
 
     const handleTableChange = (pagination) => {
-        fetchData(pagination.current, pagination.pageSize, searchText, filters);
-    };
-
-    const handleFilterChange = (changedValues, allValues) => {
-        const newFilters = {
-            sex: allValues.sex || '',
-            date_of_birth_from: allValues.date_of_birth_from ? allValues.date_of_birth_from.format('YYYY-MM-DD') : null,
-            date_of_birth_to: allValues.date_of_birth_to ? allValues.date_of_birth_to.format('YYYY-MM-DD') : null,
-            identity_type: allValues.identity_type || '',
-            phone_number: allValues.phone_number || '',
-            address: allValues.address || ''
-        };
+        // Update the pagination info state to persist the page size
+        setPaginationInfo(prev => ({
+            ...prev,
+            current: pagination.current,
+            pageSize: pagination.pageSize
+        }));
         
-        setFilters(newFilters);
-        fetchData(1, paginationInfo.pageSize, searchText, newFilters);
+        // Fetch data with the new pagination parameters
+        fetchData(pagination.current, pagination.pageSize, searchText);
     };
 
-    const resetFilters = () => {
-        form.resetFields();
-        const emptyFilters = {
-            sex: '',
-            date_of_birth_from: null,
-            date_of_birth_to: null,
-            identity_type: '',
-            phone_number: '',
-            address: ''
-        };
-        setFilters(emptyFilters);
-        fetchData(1, paginationInfo.pageSize, searchText, emptyFilters);
-    };
+    // Removed filter handling functions as requested
 
-    const fetchData = async (page, pageSize, search = '', filters = {}) => {
+    const fetchData = async (page, pageSize, search = '') => {
         setLoading(true);
         try {
+            // Store the requested page size in a variable to ensure it's used consistently
+            const requestedPageSize = pageSize || paginationInfo.pageSize || 10;
+            
             const response = await axios.get('/api/sellers', {
                 params: {
                     page,
-                    per_page: pageSize,
-                    search,
-                    ...filters
+                    per_page: requestedPageSize,
+                    search
                 }
             });
             
-            setData(response.data.data);
-            setPaginationInfo({
-                current: response.data.meta.current_page,
-                pageSize: response.data.meta.per_page,
-                total: response.data.meta.total
-            });
+            // Set data safely
+            if (response.data && response.data.data) {
+                setData(response.data.data);
+            } else {
+                setData([]);
+            }
+            
+            // Set pagination info safely, preserving the requested page size
+            if (response.data && response.data.meta) {
+                setPaginationInfo({
+                    current: response.data.meta.current_page || 1,
+                    pageSize: requestedPageSize, // Use the requested page size, not what comes back from API
+                    total: response.data.meta.total || 0
+                });
+            } else {
+                setPaginationInfo({
+                    current: 1,
+                    pageSize: requestedPageSize, // Use the requested page size as fallback
+                    total: 0
+                });
+            }
         } catch (error) {
             console.error('Error fetching sellers:', error);
             message.error('មានបញ្ហាក្នុងការទាញយកទិន្នន័យអ្នកលក់');
+            setData([]);
         } finally {
             setLoading(false);
         }
@@ -151,6 +140,12 @@ export default function SellersList({ sellers, pagination }) {
             title: 'ថ្ងៃខែឆ្នាំកំណើត',
             dataIndex: 'date_of_birth',
             key: 'date_of_birth',
+            render: (dateString) => {
+                if (!dateString) return '';
+                // Format date as YYYY-MM-DD
+                const date = new Date(dateString);
+                return date.toISOString().split('T')[0];
+            },
         },
         {
             title: 'លេខអត្តសញ្ញាណប័ណ្ណ',
@@ -167,12 +162,6 @@ export default function SellersList({ sellers, pagination }) {
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
-                    <Button 
-                        type="primary" 
-                        icon={<EyeOutlined />} 
-                        size="small"
-                        onClick={() => router.visit(route('data-entry.sellers.show', record.id))}
-                    />
                     <Button 
                         type="default" 
                         icon={<EditOutlined />} 
@@ -225,13 +214,6 @@ export default function SellersList({ sellers, pagination }) {
                                     style={{ width: 250 }}
                                 />
                                 <Button 
-                                    type={showFilters ? "primary" : "default"}
-                                    icon={<FilterOutlined />}
-                                    onClick={() => setShowFilters(!showFilters)}
-                                >
-                                    តម្រង
-                                </Button>
-                                <Button 
                                     type="primary" 
                                     icon={<PlusOutlined />}
                                     onClick={() => router.visit(route('data-entry.sellers.create'))}
@@ -241,81 +223,6 @@ export default function SellersList({ sellers, pagination }) {
                             </Space>
                         </Col>
                     </Row>
-                    
-                    {showFilters && (
-                        <div className="filter-section mb-4">
-                            <Divider orientation="left">តម្រងទិន្នន័យ</Divider>
-                            <Form
-                                form={form}
-                                layout="vertical"
-                                onValuesChange={handleFilterChange}
-                                initialValues={filters}
-                            >
-                                <Row gutter={16}>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Form.Item name="sex" label="ភេទ">
-                                            <Radio.Group>
-                                                <Radio value="">ទាំងអស់</Radio>
-                                                <Radio value="male">ប្រុស</Radio>
-                                                <Radio value="female">ស្រី</Radio>
-                                            </Radio.Group>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Form.Item name="identity_type" label="ប្រភេទអត្តសញ្ញាណ">
-                                            <Select placeholder="ជ្រើសរើសប្រភេទ">
-                                                <Select.Option value="">ទាំងអស់</Select.Option>
-                                                <Select.Option value="national_id">អត្តសញ្ញាណប័ណ្ណ</Select.Option>
-                                                <Select.Option value="passport">លិខិតឆ្លងដែន</Select.Option>
-                                                <Select.Option value="other">ផ្សេងៗ</Select.Option>
-                                            </Select>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Form.Item name="phone_number" label="លេខទូរស័ព្ទ">
-                                            <Input placeholder="លេខទូរស័ព្ទ" />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Form.Item name="address" label="អាស័យដ្ឋាន">
-                                            <Input placeholder="អាស័យដ្ឋាន" />
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                                <Row gutter={16}>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Form.Item name="date_of_birth_from" label="កំណើតចាប់ពី">
-                                            <DatePicker 
-                                                style={{ width: '100%' }} 
-                                                format="DD/MM/YYYY" 
-                                                placeholder="កំណើតចាប់ពី"
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={6}>
-                                        <Form.Item name="date_of_birth_to" label="កំណើតដល់">
-                                            <DatePicker 
-                                                style={{ width: '100%' }} 
-                                                format="DD/MM/YYYY" 
-                                                placeholder="កំណើតដល់"
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col xs={24} sm={12} md={12} className="text-right">
-                                        <Form.Item>
-                                            <Button 
-                                                type="default" 
-                                                icon={<ClearOutlined />} 
-                                                onClick={resetFilters}
-                                            >
-                                                សម្អាតតម្រង
-                                            </Button>
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                            </Form>
-                        </div>
-                    )}
                     
                     <Table
                         columns={columns}
@@ -327,6 +234,7 @@ export default function SellersList({ sellers, pagination }) {
                             pageSize: paginationInfo.pageSize,
                             total: paginationInfo.total,
                             showSizeChanger: true,
+                            pageSizeOptions: ['10', '20', '50','100'],
                             showTotal: (total, range) => `${range[0]}-${range[1]} នៃ ${total} ធាតុ`,
                         }}
                         onChange={handleTableChange}

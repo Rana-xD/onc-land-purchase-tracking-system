@@ -2,117 +2,86 @@
 
 namespace App\Services;
 
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class FileUploadService
 {
     /**
-     * Store a file in temporary storage.
+     * Store a file from base64 data to a specific directory.
      *
-     * @param UploadedFile $file
-     * @return array
+     * @param string $base64Data Base64 encoded file data
+     * @param string $targetDir Directory to store the file in
+     * @param string $fileName Name to give the file
+     * @return array|null File information or null on failure
      */
-    public function storeTemporary(UploadedFile $file)
+    public function storeBase64File($base64Data, $targetDir, $fileName)
     {
-        $fileName = time() . '_' . $file->getClientOriginalName();
-        // Explicitly use the public disk so files are accessible via web
-        $filePath = $file->storeAs('temp', $fileName, 'public');
+        // Extract the base64 data - handle both with and without data URI prefix
+        if (strpos($base64Data, ';base64,') !== false) {
+            $base64Data = explode(';base64,', $base64Data)[1];
+        }
+        
+        // Decode the base64 data
+        $decodedData = base64_decode($base64Data);
+        if ($decodedData === false) {
+            return null;
+        }
+        
+        // Generate a unique filename to avoid collisions
+        $uniqueFileName = time() . '_' . preg_replace('/[^a-zA-Z0-9_.-]/', '_', $fileName);
+        $filePath = $targetDir . '/' . $uniqueFileName;
+        
+        // Create the directory if it doesn't exist
+        Storage::disk('public')->makeDirectory($targetDir);
+        
+        // Save the file
+        $saved = Storage::disk('public')->put($filePath, $decodedData);
+        
+        if (!$saved) {
+            return null;
+        }
+        
+        // Get file size
+        $fileSize = Storage::disk('public')->size($filePath);
         
         return [
-            'name' => $fileName,
-            'path' => $filePath,
-            'size' => $file->getSize(),
-            'mime_type' => $file->getMimeType(),
+            'file_name' => $fileName,
+            'file_path' => $filePath,
+            'file_size' => $fileSize,
         ];
     }
     
     /**
-     * Move a file from temporary storage to permanent storage.
-     *
-     * @param string $tempPath
-     * @param string $category
-     * @param int $referenceId
-     * @param string $fileName
-     * @return string|null
-     */
-    public function moveToPermStorage($tempPath, $category, $referenceId, $fileName)
-    {
-        $permanentPath = "{$category}s/{$referenceId}/" . $fileName;
-        
-        if (Storage::exists($tempPath)) {
-            Storage::makeDirectory("{$category}s/{$referenceId}");
-            Storage::move($tempPath, $permanentPath);
-            return $permanentPath;
-        }
-        
-        return null;
-    }
-    
-    /**
-     * Move a file from temporary storage to a specific directory.
-     *
-     * @param string $tempPath
-     * @param string $targetDir
-     * @return string|null
-     */
-    public function moveFromTemp($tempPath, $targetDir)
-    {
-        // Extract filename from path
-        $fileName = basename($tempPath);
-        $permanentPath = $targetDir . '/' . $fileName;
-        
-        if (Storage::exists($tempPath)) {
-            Storage::makeDirectory($targetDir);
-            Storage::move($tempPath, $permanentPath);
-            return $permanentPath;
-        }
-        
-        return null;
-    }
-    
-    /**
-     * Delete a file from storage.
+     * Delete a file from storage and its parent directory if empty.
      *
      * @param string $filePath
      * @return bool
      */
     public function deleteFile($filePath)
     {
-        if (Storage::exists($filePath)) {
-            return Storage::delete($filePath);
-        }
+        $fileDeleted = false;
         
-        return false;
-    }
-    
-    /**
-     * Clean up temporary files older than 24 hours.
-     *
-     * @return int Number of files deleted
-     */
-    public function cleanupTempFiles()
-    {
-        $files = Storage::files('temp');
-        $count = 0;
-        $yesterday = now()->subDay()->timestamp;
-        
-        foreach ($files as $file) {
-            // Extract timestamp from filename (time_originalname.ext)
-            $fileName = basename($file);
-            $parts = explode('_', $fileName, 2);
+        if (Storage::disk('public')->exists($filePath)) {
+            $fileDeleted = Storage::disk('public')->delete($filePath);
             
-            if (count($parts) > 1 && is_numeric($parts[0])) {
-                $fileTimestamp = (int) $parts[0];
+            // If file was deleted successfully, check if parent directory is empty
+            if ($fileDeleted) {
+                // Get the directory path (parent folder)
+                $dirPath = dirname($filePath);
                 
-                if ($fileTimestamp < $yesterday) {
-                    Storage::delete($file);
-                    $count++;
+                // Check if directory exists and is empty
+                if (Storage::disk('public')->exists($dirPath)) {
+                    $filesInDir = Storage::disk('public')->files($dirPath);
+                    $dirsInDir = Storage::disk('public')->directories($dirPath);
+                    
+                    // If directory is empty (no files and no subdirectories), delete it
+                    if (empty($filesInDir) && empty($dirsInDir)) {
+                        Storage::disk('public')->deleteDirectory($dirPath);
+                    }
                 }
             }
         }
         
-        return $count;
+        return $fileDeleted;
     }
 }

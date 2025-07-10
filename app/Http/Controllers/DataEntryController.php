@@ -27,7 +27,20 @@ class DataEntryController extends Controller
      */
     public function buyersIndex()
     {
-        return Inertia::render('DataEntry/Buyers/Index');
+        // Fetch buyers data from the API controller
+        $buyerApiController = app(\App\Http\Controllers\Api\BuyerApiController::class);
+        $request = request();
+        $response = $buyerApiController->index($request);
+        $data = json_decode($response->getContent(), true);
+        
+        return Inertia::render('DataEntry/Buyers/Index', [
+            'buyers' => $data['data'] ?? [],
+            'pagination' => [
+                'current_page' => $data['meta']['current_page'] ?? 1,
+                'per_page' => $data['meta']['per_page'] ?? 10,
+                'total' => $data['meta']['total'] ?? 0
+            ]
+        ]);
     }
 
     /**
@@ -79,7 +92,20 @@ class DataEntryController extends Controller
      */
     public function sellersIndex()
     {
-        return Inertia::render('DataEntry/Sellers/Index');
+        // Fetch sellers data from the API controller
+        $sellerApiController = app(\App\Http\Controllers\Api\SellerApiController::class);
+        $request = request();
+        $response = $sellerApiController->index($request);
+        $data = json_decode($response->getContent(), true);
+        
+        return Inertia::render('DataEntry/Sellers/Index', [
+            'sellers' => $data['data'] ?? [],
+            'pagination' => [
+                'current_page' => $data['meta']['current_page'] ?? 1,
+                'per_page' => $data['meta']['per_page'] ?? 10,
+                'total' => $data['meta']['total'] ?? 0
+            ]
+        ]);
     }
 
     /**
@@ -131,7 +157,20 @@ class DataEntryController extends Controller
      */
     public function landsIndex()
     {
-        return Inertia::render('DataEntry/Lands/Index');
+        // Fetch lands data from the API controller
+        $landApiController = app(\App\Http\Controllers\Api\LandApiController::class);
+        $request = request();
+        $response = $landApiController->index($request);
+        $data = json_decode($response->getContent(), true);
+        
+        return Inertia::render('DataEntry/Lands/Index', [
+            'lands' => $data['data'] ?? [],
+            'pagination' => [
+                'current_page' => $data['meta']['current_page'] ?? 1,
+                'per_page' => $data['meta']['per_page'] ?? 10,
+                'total' => $data['meta']['total'] ?? 0
+            ]
+        ]);
     }
 
     /**

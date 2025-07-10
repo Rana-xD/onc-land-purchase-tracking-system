@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Card, Steps, Button, message, Breadcrumb, Row, Col } from 'antd';
+import { Card, Steps, Button, message, Breadcrumb, Row, Col, Space } from 'antd';
 import { UploadOutlined, FormOutlined, CheckCircleOutlined, HomeOutlined } from '@ant-design/icons';
 import FileUpload from '@/Components/FileUpload';
 import LandForm from '@/Components/LandForm';
@@ -23,6 +23,51 @@ export default function Create() {
         total_price: '',
     });
     const [loading, setLoading] = useState(false);
+    
+    // The display image is now derived directly from the fileList state
+    const displayImage = fileList.find(file => file.isDisplay) || fileList[0] || null;
+    
+    const handleSubmit = async () => {
+        setLoading(true);
+        
+        try {
+            // Prepare documents data with base64
+            const documents = fileList.map(file => {
+                const isDisplayFile = displayImage && 
+                    ((file.uid && displayImage.uid === file.uid) || 
+                     (file.base64 && displayImage.base64 === file.base64));
+                
+                const fileName = file.name || file.fileName;
+                const mimeType = file.type || 'image/jpeg'; // Default to JPEG if type is not available
+                const base64Data = file.base64;
+                
+                return {
+                    fileName: fileName,
+                    isDisplay: isDisplayFile || false,
+                    base64: base64Data,
+                    mimeType: mimeType
+                };
+            });
+            
+            // Submit data to API
+            const response = await axios.post('/api/lands', {
+                ...formData,
+                documents
+            });
+            
+            // Check for message property which indicates success
+            if (response.data.message && response.data.message.includes('successfully')) {
+                message.success('ព័ត៌មានដីត្រូវបានរក្សាទុកដោយជោគជ័យ!');
+                router.visit(route('data-entry.lands.index'));
+            } else {
+                message.error('មានបញ្ហាក្នុងការរក្សាទុកព័ត៌មានដី។');
+            }
+        } catch (error) {
+            message.error('មានបញ្ហាក្នុងការរក្សាទុកព័ត៌មានដី។');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const steps = [
         {
@@ -32,9 +77,9 @@ export default function Create() {
                 category="land"
                 fileList={fileList} 
                 onFilesChange={(files) => {
-                    setFileList(files);
+                    setFileList(files); // Update the state in the parent
                 }} 
-                maxFiles={4}
+                maxFiles={2}
             />,
         },
         {
@@ -45,7 +90,7 @@ export default function Create() {
                     <LandForm 
                         formData={formData} 
                         setFormData={setFormData} 
-                        displayImage={fileList.find(file => file.isDisplay)}
+                        displayImage={displayImage}
                     />
                     <div className="mt-6 text-right">
                         <Button 
@@ -68,37 +113,6 @@ export default function Create() {
 
     const prev = () => {
         setCurrent(current - 1);
-    };
-
-    const handleSubmit = async () => {
-        setLoading(true);
-        
-        try {
-            // Prepare documents data
-            const documents = fileList.map(file => ({
-                tempPath: file.response?.file?.tempPath || file.tempPath,
-                fileName: file.name,
-                isDisplay: file.isDisplay || false
-            }));
-            
-            // Submit data to API
-            const response = await axios.post('/api/lands', {
-                ...formData,
-                documents
-            });
-            
-            if (response.data.success) {
-                message.success('ព័ត៌មានដីត្រូវបានរក្សាទុកដោយជោគជ័យ!');
-                router.visit(route('data-entry.lands.index'));
-            } else {
-                message.error('មានបញ្ហាក្នុងការរក្សាទុកព័ត៌មានដី។');
-            }
-        } catch (error) {
-            console.error('Error saving land:', error);
-            message.error('មានបញ្ហាក្នុងការរក្សាទុកព័ត៌មានដី។');
-        } finally {
-            setLoading(false);
-        }
     };
 
     return (
@@ -150,12 +164,24 @@ export default function Create() {
                             )}
                         </Col>
                         <Col>
-                            {current < steps.length - 1 && (
-                                <Button type="primary" onClick={next}>
-                                    បន្ទាប់
-                                </Button>
-                            )}
-
+                            <Space>
+                                {current < steps.length - 1 && (
+                                    <Button type="primary" onClick={next}>
+                                        បន្ទាប់
+                                    </Button>
+                                )}
+                                
+                                {current === steps.length - 1 && (
+                                    <Button 
+                                        type="primary" 
+                                        onClick={handleSubmit}
+                                        loading={loading}
+                                        disabled={!formData.title_deed_number || !formData.location || fileList.length === 0}
+                                    >
+                                        រក្សាទុក
+                                    </Button>
+                                )}
+                            </Space>
                         </Col>
                     </Row>
                 </div>

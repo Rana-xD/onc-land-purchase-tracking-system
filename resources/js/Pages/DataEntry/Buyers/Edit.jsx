@@ -56,7 +56,7 @@ export default function BuyerEdit({ buyer, documents }) {
                     <FileUpload
                         fileList={fileList}
                         setFileList={setFileList}
-                        maxFiles={4}
+                        maxFiles={2}
                     />
                 </Card>
             ),
@@ -143,57 +143,6 @@ export default function BuyerEdit({ buyer, documents }) {
                             <Input placeholder="បញ្ចូលលេខទូរស័ព្ទ" />
                         </Form.Item>
                     </Form>
-                </Card>
-            ),
-        },
-        {
-            title: 'បញ្ជាក់',
-            icon: <CheckCircleOutlined />,
-            content: (
-                <Card title="បញ្ជាក់ព័ត៌មាន" className="mb-6">
-                    <div className="confirmation-content">
-                        <Row gutter={[16, 16]}>
-                            <Col span={24}>
-                                <Card title="ឯកសារ" size="small">
-                                    {fileList.length > 0 ? (
-                                        <ul className="document-list">
-                                            {fileList.map((file, index) => (
-                                                <li key={index}>
-                                                    {file.name} {file.isDisplay && <span className="display-badge">(ឯកសារបង្ហាញ)</span>}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <Text type="secondary">គ្មានឯកសារ</Text>
-                                    )}
-                                </Card>
-                            </Col>
-                            <Col span={24}>
-                                <Card title="ព័ត៌មានអ្នកទិញ" size="small">
-                                    <Row gutter={[16, 8]}>
-                                        <Col xs={24} md={12}>
-                                            <Text strong>ឈ្មោះ:</Text> {formValues.name}
-                                        </Col>
-                                        <Col xs={24} md={12}>
-                                            <Text strong>ភេទ:</Text> {formValues.sex === 'male' ? 'ប្រុស' : 'ស្រី'}
-                                        </Col>
-                                        <Col xs={24} md={12}>
-                                            <Text strong>ថ្ងៃខែឆ្នាំកំណើត:</Text> {formValues.date_of_birth instanceof dayjs ? formValues.date_of_birth.format('YYYY-MM-DD') : formValues.date_of_birth}
-                                        </Col>
-                                        <Col xs={24} md={12}>
-                                            <Text strong>លេខអត្តសញ្ញាណប័ណ្ណ:</Text> {formValues.identity_number}
-                                        </Col>
-                                        <Col xs={24}>
-                                            <Text strong>អាសយដ្ឋាន:</Text> {formValues.address}
-                                        </Col>
-                                        <Col xs={24} md={12}>
-                                            <Text strong>លេខទូរស័ព្ទ:</Text> {formValues.phone_number}
-                                        </Col>
-                                    </Row>
-                                </Card>
-                            </Col>
-                        </Row>
-                    </div>
                 </Card>
             ),
         },

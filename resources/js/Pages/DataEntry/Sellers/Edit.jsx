@@ -56,7 +56,7 @@ export default function SellerEdit({ seller, documents }) {
                     <FileUpload
                         fileList={fileList}
                         setFileList={setFileList}
-                        maxFiles={4}
+                        maxFiles={2}
                     />
                 </Card>
             ),
@@ -109,12 +109,10 @@ export default function SellerEdit({ seller, documents }) {
                                 <Form.Item
                                     label="ថ្ងៃខែឆ្នាំកំណើត"
                                     name="date_of_birth"
-                                    rules={[{ required: true, message: 'សូមបញ្ចូលថ្ងៃខែឆ្នាំកំណើត' }]}
                                 >
                                     <DatePicker 
-                                        style={{ width: '100%' }} 
-                                        format="YYYY-MM-DD" 
-                                        placeholder="ជ្រើសរើសថ្ងៃខែឆ្នាំកំណើត"
+                                        style={{ width: '100%' }}
+                                        format="YYYY-MM-DD"
                                     />
                                 </Form.Item>
                             </Col>
@@ -122,92 +120,40 @@ export default function SellerEdit({ seller, documents }) {
                                 <Form.Item
                                     label="លេខអត្តសញ្ញាណប័ណ្ណ"
                                     name="identity_number"
-                                    rules={[{ required: true, message: 'សូមបញ្ចូលលេខអត្តសញ្ញាណប័ណ្ណ' }]}
                                 >
                                     <Input placeholder="បញ្ចូលលេខអត្តសញ្ញាណប័ណ្ណ" />
                                 </Form.Item>
                             </Col>
                         </Row>
-                        <Form.Item
-                            label="អាសយដ្ឋាន"
-                            name="address"
-                            rules={[{ required: true, message: 'សូមបញ្ចូលអាសយដ្ឋាន' }]}
-                        >
-                            <Input.TextArea rows={3} placeholder="បញ្ចូលអាសយដ្ឋាន" />
-                        </Form.Item>
-                        <Form.Item
-                            label="លេខទូរស័ព្ទ"
-                            name="phone_number"
-                            rules={[{ required: true, message: 'សូមបញ្ចូលលេខទូរស័ព្ទ' }]}
-                        >
-                            <Input placeholder="បញ្ចូលលេខទូរស័ព្ទ" />
-                        </Form.Item>
-                    </Form>
-                </Card>
-            ),
-        },
-        {
-            title: 'បញ្ជាក់',
-            icon: <CheckCircleOutlined />,
-            content: (
-                <Card title="បញ្ជាក់ព័ត៌មាន" className="mb-6">
-                    <div className="confirmation-content">
-                        <Row gutter={[16, 16]}>
-                            <Col span={24}>
-                                <Card title="ឯកសារ" size="small">
-                                    {fileList.length > 0 ? (
-                                        <ul className="document-list">
-                                            {fileList.map((file, index) => (
-                                                <li key={index}>
-                                                    {file.name} {file.isDisplay && <span className="display-badge">(ឯកសារបង្ហាញ)</span>}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <Text type="secondary">គ្មានឯកសារ</Text>
-                                    )}
-                                </Card>
+                        <Row gutter={16}>
+                            <Col xs={24} md={12}>
+                                <Form.Item
+                                    label="អាសយដ្ឋាន"
+                                    name="address"
+                                >
+                                    <Input.TextArea 
+                                        rows={4}
+                                        placeholder="បញ្ចូលអាសយដ្ឋាន"
+                                    />
+                                </Form.Item>
                             </Col>
-                            <Col span={24}>
-                                <Card title="ព័ត៌មានអ្នកលក់" size="small">
-                                    <Row gutter={[16, 8]}>
-                                        <Col xs={24} md={12}>
-                                            <Text strong>ឈ្មោះ:</Text> {formValues.name}
-                                        </Col>
-                                        <Col xs={24} md={12}>
-                                            <Text strong>ភេទ:</Text> {formValues.sex === 'male' ? 'ប្រុស' : 'ស្រី'}
-                                        </Col>
-                                        <Col xs={24} md={12}>
-                                            <Text strong>ថ្ងៃខែឆ្នាំកំណើត:</Text> {formValues.date_of_birth instanceof dayjs ? formValues.date_of_birth.format('YYYY-MM-DD') : formValues.date_of_birth}
-                                        </Col>
-                                        <Col xs={24} md={12}>
-                                            <Text strong>លេខអត្តសញ្ញាណប័ណ្ណ:</Text> {formValues.identity_number}
-                                        </Col>
-                                        <Col xs={24}>
-                                            <Text strong>អាសយដ្ឋាន:</Text> {formValues.address}
-                                        </Col>
-                                        <Col xs={24} md={12}>
-                                            <Text strong>លេខទូរស័ព្ទ:</Text> {formValues.phone_number}
-                                        </Col>
-                                    </Row>
-                                </Card>
+                            <Col xs={24} md={12}>
+                                <Form.Item
+                                    label="លេខទូរស័ព្ទ"
+                                    name="phone_number"
+                                >
+                                    <Input placeholder="បញ្ចូលលេខទូរស័ព្ទ" />
+                                </Form.Item>
                             </Col>
                         </Row>
-                    </div>
+                    </Form>
                 </Card>
             ),
         },
     ];
 
     const next = async () => {
-        if (currentStep === 1) {
-            try {
-                await form.validateFields();
-                setCurrentStep(currentStep + 1);
-            } catch (error) {
-                console.error('Validation failed:', error);
-            }
-        } else {
+        if (currentStep === 0) {
             setCurrentStep(currentStep + 1);
         }
     };

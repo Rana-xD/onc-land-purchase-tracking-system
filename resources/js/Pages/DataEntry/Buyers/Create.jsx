@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Card, Steps, Button, message, Breadcrumb, Row, Col } from 'antd';
+import { Card, Steps, Button, message, Breadcrumb, Row, Col, Space } from 'antd';
 import { UploadOutlined, FormOutlined, CheckCircleOutlined, HomeOutlined } from '@ant-design/icons';
 import FileUpload from '@/Components/FileUpload';
 import BuyerForm from '@/Components/BuyerForm';
@@ -28,50 +28,12 @@ export default function Create() {
     // Debug the display image object to ensure base64 data is present
     useEffect(() => {
         if (displayImage) {
-            console.log('Display image in Create.jsx:', displayImage);
-            console.log('Base64 data present:', !!displayImage.base64);
-            console.log('URL present:', !!displayImage.url);
+
+
+
         }
     }, [displayImage]);
-
-    const steps = [
-        {
-            title: 'បញ្ចូលឯកសារ',
-            icon: <UploadOutlined />,
-            content: <FileUpload 
-                category="buyer"
-                fileList={fileList} // Pass fileList as a prop
-                onFilesChange={(files) => {
-                    setFileList(files); // Update the state in the parent
-                }} 
-                maxFiles={4}
-            />,
-        },
-        {
-            title: 'បញ្ចូលព័ត៌មាន',
-            icon: <FormOutlined />,
-            content: (
-                <>
-                    <BuyerForm 
-                        formData={formData} 
-                        setFormData={setFormData} 
-                        displayImage={displayImage}
-                    />
-                    <div className="mt-6 text-right">
-                        <Button 
-                            type="primary" 
-                            onClick={handleSubmit}
-                            loading={loading}
-                            disabled={!formData.name || !formData.identity_number || fileList.length === 0}
-                        >
-                            រក្សាទុក
-                        </Button>
-                    </div>
-                </>
-            ),
-        },
-    ];
-
+    
     const next = () => {
         setCurrent(current + 1);
     };
@@ -84,12 +46,34 @@ export default function Create() {
         setLoading(true);
         
         try {
-            // Prepare documents data
-            const documents = fileList.map(file => ({
-                tempPath: file.response?.file?.tempPath || file.tempPath,
-                fileName: file.name,
-                isDisplay: file.isDisplay || false
-            }));
+            // Debug fileList data
+
+            
+            // Prepare documents data with base64
+            const documents = fileList.map(file => {
+                // Get base64 data from file
+                const base64Data = file.base64 || file.response?.file?.base64;
+                const fileName = file.name || file.fileName;
+                const mimeType = file.type || 'image/jpeg'; // Default to JPEG if type is not available
+                
+
+                
+                if (!base64Data) {
+    
+                }
+                
+                return {
+                    base64: base64Data,
+                    fileName: fileName,
+                    mimeType: mimeType,
+                    isDisplay: file.isDisplay || false
+                };
+            });
+            
+
+
+
+
             
             // Submit data to API
             const response = await axios.post('/api/buyers', {
@@ -97,18 +81,52 @@ export default function Create() {
                 documents
             });
             
-            if (response.data.success) {
+
+            
+            // Check for success message or status
+            if (response.data.success || (response.data.buyer && response.data.buyer.id)) {
                 message.success('ព័ត៌មានអ្នកទិញត្រូវបានរក្សាទុកដោយជោគជ័យ!');
                 router.visit(route('data-entry.buyers.index'));
             } else {
                 message.error('មានបញ្ហាក្នុងការរក្សាទុកព័ត៌មានអ្នកទិញ។');
             }
         } catch (error) {
+
             message.error('មានបញ្ហាក្នុងការរក្សាទុកព័ត៌មានអ្នកទិញ។');
         } finally {
             setLoading(false);
         }
     };
+
+    const steps = [
+        {
+            title: 'បញ្ចូលឯកសារ',
+            icon: <UploadOutlined />,
+            content: <FileUpload 
+                category="buyer"
+                fileList={fileList} // Pass fileList as a prop
+                onFilesChange={(files) => {
+                    setFileList(files); // Update the state in the parent
+                }} 
+                maxFiles={2}
+            />,
+        },
+        {
+            title: 'បញ្ចូលព័ត៌មាន',
+            icon: <FormOutlined />,
+            content: (
+                <>
+                    <BuyerForm 
+                        formData={formData} 
+                        setFormData={setFormData} 
+                        displayImage={displayImage}
+                    />
+                </>
+            ),
+        },
+    ];
+
+    
 
     return (
         <>
@@ -159,12 +177,24 @@ export default function Create() {
                             )}
                         </Col>
                         <Col>
-                            {current < steps.length - 1 && (
-                                <Button type="primary" onClick={next}>
-                                    បន្ទាប់
-                                </Button>
-                            )}
-
+                            <Space>
+                                {current < steps.length - 1 && (
+                                    <Button type="primary" onClick={next}>
+                                        បន្ទាប់
+                                    </Button>
+                                )}
+                                
+                                {current === steps.length - 1 && (
+                                    <Button 
+                                        type="primary" 
+                                        onClick={handleSubmit}
+                                        loading={loading}
+                                        disabled={!formData.name || !formData.identity_number || fileList.length === 0}
+                                    >
+                                        រក្សាទុក
+                                    </Button>
+                                )}
+                            </Space>
                         </Col>
                     </Row>
                 </div>
