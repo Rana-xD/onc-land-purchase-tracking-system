@@ -56,9 +56,21 @@ const items = [
         <DashboardOutlined />
     ),
     getItem('ទិន្នន័យបញ្ចូល', 'data-entry', <FileTextOutlined />, [
-        getItem('ព័ត៌មានអ្នកទិញ', 'buyer-info', <UserOutlined />),
-        getItem('ព័ត៌មានអ្នកលក់', 'seller-info', <UserOutlined />),
-        getItem('ព័ត៌មានដី', 'land-info', <BankOutlined />),
+        getItem(
+            <Link href={route('data-entry.buyers.index')}>ព័ត៌មានអ្នកទិញ</Link>,
+            'buyer-info',
+            <UserOutlined />
+        ),
+        getItem(
+            <Link href={route('data-entry.sellers.index')}>ព័ត៌មានអ្នកលក់</Link>,
+            'seller-info',
+            <UserOutlined />
+        ),
+        getItem(
+            <Link href={route('data-entry.lands.index')}>ព័ត៌មានដី</Link>,
+            'land-info',
+            <BankOutlined />
+        ),
     ]),
     getItem('បង្កើតឯកសារ', 'create-docs', <FileOutlined />, [
         getItem('កិច្ចសន្យាលក់ដី', 'land-sale-contract', <FileTextOutlined />),
@@ -88,6 +100,10 @@ export default function AdminLayout({ children, title }) {
     const getSelectedKeys = () => {
         if (url.startsWith('/dashboard')) return ['dashboard'];
         if (url.startsWith('/user-management')) return ['user-management'];
+        if (url.startsWith('/data-entry/buyers')) return ['buyer-info'];
+        if (url.startsWith('/data-entry/sellers')) return ['seller-info'];
+        if (url.startsWith('/data-entry/lands')) return ['land-info'];
+        if (url.startsWith('/data-entry')) return ['data-entry'];
         // Add more conditions for other routes as needed
         return [];
     };

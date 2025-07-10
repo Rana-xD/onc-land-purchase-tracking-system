@@ -197,7 +197,7 @@ export default function Dashboard({ auth }) {
                             title={<span className="khmer-text font-medium">ស្ថានភាពការទូទាត់</span>}
                             className="khmer-text dashboard-card"
                             style={{ height: '100%', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)' }}
-                            bordered={false}
+                            variant="outlined"
                         >
                             {loadingPaymentStats ? (
                                 <CenteredSpin />
@@ -277,7 +277,7 @@ export default function Dashboard({ auth }) {
                             title={<span className="khmer-text font-medium">ការទូទាត់ក្នុង 6 ខែខាងមុខ</span>}
                             className="khmer-text dashboard-card"
                             style={{ height: '100%', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)' }}
-                            bordered={false}
+                            variant="outlined"
                         >
                             {loadingUpcomingPayments ? (
                                 <CenteredSpin />

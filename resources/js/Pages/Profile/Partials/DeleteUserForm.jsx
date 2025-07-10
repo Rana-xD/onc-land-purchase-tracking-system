@@ -43,7 +43,7 @@ export default function DeleteUserForm() {
 
     return (
         <Card 
-            bordered={false}
+            variant="borderless"
             style={{ boxShadow: '0 1px 2px 0 rgba(0,0,0,0.03)' }}
         >
             <div className="mb-6">

@@ -1,0 +1,103 @@
+/* File Upload Grid Layout */
+.file-upload {
+    margin-bottom: 24px;
+}
+
+.file-upload-button {
+    margin-top: 16px;
+}
+
+.file-card {
+    transition: all 0.3s;
+    height: 100%;
+}
+
+.file-card.selected, .file-card.border-2.border-blue-500 {
+    border: 2px solid #1890ff;
+    box-shadow: 0 0 5px rgba(24, 144, 255, 0.5);
+}
+
+/* Card image/preview area */
+.file-preview-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 120px;
+    overflow: hidden;
+}
+
+.file-preview-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 120px;
+}
+
+/* File name styling with truncation */
+.file-name {
+    margin-top: 8px;
+    text-align: center;
+    word-break: break-word;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* Loading indicator */
+.upload-loading {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+}
+
+/* Upload button styling */
+.ant-upload.ant-upload-select {
+    width: 200px;
+    margin: 0 auto;
+    display: block;
+}
+
+.ant-upload-select-picture-card {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 104px;
+    padding: 16px;
+}
+
+/* Responsive button text */
+.display-button {
+    width: auto;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* Hide button text on small cards/screens */
+@media (max-width: 576px), (max-width: 220px) {
+    .display-button .button-text {
+        display: none;
+    }
+}
+
+/* Ensure action buttons have proper spacing */
+.file-card .ant-card-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 8px;
+}
+
+.file-card .ant-card-actions > li {
+    width: auto !important;
+    margin: 0;
+}
+
+/* Ensure card grid is responsive */
+@media (max-width: 576px) {
+    .file-upload .ant-upload-list {
+        display: flex;
+        flex-direction: column;
+    }
+}

@@ -30,7 +30,7 @@ export default function UpdateProfileInformation({
     return (
         <Card 
             className={className}
-            bordered={false}
+            variant="outlined"
             style={{ boxShadow: '0 1px 2px 0 rgba(0,0,0,0.03)' }}
         >
             <div className="mb-6">

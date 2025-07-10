@@ -13,7 +13,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\CleanupUserActivities::class,
+        Commands\CleanupTempFiles::class,
     ];
 
     /**
@@ -21,8 +21,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // Run activity cleanup once a month
-        $schedule->command('activities:cleanup')->monthly();
+        // Run temp files cleanup daily
+        $schedule->command('files:cleanup-temp')->daily();
     }
 
     /**
