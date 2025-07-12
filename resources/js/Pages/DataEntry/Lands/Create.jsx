@@ -11,16 +11,10 @@ export default function Create() {
     const [current, setCurrent] = useState(0);
     const [fileList, setFileList] = useState([]);
     const [formData, setFormData] = useState({
-        title_deed_number: '',
+        plot_number: '',
         location: '',
-        province: '',
-        district: '',
-        commune: '',
-        village: '',
+        date_of_registration: '',
         size: '',
-        size_unit: 'sqm',
-        price_per_unit: '',
-        total_price: '',
     });
     const [loading, setLoading] = useState(false);
     
@@ -58,12 +52,31 @@ export default function Create() {
             // Check for message property which indicates success
             if (response.data.message && response.data.message.includes('successfully')) {
                 message.success('ព័ត៌មានដីត្រូវបានរក្សាទុកដោយជោគជ័យ!');
-                router.visit(route('data-entry.lands.index'));
+                
+                // Add a small delay before redirecting to ensure the success message is seen
+                setTimeout(() => {
+                    router.visit(route('data-entry.lands.index'));
+                }, 1500);
             } else {
                 message.error('មានបញ្ហាក្នុងការរក្សាទុកព័ត៌មានដី។');
             }
         } catch (error) {
-            message.error('មានបញ្ហាក្នុងការរក្សាទុកព័ត៌មានដី។');
+            // Show more detailed error message if available
+            if (error.response && error.response.data) {
+                if (error.response.data.error) {
+                    message.error(`មានបញ្ហា: ${error.response.data.error}`);
+                } else if (error.response.data.errors) {
+                    // Handle validation errors
+                    const errorMessages = Object.values(error.response.data.errors).flat();
+                    errorMessages.forEach(errorMsg => {
+                        message.error(errorMsg);
+                    });
+                } else {
+                    message.error(`មានបញ្ហាក្នុងការរក្សាទុកព័ត៌មានដី។ កូដ: ${error.response.status}`);
+                }
+            } else {
+                message.error('មានបញ្ហាក្នុងការរក្សាទុកព័ត៌មានដី។');
+            }
         } finally {
             setLoading(false);
         }
@@ -92,16 +105,6 @@ export default function Create() {
                         setFormData={setFormData} 
                         displayImage={displayImage}
                     />
-                    <div className="mt-6 text-right">
-                        <Button 
-                            type="primary" 
-                            onClick={handleSubmit}
-                            loading={loading}
-                            disabled={!formData.title_deed_number || !formData.location || fileList.length === 0}
-                        >
-                            រក្សាទុក
-                        </Button>
-                    </div>
                 </>
             ),
         },
@@ -176,7 +179,7 @@ export default function Create() {
                                         type="primary" 
                                         onClick={handleSubmit}
                                         loading={loading}
-                                        disabled={!formData.title_deed_number || !formData.location || fileList.length === 0}
+                                        disabled={!formData.plot_number || !formData.location || !formData.date_of_registration || !formData.size || fileList.length === 0}
                                     >
                                         រក្សាទុក
                                     </Button>

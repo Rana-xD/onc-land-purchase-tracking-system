@@ -1,28 +1,43 @@
-import React, { useEffect } from 'react';
-import { Form, Input, Select, InputNumber, Card, Row, Col, Image, Typography } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, InputNumber, Card, Row, Col, Image, Typography, DatePicker } from 'antd';
 import { FileImageOutlined, FilePdfOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
 
-const { Option } = Select;
 const { Title, Text } = Typography;
 
 export default function LandForm({ formData, setFormData, displayImage }) {
+    const [formTouched, setFormTouched] = useState({
+        plot_number: false,
+        location: false,
+        date_of_registration: false,
+        size: false
+    });
     const handleChange = (name, value) => {
         setFormData({
             ...formData,
             [name]: value
         });
+        
+        // Mark field as touched
+        setFormTouched({
+            ...formTouched,
+            [name]: true
+        });
     };
-
-    // Calculate total price when size or price_per_unit changes
-    useEffect(() => {
-        if (formData.size && formData.price_per_unit) {
-            const totalPrice = formData.size * formData.price_per_unit;
-            setFormData({
-                ...formData,
-                total_price: totalPrice
-            });
-        }
-    }, [formData.size, formData.price_per_unit]);
+    
+    // Handle date change specifically for date picker
+    const handleDateChange = (date, dateString) => {
+        setFormData({
+            ...formData,
+            date_of_registration: dateString
+        });
+        
+        // Mark date field as touched
+        setFormTouched({
+            ...formTouched,
+            date_of_registration: true
+        });
+    };
 
     // Helper function to get preview URL for display image
     const getPreviewUrl = (file) => {
@@ -122,22 +137,25 @@ export default function LandForm({ formData, setFormData, displayImage }) {
             {displayImage && renderDisplayImage()}
             
             <Card title="ព័ត៌មានដី" className="mb-6">
-                <Form layout="vertical">
+                <Form layout="vertical" className="mt-6">
                 <Form.Item 
                     label="លេខប្លង់" 
-                    required 
-                    rules={[{ required: true, message: 'សូមបញ្ចូលលេខប្លង់' }]}
+                    required
+                    validateStatus={(formTouched.plot_number && !formData.plot_number) ? 'error' : ''}
+                    help={(formTouched.plot_number && !formData.plot_number) ? 'សូមបញ្ចូលលេខប្លង់' : ''}
                 >
                     <Input 
                         placeholder="បញ្ចូលលេខប្លង់" 
-                        value={formData.title_deed_number} 
-                        onChange={(e) => handleChange('title_deed_number', e.target.value)} 
+                        value={formData.plot_number} 
+                        onChange={(e) => handleChange('plot_number', e.target.value)} 
                     />
                 </Form.Item>
                 
                 <Form.Item 
                     label="ទីតាំង" 
                     required
+                    validateStatus={(formTouched.location && !formData.location) ? 'error' : ''}
+                    help={(formTouched.location && !formData.location) ? 'សូមបញ្ចូលទីតាំង' : ''}
                 >
                     <Input 
                         placeholder="បញ្ចូលទីតាំង" 
@@ -146,120 +164,39 @@ export default function LandForm({ formData, setFormData, displayImage }) {
                     />
                 </Form.Item>
                 
-                <Row gutter={16}>
-                    <Col xs={24} sm={12}>
-                        <Form.Item 
-                            label="ខេត្ត/ក្រុង" 
-                            required
-                        >
-                            <Input 
-                                placeholder="បញ្ចូលខេត្ត/ក្រុង" 
-                                value={formData.province} 
-                                onChange={(e) => handleChange('province', e.target.value)} 
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col xs={24} sm={12}>
-                        <Form.Item 
-                            label="ស្រុក/ខណ្ឌ" 
-                            required
-                        >
-                            <Input 
-                                placeholder="បញ្ចូលស្រុក/ខណ្ឌ" 
-                                value={formData.district} 
-                                onChange={(e) => handleChange('district', e.target.value)} 
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
+                <Form.Item 
+                    label="កាលបរិច្ឆេទចុះបញ្ជី" 
+                    required
+                    validateStatus={(formTouched.date_of_registration && !formData.date_of_registration) ? 'error' : ''}
+                    help={(formTouched.date_of_registration && !formData.date_of_registration) ? 'សូមបញ្ចូលកាលបរិច្ឆេទចុះបញ្ជី' : ''}
+                >
+                    <DatePicker 
+                        style={{ width: '100%' }}
+                        placeholder="ជ្រើសរើសកាលបរិច្ឆេទ" 
+                        value={formData.date_of_registration ? dayjs(formData.date_of_registration) : null}
+                        onChange={handleDateChange}
+                        format="YYYY-MM-DD"
+                    />
+                </Form.Item>
                 
                 <Row gutter={16}>
-                    <Col xs={24} sm={12}>
+                    <Col xs={24}>
                         <Form.Item 
-                            label="ឃុំ/សង្កាត់" 
+                            label="ទំហំ (ម៉ែត្រការ៉េ)" 
                             required
-                        >
-                            <Input 
-                                placeholder="បញ្ចូលឃុំ/សង្កាត់" 
-                                value={formData.commune} 
-                                onChange={(e) => handleChange('commune', e.target.value)} 
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col xs={24} sm={12}>
-                        <Form.Item 
-                            label="ភូមិ" 
-                            required
-                        >
-                            <Input 
-                                placeholder="បញ្ចូលភូមិ" 
-                                value={formData.village} 
-                                onChange={(e) => handleChange('village', e.target.value)} 
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
-                
-                <Row gutter={16}>
-                    <Col xs={24} sm={16}>
-                        <Form.Item 
-                            label="ទំហំ" 
-                            required
+                            validateStatus={(formTouched.size && !formData.size) ? 'error' : ''}
+                            help={(formTouched.size && !formData.size) ? 'សូមបញ្ចូលទំហំ' : ''}
                         >
                             <InputNumber 
                                 style={{ width: '100%' }}
                                 placeholder="បញ្ចូលទំហំ" 
-                                value={formData.size} 
-                                onChange={(value) => handleChange('size', value)} 
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col xs={24} sm={8}>
-                        <Form.Item 
-                            label="ឯកតា" 
-                            required
-                        >
-                            <Select 
-                                value={formData.size_unit} 
-                                onChange={(value) => handleChange('size_unit', value)}
-                            >
-                                <Option value="sqm">ម៉ែត្រការ៉េ</Option>
-                                <Option value="hectare">ហិកតា</Option>
-                                <Option value="acre">អាក្រ</Option>
-                            </Select>
-                        </Form.Item>
-                    </Col>
-                </Row>
-                
-                <Row gutter={16}>
-                    <Col xs={24} sm={12}>
-                        <Form.Item 
-                            label="តម្លៃក្នុងមួយឯកតា" 
-                            required
-                        >
-                            <InputNumber 
-                                style={{ width: '100%' }}
-                                placeholder="បញ្ចូលតម្លៃក្នុងមួយឯកតា" 
-                                value={formData.price_per_unit} 
-                                onChange={(value) => handleChange('price_per_unit', value)} 
-                                formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                parser={value => value.replace(/\$\s?|(,*)/g, '')}
-                            />
-                        </Form.Item>
-                    </Col>
-                    <Col xs={24} sm={12}>
-                        <Form.Item 
-                            label="តម្លៃសរុប" 
-                            required
-                        >
-                            <InputNumber 
-                                style={{ width: '100%' }}
-                                placeholder="តម្លៃសរុប" 
-                                value={formData.total_price} 
-                                onChange={(value) => handleChange('total_price', value)} 
-                                formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                parser={value => value.replace(/\$\s?|(,*)/g, '')}
-                                disabled
+                                value={formData.size !== '' ? formData.size : null} 
+                                onChange={(value) => handleChange('size', value)}
+                                stringMode={false}
+                                min={0}
+                                step={0.01}
+                                precision={2}
+                                addonAfter="ម²"
                             />
                         </Form.Item>
                     </Col>

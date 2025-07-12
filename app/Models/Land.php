@@ -36,8 +36,12 @@ class Land extends Model
      */
     public function documents()
     {
-        return $this->hasMany(Document::class, 'reference_id')
-            ->where('category', 'land');
+        // Support both relationship types for backward compatibility
+        return $this->morphMany(Document::class, 'documentable')
+            ->orWhere(function($query) {
+                $query->where('reference_id', $this->id)
+                      ->where('category', 'land');
+            });
     }
 
     /**
@@ -45,8 +49,13 @@ class Land extends Model
      */
     public function displayDocument()
     {
-        return $this->hasOne(Document::class, 'reference_id')
-            ->where('category', 'land')
-            ->where('is_display', true);
+        // Support both relationship types for backward compatibility
+        return $this->morphOne(Document::class, 'documentable')
+            ->where('is_display', true)
+            ->orWhere(function($query) {
+                $query->where('reference_id', $this->id)
+                      ->where('category', 'land')
+                      ->where('is_display', true);
+            });
     }
 }

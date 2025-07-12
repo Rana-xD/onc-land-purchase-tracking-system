@@ -24,13 +24,7 @@ export default function Create() {
     // Make sure to preserve all properties including base64 data
     const displayImage = fileList.find(file => file.isDisplay) || fileList[0] || null;
     
-    // Debug the displayImage
-    useEffect(() => {
-        if (displayImage) {
-            console.log('Create.jsx - displayImage:', displayImage);
-            console.log('Create.jsx - displayImage has base64:', !!displayImage.base64);
-        }
-    }, [displayImage]);
+    // No debug logs needed
 
     const handleSubmit = async () => {
         setLoading(true);

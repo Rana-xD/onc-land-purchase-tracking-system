@@ -25,14 +25,7 @@ export default function Create() {
     // Make sure to preserve all properties including base64 data
     const displayImage = fileList.find(file => file.isDisplay) || fileList[0] || null;
     
-    // Debug the display image object to ensure base64 data is present
-    useEffect(() => {
-        if (displayImage) {
-
-
-
-        }
-    }, [displayImage]);
+    // No debug logs needed
     
     const next = () => {
         setCurrent(current + 1);
@@ -46,9 +39,6 @@ export default function Create() {
         setLoading(true);
         
         try {
-            // Debug fileList data
-
-            
             // Prepare documents data with base64
             const documents = fileList.map(file => {
                 // Get base64 data from file
@@ -56,11 +46,7 @@ export default function Create() {
                 const fileName = file.name || file.fileName;
                 const mimeType = file.type || 'image/jpeg'; // Default to JPEG if type is not available
                 
-
-                
-                if (!base64Data) {
-    
-                }
+                // Ensure base64Data exists
                 
                 return {
                     base64: base64Data,
@@ -91,7 +77,6 @@ export default function Create() {
                 message.error('មានបញ្ហាក្នុងការរក្សាទុកព័ត៌មានអ្នកទិញ។');
             }
         } catch (error) {
-
             message.error('មានបញ្ហាក្នុងការរក្សាទុកព័ត៌មានអ្នកទិញ។');
         } finally {
             setLoading(false);

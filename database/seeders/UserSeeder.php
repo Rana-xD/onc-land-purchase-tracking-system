@@ -51,14 +51,6 @@ class UserSeeder extends Seeder
             'role' => 'manager',
             'is_active' => true,
         ]);
-        
-        User::create([
-            'name' => 'ឡុង សុភ័ក្រ',  // Long Sopheak
-            'username' => 'sopheak',
-            'password' => Hash::make('password'),
-            'role' => 'manager',
-            'is_active' => false,  // Inactive user
-        ]);
 
         // Staff users
         User::create([
@@ -72,38 +64,6 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'ឃឹម សុគន្ធា',  // Khim Sokantha
             'username' => 'sokantha',
-            'password' => Hash::make('password'),
-            'role' => 'staff',
-            'is_active' => true,
-        ]);
-        
-        User::create([
-            'name' => 'ឈិន សុផល',  // Chhin Sophal
-            'username' => 'sophal',
-            'password' => Hash::make('password'),
-            'role' => 'staff',
-            'is_active' => true,
-        ]);
-        
-        User::create([
-            'name' => 'ឃុត សុភារី',  // Khut Sopheary
-            'username' => 'sopheary',
-            'password' => Hash::make('password'),
-            'role' => 'staff',
-            'is_active' => true,
-        ]);
-        
-        User::create([
-            'name' => 'ឈុន សុខលី',  // Chhun Sokly
-            'username' => 'sokly',
-            'password' => Hash::make('password'),
-            'role' => 'staff',
-            'is_active' => false,  // Inactive user
-        ]);
-        
-        User::create([
-            'name' => 'ឡុង សុវណ្ណា',  // Long Sovanna
-            'username' => 'sovanna',
             'password' => Hash::make('password'),
             'role' => 'staff',
             'is_active' => true,
