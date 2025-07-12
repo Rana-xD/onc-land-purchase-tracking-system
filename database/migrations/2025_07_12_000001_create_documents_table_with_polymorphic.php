@@ -13,8 +13,15 @@ return new class extends Migration
     {
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
-            $table->enum('category', ['buyer', 'seller', 'land']);
-            $table->unsignedBigInteger('reference_id'); // links to buyer_id, seller_id, or land_id
+            // Legacy fields (nullable for backward compatibility)
+            $table->enum('category', ['buyer', 'seller', 'land'])->nullable();
+            $table->unsignedBigInteger('reference_id')->nullable();
+            
+            // Polymorphic relationship fields
+            $table->string('documentable_type')->nullable();
+            $table->unsignedBigInteger('documentable_id')->nullable();
+            
+            // Document metadata
             $table->string('file_name');
             $table->string('file_path');
             $table->unsignedInteger('file_size'); // in bytes
@@ -22,8 +29,9 @@ return new class extends Migration
             $table->boolean('is_display')->default(false); // true if selected for display
             $table->timestamps();
             
-            // Add index for faster lookups
+            // Add indexes for faster lookups
             $table->index(['category', 'reference_id']);
+            $table->index(['documentable_type', 'documentable_id']);
         });
     }
 
