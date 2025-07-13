@@ -5,6 +5,58 @@
 /* Import Khmer fonts */
 @import './khmer-fonts.css';
 
+/* Custom Styles for Navigation Steps */
+.site-navigation-steps .ant-steps-item-title {
+  font-size: 0.85rem !important;
+  white-space: normal !important;
+  line-height: 1.2 !important;
+  padding-right: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+}
+
+.site-navigation-steps .ant-steps-item-icon {
+  margin-right: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.site-navigation-steps .ant-steps-item {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.site-navigation-steps .ant-steps-item-container {
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Align the connecting line */
+.site-navigation-steps .ant-steps-item-tail {
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  margin-top: 0 !important;
+}
+
+.site-navigation-steps .ant-steps-item-content {
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Make steps more compact on smaller screens */
+@media (max-width: 768px) {
+  .site-navigation-steps .ant-steps-item-title {
+    font-size: 0.75rem !important;
+    max-width: 80px !important;
+  }
+  
+  .site-navigation-steps .ant-steps-item-icon {
+    margin-right: 2px !important;
+  }
+}
+
 /* Design System Constants */
 :root {
   /* Colors */

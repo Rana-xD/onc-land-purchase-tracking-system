@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import {
     Layout, 
@@ -23,6 +23,7 @@ import {
     BellOutlined,
     LogoutOutlined,
     FileTextOutlined,
+    FileProtectOutlined,
     BankOutlined,
     DollarOutlined,
     PercentageOutlined,
@@ -73,8 +74,16 @@ const items = [
         ),
     ]),
     getItem('បង្កើតឯកសារ', 'create-docs', <FileOutlined />, [
-        getItem('កិច្ចសន្យាលក់ដី', 'land-sale-contract', <FileTextOutlined />),
-        getItem('កិច្ចសន្យាកក់ប្រាក់', 'deposit-contract', <FileTextOutlined />),
+        getItem(
+            <Link href={route('deposit-contracts.index')}>លិខិតកក់ប្រាក់</Link>,
+            'deposit-contracts',
+            <FileProtectOutlined />
+        ),
+        getItem(
+            <Link href={route('sale-contracts.index')}>លិខិតទិញ លក់</Link>,
+            'sale-contracts',
+            <FileTextOutlined />
+        ),
     ]),
     getItem('របាយការណ៍', 'reports', <FileOutlined />, [
         getItem('របាយការណ៍កិច្ចសន្យា', 'contract-report', <FileOutlined />),
@@ -92,6 +101,7 @@ const items = [
 
 export default function AdminLayout({ children, title }) {
     const [collapsed, setCollapsed] = useState(false);
+    const [openKeys, setOpenKeys] = useState(['create-docs']);
     const { defaultAlgorithm, darkAlgorithm } = theme;
     const { user } = usePage().props.auth;
     const { url } = usePage();
@@ -104,9 +114,30 @@ export default function AdminLayout({ children, title }) {
         if (url.startsWith('/data-entry/sellers')) return ['seller-info'];
         if (url.startsWith('/data-entry/lands')) return ['land-info'];
         if (url.startsWith('/data-entry')) return ['data-entry'];
-        // Add more conditions for other routes as needed
+        
+        // Handle document routes with new URL structure
+        if (url.startsWith('/deposit-contracts')) return ['deposit-contracts'];
+        if (url.startsWith('/sale-contracts')) return ['sale-contracts'];
+        
+        return ['dashboard'];
+    };
+    
+    // Determine which parent menu should be open based on the selected keys
+    const getOpenKeys = () => {
+        const selectedKeys = getSelectedKeys();
+        if (selectedKeys.includes('deposit-contracts') || selectedKeys.includes('sale-contracts')) {
+            return ['create-docs'];
+        }
+        if (selectedKeys.includes('buyer-info') || selectedKeys.includes('seller-info') || selectedKeys.includes('land-info')) {
+            return ['data-entry'];
+        }
         return [];
     };
+    
+    // Update open keys when URL changes
+    useEffect(() => {
+        setOpenKeys(getOpenKeys());
+    }, [url]);
 
     const userMenuItems = [
         {
@@ -167,6 +198,8 @@ export default function AdminLayout({ children, title }) {
                         theme="dark"
                         mode="inline"
                         selectedKeys={getSelectedKeys()}
+                        openKeys={openKeys}
+                        onOpenChange={setOpenKeys}
                         items={items}
                         className="khmer-text"
                         style={{ fontSize: '16px' }}

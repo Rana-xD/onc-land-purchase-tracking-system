@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\BuyerApiController;
 use App\Http\Controllers\Api\BuyerController;
+use App\Http\Controllers\Api\DocumentCreationController;
 use App\Http\Controllers\Api\FileUploadController;
 use App\Http\Controllers\Api\LandApiController;
 use App\Http\Controllers\Api\LandController;
@@ -58,6 +59,37 @@ Route::middleware('auth')->group(function () {
     // Simple test route to isolate the issue
     Route::get('/test-page', function () {
         return Inertia::render('Dashboard');
+    });
+    
+    // Document Creation routes - Web UI routes (Inertia)
+    Route::get('/documents', [\App\Http\Controllers\DocumentCreationController::class, 'index'])->name('documents.index');
+    
+    // Deposit Contracts routes
+    Route::prefix('deposit-contracts')->name('deposit-contracts.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\DocumentCreationController::class, 'depositContractsIndex'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\DocumentCreationController::class, 'createDepositContract'])->name('create');
+        Route::get('/select-buyers', [\App\Http\Controllers\DocumentCreationController::class, 'selectBuyers'])->defaults('type', 'deposit_contract')->name('select-buyers');
+        Route::get('/{id}/select-sellers', [\App\Http\Controllers\DocumentCreationController::class, 'selectSellers'])->defaults('type', 'deposit_contract')->name('select-sellers');
+        Route::get('/{id}/select-lands', [\App\Http\Controllers\DocumentCreationController::class, 'selectLands'])->defaults('type', 'deposit_contract')->name('select-lands');
+        Route::get('/{id}/deposit-config', [\App\Http\Controllers\DocumentCreationController::class, 'depositConfig'])->name('deposit-config');
+        Route::get('/{id}/success', [\App\Http\Controllers\DocumentCreationController::class, 'success'])->defaults('type', 'deposit_contract')->name('success');
+        Route::get('/{id}/download', [\App\Http\Controllers\DocumentCreationController::class, 'download'])->defaults('type', 'deposit_contract')->name('download');
+        Route::delete('/{id}', [\App\Http\Controllers\DocumentCreationController::class, 'destroy'])->defaults('type', 'deposit_contract')->name('destroy');
+        Route::get('/{id}', [\App\Http\Controllers\DocumentCreationController::class, 'show'])->defaults('type', 'deposit_contract')->name('show');
+    });
+    
+    // Sale Contracts routes
+    Route::prefix('sale-contracts')->name('sale-contracts.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\DocumentCreationController::class, 'saleContractsIndex'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\DocumentCreationController::class, 'createSaleContract'])->name('create');
+        Route::get('/select-buyers', [\App\Http\Controllers\DocumentCreationController::class, 'selectBuyers'])->defaults('type', 'sale_contract')->name('select-buyers');
+        Route::get('/{id}/select-sellers', [\App\Http\Controllers\DocumentCreationController::class, 'selectSellers'])->defaults('type', 'sale_contract')->name('select-sellers');
+        Route::get('/{id}/select-lands', [\App\Http\Controllers\DocumentCreationController::class, 'selectLands'])->defaults('type', 'sale_contract')->name('select-lands');
+        Route::get('/{id}/payment-steps', [\App\Http\Controllers\DocumentCreationController::class, 'paymentSteps'])->name('payment-steps');
+        Route::get('/{id}/success', [\App\Http\Controllers\DocumentCreationController::class, 'success'])->defaults('type', 'sale_contract')->name('success');
+        Route::get('/{id}/download', [\App\Http\Controllers\DocumentCreationController::class, 'download'])->defaults('type', 'sale_contract')->name('download');
+        Route::delete('/{id}', [\App\Http\Controllers\DocumentCreationController::class, 'destroy'])->defaults('type', 'sale_contract')->name('destroy');
+        Route::get('/{id}', [\App\Http\Controllers\DocumentCreationController::class, 'show'])->defaults('type', 'sale_contract')->name('show');
     });
     
     // Data Entry routes
@@ -142,6 +174,31 @@ Route::middleware('auth')->group(function () {
             Route::put('/{id}', [LandApiController::class, 'update']);
             Route::delete('/{id}', [LandApiController::class, 'destroy']);
             Route::put('/{id}/documents/{documentId}/set-display', [LandApiController::class, 'setDisplayDocument']);
+        });
+        
+        // Common Document API endpoints
+        Route::get('/documents', [DocumentCreationController::class, 'index']);
+        
+        // Deposit Contract API endpoints
+        Route::prefix('deposit-contracts')->group(function () {
+            Route::post('/create', [DocumentCreationController::class, 'apiCreateDepositContract']);
+            Route::get('/{id}', [DocumentCreationController::class, 'show']);
+            Route::post('/{id}/select-buyers', [DocumentCreationController::class, 'selectBuyers']);
+            Route::post('/{id}/select-sellers', [DocumentCreationController::class, 'selectSellers']);
+            Route::post('/{id}/select-lands', [DocumentCreationController::class, 'selectLands']);
+            Route::post('/{id}/deposit-config', [DocumentCreationController::class, 'depositConfig']);
+            Route::post('/{id}/generate', [DocumentCreationController::class, 'generate']);
+        });
+        
+        // Sale Contract API endpoints
+        Route::prefix('sale-contracts')->group(function () {
+            Route::post('/create', [DocumentCreationController::class, 'apiCreateSaleContract']);
+            Route::get('/{id}', [DocumentCreationController::class, 'show']);
+            Route::post('/{id}/select-buyers', [DocumentCreationController::class, 'selectBuyers']);
+            Route::post('/{id}/select-sellers', [DocumentCreationController::class, 'selectSellers']);
+            Route::post('/{id}/select-lands', [DocumentCreationController::class, 'selectLands']);
+            Route::post('/{id}/payment-steps', [DocumentCreationController::class, 'paymentSteps']);
+            Route::post('/{id}/generate', [DocumentCreationController::class, 'generate']);
         });
     });
 });
