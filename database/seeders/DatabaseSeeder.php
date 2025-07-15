@@ -14,6 +14,9 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
+            SellerSeeder::class,
+            BuyerSeeder::class,
+            LandSeeder::class,
             // Removed buyer, seller, and land seeders for development simplicity
         ]);
     }

@@ -15,16 +15,26 @@ export default function PaymentSteps({ document, paymentSteps }) {
     { step_number: 1, amount: '', due_date: null, payment_time_description: '' }
   ]);
   const [totalPayment, setTotalPayment] = useState(0);
+  const [hasEmptyFields, setHasEmptyFields] = useState(true);
   
-  // Calculate total payment whenever steps change
+  // Calculate total payment and check for empty fields whenever steps change
   useEffect(() => {
     let total = 0;
+    let hasEmpty = false;
+    
     steps.forEach(step => {
       if (step.amount) {
         total += parseFloat(step.amount);
       }
+      
+      // Check if any required fields are empty
+      if (!step.amount || !step.due_date || !step.payment_time_description) {
+        hasEmpty = true;
+      }
     });
+    
     setTotalPayment(total);
+    setHasEmptyFields(hasEmpty);
   }, [steps]);
   
   const addStep = () => {
@@ -261,7 +271,7 @@ export default function PaymentSteps({ document, paymentSteps }) {
               type="primary" 
               onClick={handleGenerate}
               loading={loading}
-              disabled={Math.abs(totalPayment - parseFloat(document.total_land_price)) > 0.01}
+              disabled={Math.abs(totalPayment - parseFloat(document.total_land_price)) > 0.01 || hasEmptyFields}
             >
               បង្កើតឯកសារ
             </Button>

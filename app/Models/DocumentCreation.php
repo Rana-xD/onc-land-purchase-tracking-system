@@ -23,6 +23,7 @@ class DocumentCreation extends Model
         'total_land_price',
         'deposit_amount',
         'deposit_months',
+        'document_code',
     ];
 
     /**
@@ -90,5 +91,38 @@ class DocumentCreation extends Model
     public function isSaleContract(): bool
     {
         return $this->document_type === 'sale_contract';
+    }
+    
+    /**
+     * The "booted" method of the model.
+     * Automatically generate document_code when creating a new document.
+     */
+    protected static function booted()
+    {
+        static::creating(function ($document) {
+            // Generate document code in format [YYMMDD]-[Sequential Number]
+            // Get today's date in YYMMDD format
+            $dateCode = now()->format('ymd');
+            
+            // Find the latest document with the same date code to determine the next sequence number
+            $latestDocument = static::where('document_code', 'like', $dateCode . '-%')
+                ->orderByRaw('CAST(SUBSTRING(document_code, 8) AS UNSIGNED) DESC')
+                ->first();
+            
+            // Extract the sequence number and increment it, or start at 0001 if no documents exist for today
+            $sequenceNumber = 1;
+            if ($latestDocument) {
+                $parts = explode('-', $latestDocument->document_code);
+                if (count($parts) > 1) {
+                    $sequenceNumber = (int)$parts[1] + 1;
+                }
+            }
+            
+            // Format the sequence number with leading zeros to ensure 4 digits
+            $formattedSequence = str_pad($sequenceNumber, 4, '0', STR_PAD_LEFT);
+            
+            // Set the document code
+            $document->document_code = $dateCode . '-' . $formattedSequence;
+        });
     }
 }

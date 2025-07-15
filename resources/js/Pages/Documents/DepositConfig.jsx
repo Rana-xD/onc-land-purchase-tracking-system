@@ -107,7 +107,7 @@ export default function DepositConfig({ document }) {
           <div className="max-w-md mx-auto">
             <div className="mb-6">
               <div className="mb-2">
-                <Text strong>ចំនួនប្រាក់កក់ (Deposit Amount) *</Text>
+                <Text strong>ចំនួនប្រាក់កក់ (Deposit Amount) <span style={{ color: 'red' }}>*</span></Text>
               </div>
               <InputNumber
                 style={{ width: '100%' }}
@@ -123,7 +123,7 @@ export default function DepositConfig({ document }) {
             
             <div className="mb-6">
               <div className="mb-2">
-                <Text strong>រយៈពេលកក់ប្រាក់ (Deposit Period) *</Text>
+                <Text strong>រយៈពេលកក់ប្រាក់ (Deposit Period) <span style={{ color: 'red' }}>*</span></Text>
               </div>
               <Select
                 style={{ width: '100%' }}
@@ -131,9 +131,12 @@ export default function DepositConfig({ document }) {
                 onChange={setDepositMonths}
                 placeholder="ជ្រើសរើសរយៈពេល"
               >
+                <Option value={1}>1 ខែ (1 month)</Option>
                 <Option value={2}>2 ខែ (2 months)</Option>
                 <Option value={3}>3 ខែ (3 months)</Option>
                 <Option value={4}>4 ខែ (4 months)</Option>
+                <Option value={5}>5 ខែ (5 months)</Option>
+                <Option value={6}>6 ខែ (6 months)</Option>
               </Select>
             </div>
           </div>

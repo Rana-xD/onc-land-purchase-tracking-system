@@ -59,6 +59,7 @@ export default function SaleContractsList({ initialDocuments }) {
     const searchLower = searchText.toLowerCase();
     
     // Search in document properties
+    if (doc.document_code && doc.document_code.toLowerCase().includes(searchLower)) return true;
     if (doc.id.toString().includes(searchLower)) return true;
     if (doc.created_at && formatDate(doc.created_at).toLowerCase().includes(searchLower)) return true;
     
@@ -82,9 +83,17 @@ export default function SaleContractsList({ initialDocuments }) {
   const columns = [
     {
       title: 'លេខសម្គាល់',
-      dataIndex: 'id',
-      key: 'id',
-      sorter: (a, b) => a.id - b.id,
+      dataIndex: 'document_code',
+      key: 'document_code',
+      render: (code, record) => code || `#${record.id}`,
+      sorter: (a, b) => {
+        // If both have document_code, sort by that
+        if (a.document_code && b.document_code) {
+          return a.document_code.localeCompare(b.document_code);
+        }
+        // Fall back to ID sorting
+        return a.id - b.id;
+      },
     },
     {
       title: 'អ្នកទិញ',
