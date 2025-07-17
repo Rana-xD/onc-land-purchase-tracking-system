@@ -86,10 +86,26 @@ const items = [
         ),
     ]),
     getItem('របាយការណ៍', 'reports', <FileOutlined />, [
-        getItem('របាយការណ៍កិច្ចសន្យា', 'contract-report', <FileOutlined />),
-        getItem('របាយការណ៍ប្រចាំខែ', 'monthly-report', <FileOutlined />),
-        getItem('របាយការណ៍ប្រចាំឆ្នាំ', 'yearly-report', <FileOutlined />),
-        getItem('របាយការណ៍ចំនួនទឹកប្រាក់ទូទាត់ហើយនិងមិនទាន់ទូទាត់', 'payment-status-report', <DollarOutlined />),
+        getItem(
+            <Link href={route('reports.document')}>របាយការណ៍កិច្ចសន្យា</Link>,
+            'document-report',
+            <FileOutlined />
+        ),
+        getItem(
+            <Link href={route('reports.monthly')}>របាយការណ៍ប្រចាំខែ</Link>,
+            'monthly-report',
+            <FileOutlined />
+        ),
+        getItem(
+            <Link href="#">របាយការណ៍ប្រចាំឆ្នាំ</Link>,
+            'yearly-report',
+            <FileOutlined />
+        ),
+        getItem(
+            <Link href="#">របាយការណ៍ចំនួនទឹកប្រាក់ទូទាត់ហើយនិងមិនទាន់ទូទាត់</Link>,
+            'payment-status-report',
+            <DollarOutlined />
+        ),
     ]),
     getItem('គ្រប់គ្រងកម៉ីសិន', 'commission', <PercentageOutlined />),
     getItem(
@@ -119,6 +135,12 @@ export default function AdminLayout({ children, title }) {
         if (url.startsWith('/deposit-contracts')) return ['deposit-contracts'];
         if (url.startsWith('/sale-contracts')) return ['sale-contracts'];
         
+        // Handle report routes
+        if (url.startsWith('/reports/document')) return ['document-report'];
+        if (url.startsWith('/reports/monthly')) return ['monthly-report'];
+        if (url.startsWith('/reports/yearly')) return ['yearly-report'];
+        if (url.startsWith('/reports/payment-status')) return ['payment-status-report'];
+        
         return ['dashboard'];
     };
     
@@ -130,6 +152,10 @@ export default function AdminLayout({ children, title }) {
         }
         if (selectedKeys.includes('buyer-info') || selectedKeys.includes('seller-info') || selectedKeys.includes('land-info')) {
             return ['data-entry'];
+        }
+        if (selectedKeys.includes('document-report') || selectedKeys.includes('monthly-report') || 
+            selectedKeys.includes('yearly-report') || selectedKeys.includes('payment-status-report')) {
+            return ['reports'];
         }
         return [];
     };
@@ -180,6 +206,7 @@ export default function AdminLayout({ children, title }) {
                     trigger={null} 
                     collapsible 
                     collapsed={collapsed}
+                    width={260}
                     style={{
                         overflow: 'auto',
                         height: '100vh',
@@ -205,7 +232,7 @@ export default function AdminLayout({ children, title }) {
                         style={{ fontSize: '16px' }}
                     />
                 </Sider>
-                <Layout style={{ marginLeft: collapsed ? 80 : 200, transition: 'all 0.2s' }}>
+                <Layout style={{ marginLeft: collapsed ? 80 : 260, transition: 'all 0.2s' }}>
                     <Header 
                         style={{ 
                             padding: '0 16px', 

@@ -343,6 +343,32 @@ class DocumentCreationController extends Controller
         // Mark document as completed
         $document->update(['status' => 'completed']);
 
+        // If this is a sale contract, create a SaleContract record
+        if ($document->isSaleContract()) {
+            // Get the first buyer, seller, and land for the contract details
+            $firstBuyer = $document->buyers()->with('buyer')->first();
+            $firstSeller = $document->sellers()->with('seller')->first();
+            $firstLand = $document->lands()->with('land')->first();
+            
+            // Create the sale contract record
+            $saleContract = new \App\Models\SaleContract([
+                'contract_id' => $document->document_code,
+                'document_creation_id' => $document->id,
+                'land_id' => $firstLand ? $firstLand->land_id : null,
+                'buyer_name' => $firstBuyer ? $firstBuyer->buyer->name : 'Unknown',
+                'buyer_phone' => $firstBuyer ? $firstBuyer->buyer->phone : 'Unknown',
+                'buyer_address' => $firstBuyer ? $firstBuyer->buyer->address : 'Unknown',
+                'seller_name' => $firstSeller ? $firstSeller->seller->name : 'Unknown',
+                'seller_phone' => $firstSeller ? $firstSeller->seller->phone : 'Unknown',
+                'seller_address' => $firstSeller ? $firstSeller->seller->address : 'Unknown',
+                'total_amount' => $document->total_land_price,
+                'contract_date' => now(),
+                'status' => 'active',
+            ]);
+            
+            $saleContract->save();
+        }
+
         // In a real implementation, you would generate the actual document here
         // For now, we'll just return the document data
 

@@ -25,7 +25,7 @@ export default function DepositContractsList({ initialDocuments }) {
       const response = await axios.get('/api/documents?type=deposit_contract');
       setDocuments(response.data);
     } catch (error) {
-      console.error('Error fetching deposit contracts:', error);
+      console.error('បញ្ហាក្នុងការទាញកិច្ចសន្យាប័ត្រប្រាក់កក់:', error);
     } finally {
       setLoading(false);
     }

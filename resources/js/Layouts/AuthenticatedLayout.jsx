@@ -17,7 +17,7 @@ export default function Authenticated({
     return (
         <div className="min-h-screen bg-gray-100">
             <nav className="border-b border-gray-100 bg-white">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
@@ -33,6 +33,21 @@ export default function Authenticated({
                                 >
                                     Dashboard
                                 </NavLink>
+                                
+                                <div className="flex space-x-4">
+                                    <Link
+                                        href={route('reports.document')}
+                                        className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none"
+                                    >
+                                        Document Report
+                                    </Link>
+                                    <Link
+                                        href={route('reports.monthly')}
+                                        className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none"
+                                    >
+                                        Monthly Report
+                                    </Link>
+                                </div>
                             </div>
                         </div>
 
@@ -136,6 +151,18 @@ export default function Authenticated({
                             active={route().current('dashboard')}
                         >
                             Dashboard
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('reports.document')}
+                            active={route().current('reports.document')}
+                        >
+                            Document Report
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('reports.monthly')}
+                            active={route().current('reports.monthly')}
+                        >
+                            Monthly Report
                         </ResponsiveNavLink>
                     </div>
 

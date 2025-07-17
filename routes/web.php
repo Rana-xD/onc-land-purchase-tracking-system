@@ -12,6 +12,8 @@ use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DataEntryController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\Reports\ContractDocumentController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
@@ -31,6 +33,11 @@ Route::middleware(['auth', 'verified', 'web'])->group(function () {
     Route::prefix('api/dashboard')->group(function () {
         Route::get('/payment-overview', [DashboardController::class, 'paymentOverview']);
         Route::get('/upcoming-payments', [DashboardController::class, 'upcomingPayments']);
+    });
+    
+    // Contract Documents API endpoints
+    Route::prefix('api/reports')->group(function () {
+        Route::get('/contract-documents', [ContractDocumentController::class, 'index']);
     });
 });
 
@@ -56,13 +63,23 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Users/UserManagement');
     })->name('users.management');
     
-    // Simple test route to isolate the issue
+    // Simple test routes
     Route::get('/test-page', function () {
         return Inertia::render('Dashboard');
     });
     
+    Route::get('/test-contract-upload', function () {
+        return Inertia::render('Test/ContractDocumentUploadTest');
+    });
+    
     // Document Creation routes - Web UI routes (Inertia)
     Route::get('/documents', [\App\Http\Controllers\DocumentCreationController::class, 'index'])->name('documents.index');
+    
+    // Report routes
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/document', [ReportController::class, 'documentReport'])->name('document');
+        Route::get('/monthly', [ReportController::class, 'monthlyReport'])->name('monthly');
+    });
     
     // Deposit Contracts routes
     Route::prefix('deposit-contracts')->name('deposit-contracts.')->group(function () {
@@ -144,6 +161,37 @@ Route::middleware('auth')->group(function () {
         Route::prefix('files')->group(function () {
             Route::post('/upload-temp', [FileUploadController::class, 'uploadTemp']);
             Route::delete('/delete-temp', [FileUploadController::class, 'deleteTemp']);
+        });
+        
+        // Reports API endpoints
+        Route::prefix('reports')->group(function () {
+            // Document Report
+            Route::prefix('document')->group(function () {
+                Route::post('/search', [\App\Http\Controllers\Reports\DocumentReportController::class, 'search']);
+                Route::get('/export/{contractId}', [\App\Http\Controllers\Reports\DocumentReportController::class, 'export']);
+            });
+            
+            // Monthly Report
+            Route::prefix('monthly')->group(function () {
+                Route::post('/data', [\App\Http\Controllers\Reports\MonthlyReportController::class, 'getMonthlyData']);
+                Route::post('/export', [\App\Http\Controllers\Reports\MonthlyReportController::class, 'exportMonthlyReport']);
+            });
+            
+            // Payment Steps
+            Route::prefix('payment-steps')->group(function () {
+                Route::get('/{paymentStepId}', [\App\Http\Controllers\Reports\PaymentStepController::class, 'show']);
+                Route::put('/{paymentStepId}', [\App\Http\Controllers\Reports\PaymentStepController::class, 'update']);
+                Route::post('/{stepId}/create-contract', [\App\Http\Controllers\Reports\PaymentStepController::class, 'createContract']);
+                Route::get('/{stepId}/documents', [\App\Http\Controllers\Reports\PaymentStepController::class, 'getDocuments']);
+                Route::post('/{stepId}/mark-as-paid', [\App\Http\Controllers\Reports\PaymentStepController::class, 'markAsPaid']);
+            });
+            
+            // Contract Documents
+            Route::prefix('contract-documents')->group(function () {
+                Route::post('/{contractId}/upload', [\App\Http\Controllers\Reports\ContractDocumentController::class, 'upload']);
+                Route::get('/{documentId}/download', [\App\Http\Controllers\Reports\ContractDocumentController::class, 'download']);
+                Route::delete('/{documentId}', [\App\Http\Controllers\Reports\ContractDocumentController::class, 'delete']);
+            });
         });
         
         // Data Entry - Buyer endpoints

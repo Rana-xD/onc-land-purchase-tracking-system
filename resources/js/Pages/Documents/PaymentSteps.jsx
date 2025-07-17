@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { Card, Button, Typography, Steps, InputNumber, DatePicker, message, Divider, Form, Space, Input } from 'antd';
 import { UserOutlined, TeamOutlined, EnvironmentOutlined, DollarOutlined, FileOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import AdminLayout from '@/Layouts/AdminLayout';
@@ -9,6 +9,7 @@ import dayjs from 'dayjs';
 const { Title, Text } = Typography;
 
 export default function PaymentSteps({ document, paymentSteps }) {
+  const { csrf_token } = usePage().props;
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const [steps, setSteps] = useState(paymentSteps || [
@@ -100,16 +101,19 @@ export default function PaymentSteps({ document, paymentSteps }) {
       
       // Save payment steps
       await axios.post(`/api/${apiPrefix}/${document.id}/payment-steps`, {
-        payment_steps: steps
+        payment_steps: steps,
+        _token: csrf_token
       });
       
       // Generate the document
-      await axios.post(`/api/${apiPrefix}/${document.id}/generate`);
+      await axios.post(`/api/${apiPrefix}/${document.id}/generate`, {
+        _token: csrf_token
+      });
       
       // Redirect to success page
       window.location.href = route('sale-contracts.success', { id: document.id });
     } catch (error) {
-      console.error('Error generating document:', error);
+      console.error('បញ្ហាក្នុងការបង្កើតឯកសារ:', error);
       
       if (error.response && error.response.data && error.response.data.error) {
         message.error(error.response.data.error);

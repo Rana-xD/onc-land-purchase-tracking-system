@@ -25,7 +25,7 @@ export default function SaleContractsList({ initialDocuments }) {
       const response = await axios.get('/api/documents?type=sale_contract');
       setDocuments(response.data);
     } catch (error) {
-      console.error('Error fetching sale contracts:', error);
+      console.error('បញ្ហាក្នុងការទាញកិច្ចសន្យាលក់ដី:', error);
     } finally {
       setLoading(false);
     }

@@ -1,0 +1,130 @@
+/* Monthly Report Component Styles */
+
+/* Card styles */
+.ant-card.monthly-report-card {
+  margin-bottom: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.ant-card.monthly-report-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Filter section */
+.filter-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+/* Statistics cards */
+.stat-card {
+  text-align: center;
+  height: 100%;
+}
+
+.stat-card .ant-statistic-title {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.stat-card .ant-statistic-content {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* Table styles */
+.monthly-report-table {
+  margin-top: 16px;
+}
+
+.monthly-report-table .ant-table-thead > tr > th {
+  background-color: #f0f5ff;
+  font-weight: 600;
+}
+
+.monthly-report-table .ant-table-row-expand-icon-cell {
+  width: 48px;
+}
+
+/* Tabs styles */
+.monthly-report-tabs .ant-tabs-tab {
+  padding: 12px 16px;
+}
+
+.monthly-report-tabs .ant-tabs-tab-btn {
+  font-size: 15px;
+}
+
+.monthly-report-tabs .ant-badge {
+  margin-left: 8px;
+}
+
+/* Export buttons */
+.export-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.export-buttons .ant-btn {
+  display: flex;
+  align-items: center;
+}
+
+.export-buttons .anticon {
+  margin-right: 6px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .filter-section {
+    padding: 12px;
+  }
+  
+  .export-buttons {
+    flex-direction: column;
+  }
+  
+  .monthly-report-tabs .ant-tabs-tab {
+    padding: 8px 12px;
+  }
+  
+  .monthly-report-tabs .ant-tabs-tab-btn {
+    font-size: 14px;
+  }
+  
+  .stat-card .ant-statistic-content {
+    font-size: 18px;
+  }
+}
+
+/* Loading and empty states */
+.loading-container {
+  padding: 40px;
+  text-align: center;
+}
+
+.empty-container {
+  padding: 40px;
+  text-align: center;
+}
+
+/* Overdue payment highlighting */
+.overdue-payment {
+  background-color: #fff1f0;
+}
+
+/* Summary row styling */
+.summary-row {
+  background-color: #f0f7ff;
+  font-weight: 600;
+}
+
+/* Error alert styling */
+.error-alert {
+  margin-bottom: 16px;
+}

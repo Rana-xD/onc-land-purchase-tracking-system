@@ -94,6 +94,14 @@ class DocumentCreation extends Model
     }
     
     /**
+     * Get the sale contract associated with this document.
+     */
+    public function saleContract()
+    {
+        return $this->hasOne(SaleContract::class);
+    }
+    
+    /**
      * The "booted" method of the model.
      * Automatically generate document_code when creating a new document.
      */
