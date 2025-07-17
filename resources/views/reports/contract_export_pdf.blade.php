@@ -107,41 +107,119 @@
 
     <div class="section">
         <div class="section-title">Buyer Information</div>
-        <div class="info-row">
-            <span class="label">Name:</span> {{ $buyer['name'] }}
-        </div>
-        <div class="info-row">
-            <span class="label">Phone:</span> {{ $buyer['phone'] ?? 'N/A' }}
-        </div>
-        <div class="info-row">
-            <span class="label">Address:</span> {{ $buyer['address'] ?? 'N/A' }}
-        </div>
+        @if(isset($buyers) && count($buyers) > 0)
+            @foreach($buyers as $index => $buyer)
+                <div style="margin-bottom: 15px; @if($index > 0) border-top: 1px dashed #ccc; padding-top: 15px; @endif">
+                    <div class="info-row">
+                        <span class="label">Buyer #{{ $index + 1 }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Name:</span> {{ $buyer['name'] }}
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Phone:</span> {{ $buyer['phone'] ?? 'N/A' }}
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Address:</span> {{ $buyer['address'] ?? 'N/A' }}
+                    </div>
+                </div>
+            @endforeach
+        @elseif(isset($buyer))
+            <!-- Fallback for backward compatibility -->
+            <div class="info-row">
+                <span class="label">Name:</span> {{ $buyer['name'] }}
+            </div>
+            <div class="info-row">
+                <span class="label">Phone:</span> {{ $buyer['phone'] ?? 'N/A' }}
+            </div>
+            <div class="info-row">
+                <span class="label">Address:</span> {{ $buyer['address'] ?? 'N/A' }}
+            </div>
+        @else
+            <div class="info-row">
+                <span>No buyer information available</span>
+            </div>
+        @endif
     </div>
 
     <div class="section">
         <div class="section-title">Seller Information</div>
-        <div class="info-row">
-            <span class="label">Name:</span> {{ $seller['name'] }}
-        </div>
-        <div class="info-row">
-            <span class="label">Phone:</span> {{ $seller['phone'] ?? 'N/A' }}
-        </div>
-        <div class="info-row">
-            <span class="label">Address:</span> {{ $seller['address'] ?? 'N/A' }}
-        </div>
+        @if(isset($sellers) && count($sellers) > 0)
+            @foreach($sellers as $index => $seller)
+                <div style="margin-bottom: 15px; @if($index > 0) border-top: 1px dashed #ccc; padding-top: 15px; @endif">
+                    <div class="info-row">
+                        <span class="label">Seller #{{ $index + 1 }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Name:</span> {{ $seller['name'] }}
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Phone:</span> {{ $seller['phone'] ?? 'N/A' }}
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Address:</span> {{ $seller['address'] ?? 'N/A' }}
+                    </div>
+                </div>
+            @endforeach
+        @elseif(isset($seller))
+            <!-- Fallback for backward compatibility -->
+            <div class="info-row">
+                <span class="label">Name:</span> {{ $seller['name'] }}
+            </div>
+            <div class="info-row">
+                <span class="label">Phone:</span> {{ $seller['phone'] ?? 'N/A' }}
+            </div>
+            <div class="info-row">
+                <span class="label">Address:</span> {{ $seller['address'] ?? 'N/A' }}
+            </div>
+        @else
+            <div class="info-row">
+                <span>No seller information available</span>
+            </div>
+        @endif
     </div>
 
     <div class="section">
         <div class="section-title">Land Information</div>
-        <div class="info-row">
-            <span class="label">Plot Number:</span> {{ $land['plot_number'] }}
-        </div>
-        <div class="info-row">
-            <span class="label">Size:</span> {{ $land['size'] }}
-        </div>
-        <div class="info-row">
-            <span class="label">Location:</span> {{ $land['location'] }}
-        </div>
+        @if(isset($lands) && count($lands) > 0)
+            @foreach($lands as $index => $land)
+                <div style="margin-bottom: 15px; @if($index > 0) border-top: 1px dashed #ccc; padding-top: 15px; @endif">
+                    <div class="info-row">
+                        <span class="label">Land #{{ $index + 1 }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Plot Number:</span> {{ $land['plot_number'] }}
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Size:</span> {{ $land['size'] }} m²
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Location:</span> {{ $land['location'] }}
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Price per m²:</span> ${{ number_format($land['price_per_m2'], 2) }}
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Total Price:</span> ${{ number_format($land['total_price'], 2) }}
+                    </div>
+                </div>
+            @endforeach
+        @elseif(isset($land))
+            <!-- Fallback for backward compatibility -->
+            <div class="info-row">
+                <span class="label">Plot Number:</span> {{ $land['plot_number'] }}
+            </div>
+            <div class="info-row">
+                <span class="label">Size:</span> {{ $land['size'] }}
+            </div>
+            <div class="info-row">
+                <span class="label">Location:</span> {{ $land['location'] }}
+            </div>
+        @else
+            <div class="info-row">
+                <span>No land information available</span>
+            </div>
+        @endif
     </div>
 
     <div class="page-break"></div>

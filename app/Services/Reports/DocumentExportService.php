@@ -24,6 +24,15 @@ class DocumentExportService
         // Get payment steps and documents
         $paymentSteps = $contract->documentCreation->paymentSteps;
         
+        // Get all lands associated with this contract through document_creation
+        $documentLands = $contract->documentCreation->documentLands()->with('land')->get();
+        
+        // Get all buyers associated with this contract through document_creation
+        $documentBuyers = $contract->documentCreation->buyers()->with('buyer')->get();
+        
+        // Get all sellers associated with this contract through document_creation
+        $documentSellers = $contract->documentCreation->sellers()->with('seller')->get();
+        
         // Prepare data for export
         $data = [
             'contract' => [
@@ -32,22 +41,56 @@ class DocumentExportService
                 'status' => $contract->status,
                 'total_amount' => $contract->total_amount,
             ],
+            // Keep single buyer for backward compatibility
             'buyer' => [
                 'name' => $contract->buyer_name,
                 'phone' => $contract->buyer_phone,
                 'address' => $contract->buyer_address,
             ],
+            // Keep single seller for backward compatibility
             'seller' => [
                 'name' => $contract->seller_name,
                 'phone' => $contract->seller_phone,
                 'address' => $contract->seller_address,
             ],
-            'land' => [
+            // Add all buyers
+            'buyers' => $documentBuyers->map(function ($documentBuyer) {
+                $buyer = $documentBuyer->buyer;
+                return [
+                    'id' => $buyer->id,
+                    'name' => $buyer->name,
+                    'phone' => $buyer->phone ?? 'N/A',
+                    'address' => $buyer->address ?? 'N/A',
+                ];
+            }),
+            // Add all sellers
+            'sellers' => $documentSellers->map(function ($documentSeller) {
+                $seller = $documentSeller->seller;
+                return [
+                    'id' => $seller->id,
+                    'name' => $seller->name,
+                    'phone' => $seller->phone ?? 'N/A',
+                    'address' => $seller->address ?? 'N/A',
+                ];
+            }),
+            'lands' => $documentLands->map(function ($documentLand) {
+                $land = $documentLand->land;
+                return [
+                    'id' => $land->id,
+                    'plot_number' => $land->plot_number ?? 'N/A',
+                    'size' => $land->size ?? 'N/A',
+                    'location' => $land->location ?? 'N/A',
+                    'price_per_m2' => $documentLand->price_per_m2 ?? 'N/A',
+                    'total_price' => $documentLand->total_price ?? 'N/A',
+                ];
+            }),
+            // Keep the original land relationship for backward compatibility
+            'land' => $contract->land ? [
                 'id' => $contract->land->id,
                 'plot_number' => $contract->land->plot_number ?? 'N/A',
                 'size' => $contract->land->size ?? 'N/A',
                 'location' => $contract->land->location ?? 'N/A',
-            ],
+            ] : null,
             'payment_steps' => $paymentSteps->map(function ($step) {
                 return [
                     'step_number' => $step->step_number,

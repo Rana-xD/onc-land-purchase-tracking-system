@@ -293,19 +293,72 @@ export default function DocumentReport({ auth }) {
                             >
                                 <Collapse defaultActiveKey={['1', '2', '3']}>
                                     <Panel header="ព័ត៌មានអ្នកទិញ" key="1">
-                                        <p><strong>ឈ្មោះ:</strong> {searchResult.contract.buyer_info.name}</p>
-                                        <p><strong>ទូរស័ព្ទ:</strong> {searchResult.contract.buyer_info.phone || 'N/A'}</p>
-                                        <p><strong>អាសយដ្ឋាន:</strong> {searchResult.contract.buyer_info.address || 'N/A'}</p>
+                                        {searchResult.contract.buyers && searchResult.contract.buyers.length > 0 ? (
+                                            <>
+                                                {searchResult.contract.buyers.map((buyer, index) => (
+                                                    <div key={buyer.id} className={index > 0 ? 'mt-4 pt-4 border-t' : ''}>
+                                                        {searchResult.contract.buyers.length > 1 && (
+                                                            <h4 className="font-bold mb-2">អ្នកទិញទី {index + 1}</h4>
+                                                        )}
+                                                        <p><strong>ឈ្មោះ:</strong> {buyer.name}</p>
+                                                        <p><strong>ទូរស័ព្ទ:</strong> {buyer.phone || 'N/A'}</p>
+                                                        <p><strong>អាសយដ្ឋាន:</strong> {buyer.address || 'N/A'}</p>
+                                                    </div>
+                                                ))}
+                                            </>
+                                        ) : (
+                                            <>
+                                                <p><strong>ឈ្មោះ:</strong> {searchResult.contract.buyer_info.name}</p>
+                                                <p><strong>ទូរស័ព្ទ:</strong> {searchResult.contract.buyer_info.phone || 'N/A'}</p>
+                                                <p><strong>អាសយដ្ឋាន:</strong> {searchResult.contract.buyer_info.address || 'N/A'}</p>
+                                            </>
+                                        )}
                                     </Panel>
                                     <Panel header="ព័ត៌មានអ្នកលក់" key="2">
-                                        <p><strong>ឈ្មោះ:</strong> {searchResult.contract.seller_info.name}</p>
-                                        <p><strong>ទូរស័ព្ទ:</strong> {searchResult.contract.seller_info.phone || 'N/A'}</p>
-                                        <p><strong>អាសយដ្ឋាន:</strong> {searchResult.contract.seller_info.address || 'N/A'}</p>
+                                        {searchResult.contract.sellers && searchResult.contract.sellers.length > 0 ? (
+                                            <>
+                                                {searchResult.contract.sellers.map((seller, index) => (
+                                                    <div key={seller.id} className={index > 0 ? 'mt-4 pt-4 border-t' : ''}>
+                                                        {searchResult.contract.sellers.length > 1 && (
+                                                            <h4 className="font-bold mb-2">អ្នកលក់ទី {index + 1}</h4>
+                                                        )}
+                                                        <p><strong>ឈ្មោះ:</strong> {seller.name}</p>
+                                                        <p><strong>ទូរស័ព្ទ:</strong> {seller.phone || 'N/A'}</p>
+                                                        <p><strong>អាសយដ្ឋាន:</strong> {seller.address || 'N/A'}</p>
+                                                    </div>
+                                                ))}
+                                            </>
+                                        ) : (
+                                            <>
+                                                <p><strong>ឈ្មោះ:</strong> {searchResult.contract.seller_info.name}</p>
+                                                <p><strong>ទូរស័ព្ទ:</strong> {searchResult.contract.seller_info.phone || 'N/A'}</p>
+                                                <p><strong>អាសយដ្ឋាន:</strong> {searchResult.contract.seller_info.address || 'N/A'}</p>
+                                            </>
+                                        )}
                                     </Panel>
                                     <Panel header="ព័ត៌មានដី" key="3">
-                                        <p><strong>លេខក្បែងដី:</strong> {searchResult.contract.land_info.plot_number}</p>
-                                        <p><strong>ទំហំ:</strong> {searchResult.contract.land_info.size}</p>
-                                        <p><strong>ទីតាំង:</strong> {searchResult.contract.land_info.location}</p>
+                                        {searchResult.contract.lands && searchResult.contract.lands.length > 0 ? (
+                                            <>
+                                                {searchResult.contract.lands.map((land, index) => (
+                                                    <div key={land.id} className={index > 0 ? 'mt-4 pt-4 border-t' : ''}>
+                                                        {searchResult.contract.lands.length > 1 && (
+                                                            <h4 className="font-bold mb-2">ដីទី {index + 1}</h4>
+                                                        )}
+                                                        <p><strong>លេខក្បែងដី:</strong> {land.plot_number}</p>
+                                                        <p><strong>ទំហំ:</strong> {land.size}</p>
+                                                        <p><strong>ទីតាំង:</strong> {land.location}</p>
+                                                        <p><strong>តម្លៃក្នុងម៉ែត្រការ៉េ:</strong> {land.price_per_meter}</p>
+                                                        <p><strong>តម្លៃសរុប:</strong> {land.total_price}</p>
+                                                    </div>
+                                                ))}
+                                            </>
+                                        ) : (
+                                            <>
+                                                <p><strong>លេខក្បែងដី:</strong> {searchResult.contract.land_info.plot_number}</p>
+                                                <p><strong>ទំហំ:</strong> {searchResult.contract.land_info.size}</p>
+                                                <p><strong>ទីតាំង:</strong> {searchResult.contract.land_info.location}</p>
+                                            </>
+                                        )}
                                     </Panel>
                                 </Collapse>
                                 
