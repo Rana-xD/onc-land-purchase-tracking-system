@@ -20,79 +20,47 @@ class MonthlyReportService
     public function getMonthlyReportData(string $startDate, string $endDate): array
     {
         try {
-        // Convert dates to Carbon instances
-        $startDate = Carbon::parse($startDate)->startOfDay();
-        $endDate = Carbon::parse($endDate)->endOfDay();
+            // Convert dates to Carbon instances
+            $startDate = Carbon::parse($startDate)->startOfDay();
+            $endDate = Carbon::parse($endDate)->endOfDay();
 
-        // Get payment steps within the date range
-        $paymentSteps = PaymentStep::with(['documentCreation', 'documents'])
+            // Get payment steps within the date range with eager loading for all related data
+            $paymentSteps = PaymentStep::with([
+                'documentCreation.saleContract',
+                'documentCreation.lands.land',
+                'documentCreation.sellers.seller',
+                'documentCreation.buyers.buyer' // Add buyers eager loading
+            ])
             ->whereBetween('due_date', [$startDate, $endDate])
             ->orderBy('due_date')
             ->get();
             
-        // Filter out payment steps that don't have a valid document creation
-        $paymentSteps = $paymentSteps->filter(function ($step) {
-            return $step->documentCreation !== null;
-        });
+            // Filter out payment steps that don't have a valid document creation
+            $paymentSteps = $paymentSteps->filter(function ($step) {
+                return $step->documentCreation !== null && $step->documentCreation->saleContract !== null;
+            });
 
-        // Group payment steps by month
-        $paymentsByMonth = $paymentSteps->groupBy(function ($step) {
-            return Carbon::parse($step->due_date)->format('Y-m');
-        });
+            // Format payment steps for the simple list view
+            $formattedPayments = $this->formatPaymentSteps($paymentSteps);
+            
+            // Calculate total amount
+            $totalAmount = $paymentSteps->sum('amount');
 
-        // Format data for the report
-        $monthlyData = [];
-        $totalAmount = 0;
-        $totalPaid = 0;
-        $totalOverdue = 0;
-        $totalPending = 0;
-
-        foreach ($paymentsByMonth as $month => $steps) {
-            $monthName = Carbon::parse($month . '-01')->format('F Y');
-            $monthlyTotal = $steps->sum('amount');
-            $monthlyPaid = $steps->where('status', 'paid')->sum('amount');
-            $monthlyOverdue = $steps->where('status', 'overdue')->sum('amount');
-            $monthlyPending = $steps->whereIn('status', ['pending', 'contract_created'])->sum('amount');
-
-            $totalAmount += $monthlyTotal;
-            $totalPaid += $monthlyPaid;
-            $totalOverdue += $monthlyOverdue;
-            $totalPending += $monthlyPending;
-
-            $monthlyData[$month] = [
-                'month_name' => $monthName,
-                'total_amount' => $monthlyTotal,
-                'total_paid' => $monthlyPaid,
-                'total_overdue' => $monthlyOverdue,
-                'total_pending' => $monthlyPending,
-                'payment_steps' => $this->formatPaymentSteps($steps),
+            return [
+                'payments' => $formattedPayments,
+                'summary' => [
+                    'total_amount' => $totalAmount,
+                    'payment_steps_count' => $paymentSteps->count(),
+                    'start_date' => $startDate->format('Y-m-d'),
+                    'end_date' => $endDate->format('Y-m-d'),
+                ],
             ];
-        }
-
-        // Sort by month
-        ksort($monthlyData);
-
-        return [
-            'monthly_data' => $monthlyData,
-            'summary' => [
-                'total_amount' => $totalAmount,
-                'total_paid' => $totalPaid,
-                'total_overdue' => $totalOverdue,
-                'total_pending' => $totalPending,
-                'payment_steps_count' => $paymentSteps->count(),
-                'start_date' => $startDate->format('Y-m-d'),
-                'end_date' => $endDate->format('Y-m-d'),
-            ],
-        ];
         } catch (\Exception $e) {
             Log::error('Error generating monthly report: ' . $e->getMessage());
             return [
-                'monthly_data' => [],
+                'payments' => [],
                 'summary' => [
                     'total_amount' => 0,
-                    'total_paid' => 0,
-                    'total_overdue' => 0,
-                    'total_pending' => 0,
                     'payment_steps_count' => 0,
                     'start_date' => $startDate->format('Y-m-d'),
                     'end_date' => $endDate->format('Y-m-d'),
@@ -111,27 +79,75 @@ class MonthlyReportService
     protected function formatPaymentSteps($steps): array
     {
         return $steps->map(function ($step) {
-            $saleContract = $step->documentCreation->saleContract;
+            $documentCreation = $step->documentCreation;
+            $saleContract = $documentCreation->saleContract;
+            
+            // Get all lands from the document creation
+            $lands = [];
+            if ($documentCreation->lands->isNotEmpty()) {
+                $lands = $documentCreation->lands->map(function ($documentLand) {
+                    return [
+                        'plot_number' => $documentLand->land->plot_number ?? 'N/A',
+                        'id' => $documentLand->land->id ?? null
+                    ];
+                })->toArray();
+            }
+            
+            // Get land plot number from the first land (for backward compatibility)
+            $landPlotNumber = 'N/A';
+            if (!empty($lands)) {
+                $landPlotNumber = $lands[0]['plot_number'];
+            }
+            
+            // Get all seller names as a comma-separated string
+            $sellerNames = $documentCreation->sellers->map(function ($documentSeller) {
+                return $documentSeller->seller->name ?? 'N/A';
+            })->implode(', ');
+            
+            // If no sellers found, fall back to the contract seller name
+            if (empty($sellerNames) && $saleContract) {
+                $sellerNames = $saleContract->seller_name ?? 'N/A';
+            }
+            
+            // Format sellers for the frontend
+            $sellers = $documentCreation->sellers->map(function ($documentSeller) {
+                return [
+                    'name' => $documentSeller->seller->name ?? 'N/A',
+                    'full_info' => $documentSeller->seller->name . ' - ' . ($documentSeller->seller->id_number ?? 'No ID')
+                ];
+            })->toArray();
+            
+            // Get all buyer names as a comma-separated string
+            $buyerNames = $documentCreation->buyers->map(function ($documentBuyer) {
+                return $documentBuyer->buyer->name ?? 'N/A';
+            })->implode(', ');
+            
+            // If no buyers found, fall back to the contract buyer name
+            if (empty($buyerNames) && $saleContract) {
+                $buyerNames = $saleContract->buyer_name ?? 'N/A';
+            }
+            
+            // Format buyers for the frontend
+            $buyers = $documentCreation->buyers->map(function ($documentBuyer) {
+                return [
+                    'name' => $documentBuyer->buyer->name ?? 'N/A',
+                    'full_info' => $documentBuyer->buyer->name . ' - ' . ($documentBuyer->buyer->id_number ?? 'No ID')
+                ];
+            })->toArray();
             
             return [
                 'id' => $step->id,
+                'contract_id' => $saleContract->contract_id ?? 'N/A',
+                'land_plot_number' => $landPlotNumber,
+                'lands' => $lands,                   // Add all lands as an array
+                'seller_names' => $sellerNames,
+                'sellers' => $sellers,               // Add formatted sellers
+                'buyer_names' => $buyerNames,        // Add buyer names
+                'buyers' => $buyers,                 // Add formatted buyers
                 'step_number' => $step->step_number,
-                'payment_description' => $step->payment_time_description,
                 'amount' => $step->amount,
                 'due_date' => $step->due_date->format('Y-m-d'),
                 'status' => $step->status,
-                'contract_id' => $saleContract ? $saleContract->contract_id : 'N/A',
-                'buyer_name' => $saleContract ? $saleContract->buyer_name : 'N/A',
-                'seller_name' => $saleContract ? $saleContract->seller_name : 'N/A',
-                'land_info' => $saleContract && $saleContract->land ? [
-                    'plot_number' => $saleContract->land->plot_number ?? 'N/A',
-                    'location' => $saleContract->land->location ?? 'N/A',
-                ] : [
-                    'plot_number' => 'N/A',
-                    'location' => 'N/A',
-                ],
-                'has_documents' => $step->documents->isNotEmpty(),
-                'payment_contract_created' => $step->payment_contract_created,
             ];
         })->toArray();
     }
