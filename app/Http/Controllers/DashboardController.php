@@ -3,8 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Land;
+use App\Models\PaymentStep;
+use App\Models\SaleContract;
+use App\Models\DocumentCreation;
+use App\Models\ContractDocument;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -16,11 +22,10 @@ class DashboardController extends Controller
         // Get user count
         $userCount = User::count();
         
-        // For now, we'll use placeholder values for other stats
-        // In a real application, these would come from actual models
-        $landCount = 42;
-        $paymentTotal = 152000;
-        $documentCount = 85;
+        // Get real data from models
+        $landCount = Land::count();
+        $paymentTotal = PaymentStep::where('status', 'paid')->sum('amount');
+        $documentCount = ContractDocument::count();
         
         return Inertia::render('Dashboard', [
             'stats' => [
@@ -39,12 +44,18 @@ class DashboardController extends Controller
      */
     public function paymentOverview()
     {
-        // Return dummy data for now
-        // In a real application, this would come from the payment models
+        // Get all payment steps from contracts
+        $paymentSteps = PaymentStep::all();
+        
+        // Calculate paid and unpaid amounts
+        $paid = $paymentSteps->where('status', 'paid')->sum('amount');
+        $unpaid = $paymentSteps->where('status', 'unpaid')->sum('amount');
+        $total = $paid + $unpaid;
+        
         return response()->json([
-            'paid' => 150000,
-            'unpaid' => 350000,
-            'total' => 500000
+            'paid' => $paid,
+            'unpaid' => $unpaid,
+            'total' => $total
         ]);
     }
     
@@ -55,58 +66,71 @@ class DashboardController extends Controller
      */
     public function upcomingPayments()
     {
-        // Return dummy data for now
-        // In a real application, this would come from the payment models
-        return response()->json([
-            [
-                'id' => 1,
-                'date' => '15/07/2025',
-                'buyer' => 'សុខ វិចិត្រ',
-                'landPlot' => 'A-123',
-                'amount' => 5000
-            ],
-            [
-                'id' => 2,
-                'date' => '22/07/2025',
-                'buyer' => 'ម៉ៅ សុខហួរ',
-                'landPlot' => 'B-456',
-                'amount' => 3500
-            ],
-            [
-                'id' => 3,
-                'date' => '05/08/2025',
-                'buyer' => 'អ៊ុំ សុវណ្ណារី',
-                'landPlot' => 'C-789',
-                'amount' => 4200
-            ],
-            [
-                'id' => 4,
-                'date' => '18/08/2025',
-                'buyer' => 'ឈឹម សុភា',
-                'landPlot' => 'D-101',
-                'amount' => 2800
-            ],
-            [
-                'id' => 5,
-                'date' => '02/09/2025',
-                'buyer' => 'សែម សុផល',
-                'landPlot' => 'A-234',
-                'amount' => 3000
-            ],
-            [
-                'id' => 6,
-                'date' => '15/09/2025',
-                'buyer' => 'ឃុន សុខា',
-                'landPlot' => 'B-567',
-                'amount' => 2500
-            ],
-            [
-                'id' => 7,
-                'date' => '01/10/2025',
-                'buyer' => 'ឆាយ វាសនា',
-                'landPlot' => 'C-890',
-                'amount' => 4000
-            ],
-        ]);
+        // Get current date and date 6 months from now
+        $today = Carbon::now()->startOfMonth();
+        $sixMonthsLater = Carbon::now()->addMonths(5)->endOfMonth();
+        
+        // Get ALL payment steps with due dates in the next 6 months regardless of status
+        $paymentSteps = PaymentStep::whereBetween('due_date', [$today, $sixMonthsLater])
+            ->get();
+        
+        // Group payments by month and sum the amounts
+        $monthlyPayments = [];
+        
+        foreach ($paymentSteps as $step) {
+            $dueDate = Carbon::parse($step->due_date);
+            $monthYear = $dueDate->format('m-Y'); // Format: 07-2025
+            $monthName = $dueDate->format('m/Y'); // Format: 07/2025 for display
+            
+            if (!isset($monthlyPayments[$monthYear])) {
+                $monthlyPayments[$monthYear] = [
+                    'id' => $monthYear,
+                    'date' => $monthName,
+                    'amount' => 0
+                ];
+            }
+            
+            $monthlyPayments[$monthYear]['amount'] += $step->amount;
+        }
+        
+        // Sort by month and convert to indexed array
+        ksort($monthlyPayments);
+        $result = array_values($monthlyPayments);
+        
+        // Ensure we have exactly 6 months of data
+        $currentMonth = Carbon::now()->startOfMonth();
+        for ($i = 0; $i < 6; $i++) {
+            $monthDate = $currentMonth->copy()->addMonths($i);
+            $monthYear = $monthDate->format('m-Y');
+            $monthName = $monthDate->format('m/Y');
+            
+            // Check if this month exists in our results
+            $exists = false;
+            foreach ($result as $item) {
+                if ($item['id'] === $monthYear) {
+                    $exists = true;
+                    break;
+                }
+            }
+            
+            // If not, add it with zero amount
+            if (!$exists) {
+                $result[] = [
+                    'id' => $monthYear,
+                    'date' => $monthName,
+                    'amount' => 0
+                ];
+            }
+        }
+        
+        // Sort again to ensure chronological order
+        usort($result, function($a, $b) {
+            return strcmp($a['id'], $b['id']);
+        });
+        
+        // Limit to 6 months
+        $result = array_slice($result, 0, 6);
+        
+        return response()->json($result);
     }
 }

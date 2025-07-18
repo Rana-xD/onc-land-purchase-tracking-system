@@ -1,11 +1,12 @@
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Head } from '@inertiajs/react';
-import { Row, Col, Card, Table, Typography, Empty, Divider } from 'antd';
+import { Head, Link } from '@inertiajs/react';
+import { Row, Col, Card, Table, Typography, Empty, Divider, Button } from 'antd';
 import { useState, useEffect } from 'react';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { CenteredSpin } from '@/theme';
 import dayjs from 'dayjs';
+import { BarChartOutlined } from '@ant-design/icons';
 
 // Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -30,12 +31,8 @@ export default function Dashboard({ auth }) {
                 setPaymentStats(data);
             } catch (error) {
                 console.error('Error fetching payment stats:', error);
-                // Fallback to dummy data in case of error
-                setPaymentStats({
-                    paid: 150000,
-                    unpaid: 350000,
-                    total: 500000
-                });
+                // Show error state instead of fallback dummy data
+                setPaymentStats(null);
             } finally {
                 setLoadingPaymentStats(false);
             }
@@ -53,14 +50,8 @@ export default function Dashboard({ auth }) {
                 setUpcomingPayments(data);
             } catch (error) {
                 console.error('Error fetching upcoming payments:', error);
-                // Fallback to dummy data in case of error
-                setUpcomingPayments([
-                    { id: 1, date: '15/07/2025', buyer: 'សុខ វិចិត្រ', landPlot: 'A-123', amount: 5000 },
-                    { id: 2, date: '22/07/2025', buyer: 'ម៉ៅ សុខហួរ', landPlot: 'B-456', amount: 3500 },
-                    { id: 3, date: '05/08/2025', buyer: 'អ៊ុំ សុវណ្ណារី', landPlot: 'C-789', amount: 4200 },
-                    { id: 4, date: '18/08/2025', buyer: 'ឈឹម សុភា', landPlot: 'D-101', amount: 2800 },
-                    { id: 5, date: '02/09/2025', buyer: 'សែម សុផល', landPlot: 'A-234', amount: 3000 },
-                ]);
+                // Show error state instead of fallback dummy data
+                setUpcomingPayments([]);
             } finally {
                 setLoadingUpcomingPayments(false);
             }
@@ -130,10 +121,10 @@ export default function Dashboard({ auth }) {
         },
     };
     
-    // Enhanced table columns
+    // Updated table columns for monthly summary
     const columns = [
         {
-            title: 'កាលបរិច្ឆេទ',
+            title: 'ខែ-ឆ្នាំ',
             dataIndex: 'date',
             key: 'date',
             className: 'khmer-text',
@@ -144,29 +135,7 @@ export default function Dashboard({ auth }) {
             ),
         },
         {
-            title: 'អ្នកទិញ',
-            dataIndex: 'buyer',
-            key: 'buyer',
-            className: 'khmer-text',
-            render: (buyer) => (
-                <Typography.Text className="khmer-text">
-                    {buyer}
-                </Typography.Text>
-            ),
-        },
-        {
-            title: 'លេខដី',
-            dataIndex: 'landPlot',
-            key: 'landPlot',
-            className: 'khmer-text',
-            render: (landPlot) => (
-                <Typography.Text code style={{ fontSize: '13px' }}>
-                    {landPlot}
-                </Typography.Text>
-            ),
-        },
-        {
-            title: 'ចំនួនទឹកប្រាក់',
+            title: 'ចំនួនទឹកប្រាក់សរុប',
             dataIndex: 'amount',
             key: 'amount',
             className: 'khmer-text',
@@ -202,69 +171,74 @@ export default function Dashboard({ auth }) {
                             {loadingPaymentStats ? (
                                 <CenteredSpin />
                             ) : paymentStats ? (
-                                <Row>
-                                    <Col span={14}>
-                                        <div style={{ height: 300, position: 'relative' }}>
-                                            <Pie data={chartData} options={chartOptions} />
-                                            <div style={{
-                                                position: 'absolute',
-                                                top: '50%',
-                                                left: '50%',
-                                                transform: 'translate(-50%, -50%)',
-                                                textAlign: 'center'
-                                            }}>
-                                                <Typography.Text type="secondary" style={{ fontSize: '14px', display: 'block' }}>
-                                                    សរុប
-                                                </Typography.Text>
-                                                <Typography.Title level={4} style={{ margin: 0, marginTop: '4px' }}>
-                                                    ${paymentStats ? paymentStats.total.toLocaleString() : '0'}
-                                                </Typography.Title>
-                                            </div>
+                                <div>
+                                    {/* Chart section - full width */}
+                                    <div style={{ height: 350, position: 'relative', marginBottom: 20 }}>
+                                        <Pie data={chartData} options={chartOptions} />
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: '50%',
+                                            left: '50%',
+                                            transform: 'translate(-50%, -50%)',
+                                            textAlign: 'center'
+                                        }}>
+                                            <Typography.Text type="secondary" style={{ fontSize: '14px', display: 'block' }}>
+                                                សរុប
+                                            </Typography.Text>
+                                            <Typography.Title level={4} style={{ margin: 0, marginTop: '4px' }}>
+                                                ${paymentStats ? paymentStats.total.toLocaleString() : '0'}
+                                            </Typography.Title>
                                         </div>
-                                    </Col>
-                                    <Col span={10}>
-                                        <div className="flex flex-col justify-center h-full">
-                                            <div className="mb-4">
-                                                <div className="flex items-center mb-3">
-                                                    <div style={{ 
-                                                        width: 20, 
-                                                        height: 20, 
-                                                        backgroundColor: 'rgba(24, 144, 255, 0.85)', 
-                                                        borderRadius: '50%', 
-                                                        marginRight: 10,
-                                                        border: '2px solid #1890ff',
-                                                        boxShadow: '0 2px 4px rgba(24, 144, 255, 0.3)'
-                                                    }}></div>
-                                                    <span className="khmer-text font-medium">បានទូទាត់</span>
-                                                </div>
-                                                <div className="pl-8 mb-5">
-                                                    <Typography.Text strong style={{ fontSize: '16px' }}>
-                                                        ${paymentStats.paid.toLocaleString()} ({Math.round((paymentStats.paid / paymentStats.total) * 100)}%)
-                                                    </Typography.Text>
-                                                </div>
-                                            </div>
+                                    </div>
+                                    
+                                    {/* Legend section - centered below chart */}
+                                    <div className="flex justify-center mt-4">
+                                        <div className="flex items-center mr-8">
+                                            <div style={{ 
+                                                width: 20, 
+                                                height: 20, 
+                                                backgroundColor: 'rgba(24, 144, 255, 0.85)', 
+                                                borderRadius: '50%', 
+                                                marginRight: 10,
+                                                border: '2px solid #1890ff',
+                                                boxShadow: '0 2px 4px rgba(24, 144, 255, 0.3)'
+                                            }}></div>
                                             <div>
-                                                <div className="flex items-center mb-3">
-                                                    <div style={{ 
-                                                        width: 20, 
-                                                        height: 20, 
-                                                        backgroundColor: 'rgba(245, 34, 45, 0.75)', 
-                                                        borderRadius: '50%', 
-                                                        marginRight: 10,
-                                                        border: '2px solid #f5222d',
-                                                        boxShadow: '0 2px 4px rgba(245, 34, 45, 0.3)'
-                                                    }}></div>
-                                                    <span className="khmer-text font-medium">មិនទាន់ទូទាត់</span>
-                                                </div>
-                                                <div className="pl-8">
-                                                    <Typography.Text strong style={{ fontSize: '16px' }}>
-                                                        ${paymentStats.unpaid.toLocaleString()} ({Math.round((paymentStats.unpaid / paymentStats.total) * 100)}%)
-                                                    </Typography.Text>
-                                                </div>
+                                                <span className="khmer-text font-medium block">បានទូទាត់</span>
+                                                <Typography.Text strong style={{ fontSize: '16px' }}>
+                                                    ${paymentStats.paid.toLocaleString()} ({Math.round((paymentStats.paid / paymentStats.total) * 100)}%)
+                                                </Typography.Text>
                                             </div>
                                         </div>
-                                    </Col>
-                                </Row>
+                                        
+                                        <div className="flex items-center">
+                                            <div style={{ 
+                                                width: 20, 
+                                                height: 20, 
+                                                backgroundColor: 'rgba(245, 34, 45, 0.75)', 
+                                                borderRadius: '50%', 
+                                                marginRight: 10,
+                                                border: '2px solid #f5222d',
+                                                boxShadow: '0 2px 4px rgba(245, 34, 45, 0.3)'
+                                            }}></div>
+                                            <div>
+                                                <span className="khmer-text font-medium block">មិនទាន់ទូទាត់</span>
+                                                <Typography.Text strong style={{ fontSize: '16px' }}>
+                                                    ${paymentStats.unpaid.toLocaleString()} ({Math.round((paymentStats.unpaid / paymentStats.total) * 100)}%)
+                                                </Typography.Text>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Button section - centered below legend */}
+                                    <div className="flex justify-center mt-4">
+                                        <Link href="/reports/payment-status">
+                                            <Button type="primary" icon={<BarChartOutlined />}>
+                                                <span className="khmer-text">របាយការណ៍លម្អិត</span>
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                </div>
                             ) : (
                                 <Empty description={<span className="khmer-text">មិនមានទិន្នន័យ</span>} />
                             )}
