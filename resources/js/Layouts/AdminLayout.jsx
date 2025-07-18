@@ -102,7 +102,7 @@ const items = [
             <FileOutlined />
         ),
         getItem(
-            <Link href="#">របាយការណ៍ចំនួនទឹកប្រាក់ទូទាត់ហើយនិងមិនទាន់ទូទាត់</Link>,
+            <Link href={route('reports.payment-status')}>របាយការណ៍ចំនួនទឹកប្រាក់ទូទាត់ហើយនិងមិនទាន់ទូទាត់</Link>,
             'payment-status-report',
             <DollarOutlined />
         ),

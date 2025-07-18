@@ -79,6 +79,11 @@ Route::middleware('auth')->group(function () {
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/document', [ReportController::class, 'documentReport'])->name('document');
         Route::get('/monthly', [ReportController::class, 'monthlyReport'])->name('monthly');
+        Route::get('/payment-status', [ReportController::class, 'paymentStatusReport'])->name('payment-status');
+        
+        // Payment Status Report API endpoints
+        Route::post('/payment-status/data', [\App\Http\Controllers\Reports\PaymentStatusReportController::class, 'getPaymentStatusData']);
+        Route::post('/payment-status/export', [\App\Http\Controllers\Reports\PaymentStatusReportController::class, 'exportPaymentStatusReport']);
     });
     
     // Deposit Contracts routes

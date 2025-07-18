@@ -4,6 +4,7 @@ use App\Http\Controllers\Reports\DocumentReportController;
 use App\Http\Controllers\Reports\MonthlyReportController;
 use App\Http\Controllers\Reports\ContractDocumentController;
 use App\Http\Controllers\Reports\PaymentStepController;
+use App\Http\Controllers\Reports\PaymentStatusReportController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +35,12 @@ Route::prefix('reports')->group(function () {
     Route::prefix('monthly')->group(function () {
         Route::post('/data', [MonthlyReportController::class, 'getMonthlyData']);
         Route::post('/export', [MonthlyReportController::class, 'exportMonthlyReport']);
+    });
+    
+    // Payment Status Report
+    Route::prefix('payment-status')->group(function () {
+        Route::post('/data', [PaymentStatusReportController::class, 'getPaymentStatusData']);
+        Route::post('/export', [PaymentStatusReportController::class, 'exportPaymentStatusReport']);
     });
     
     // Payment Steps

@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use App\Models\PaymentStep;
+use App\Models\DocumentCreation;
 
 class SaleContract extends Model
 {
@@ -59,9 +62,16 @@ class SaleContract extends Model
     /**
      * Get the payment steps for this sale contract through the document creation.
      */
-    public function paymentSteps()
+    public function paymentSteps(): HasManyThrough
     {
-        return $this->documentCreation->paymentSteps();
+        return $this->hasManyThrough(
+            PaymentStep::class,
+            DocumentCreation::class,
+            'id', // Foreign key on DocumentCreation table
+            'document_creation_id', // Foreign key on PaymentStep table
+            'document_creation_id', // Local key on SaleContract table
+            'id' // Local key on DocumentCreation table
+        );
     }
 
     /**
