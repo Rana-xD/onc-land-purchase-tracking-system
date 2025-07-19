@@ -97,7 +97,7 @@ const items = [
             <FileOutlined />
         ),
         getItem(
-            <Link href="#">របាយការណ៍ប្រចាំឆ្នាំ</Link>,
+            <Link href={route('reports.yearly')}>របាយការណ៍ប្រចាំឆ្នាំ</Link>,
             'yearly-report',
             <FileOutlined />
         ),

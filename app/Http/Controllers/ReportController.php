@@ -36,4 +36,14 @@ class ReportController extends Controller
     {
         return Inertia::render('Reports/PaymentStatusReport');
     }
+    
+    /**
+     * Show the Yearly Report page.
+     *
+     * @return \Inertia\Response
+     */
+    public function yearlyReport()
+    {
+        return Inertia::render('Reports/YearlyReport');
+    }
 }
