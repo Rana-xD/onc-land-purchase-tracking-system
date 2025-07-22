@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { 
@@ -27,8 +27,57 @@ export default function DocumentReport({ auth }) {
     const [selectedPaymentStep, setSelectedPaymentStep] = useState(null);
     // Add state for the sale contract
     const [saleContract, setSaleContract] = useState(null);
+    
+    // Check for contract_id in URL query params on component mount
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const contractIdParam = params.get('contract_id');
+        
+        if (contractIdParam) {
+            setContractId(contractIdParam);
+            // Automatically search for the contract
+            handleSearchWithId(contractIdParam);
+        }
+    }, []);
 
-    // Handle contract search
+    // Handle search with specific contract ID (for auto-loading from URL)
+    const handleSearchWithId = async (id) => {
+        if (!id.trim()) {
+            message.error('សូមបញ្ចូលលេខកិច្ចសន្យា');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const response = await axios.post('/api/reports/document/search', {
+                contract_id: id.trim()
+            });
+            
+            // Debug: Log the search result structure
+            console.log('Search result:', response.data);
+            
+            setSearchResult(response.data);
+            
+            // Set the sale contract from the search result
+            if (response.data && response.data.contract) {
+                console.log('Found contract in search result:', response.data.contract);
+                setSaleContract(response.data.contract);
+            } else {
+                console.log('No contract found in search result. Structure:', response.data);
+                setSaleContract(null);
+            }
+            
+            message.success('រកឃើញកិច្ចសន្យា');
+        } catch (error) {
+            console.error('បញ្ហាក្នុងការស្វែងរក:', error);
+            message.error(error.response?.data?.error || 'មិនរកឃើញកិច្ចសន្យា');
+            setSearchResult(null);
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    // Handle contract search from UI
     const handleSearch = async () => {
         if (!contractId.trim()) {
             message.error('សូមបញ្ចូលលេខកិច្ចសន្យា');

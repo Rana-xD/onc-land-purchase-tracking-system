@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import axios from 'axios';
 import {
     Typography,
@@ -226,6 +226,11 @@ const YearlyReport = ({ auth }) => {
             fixed: 'left',
             width: 150,
             align: 'center',
+            render: (text) => (
+                <Link href={`/reports/document?contract_id=${text}`} className="text-blue-600 hover:text-blue-800 hover:underline">
+                    {text}
+                </Link>
+            ),
         },
         {
             title: 'ដីឡូត៍',

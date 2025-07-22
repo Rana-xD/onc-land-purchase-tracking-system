@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { Link } from '@inertiajs/react';
 import { Card, DatePicker, Button, List, Spin, Row, Col, Alert, Empty, Space, Typography, Divider, Tag, Badge, Tooltip, Select } from 'antd';
 import { CalendarOutlined, FileExcelOutlined, FilePdfOutlined, FolderOutlined, DownloadOutlined, UserOutlined, HomeOutlined, DollarOutlined, FileOutlined } from '@ant-design/icons';
 import { Head } from '@inertiajs/react';
@@ -431,7 +432,9 @@ const MonthlyReport = ({ auth }) => {
                                 <List.Item style={listItemStyle}>
                                     <Row gutter={16} style={{ width: '100%' }}>
                                         <Col xs={24} sm={6} md={4}>
-                                            <Text strong>{item.contract_id}</Text>
+                                            <Link href={`/reports/document?contract_id=${item.contract_id}`} className="text-blue-600 hover:text-blue-800 hover:underline">
+                                                <Text strong>{item.contract_id}</Text>
+                                            </Link>
                                         </Col>
                                         <Col xs={24} sm={6} md={4}>
                                             {/* Support for multiple lands */}

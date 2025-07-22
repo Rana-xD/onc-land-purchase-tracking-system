@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import axios from 'axios';
 import {
     Typography,
@@ -281,7 +281,9 @@ const PaymentStatusReport = ({ auth }) => {
                                 <List.Item style={{ background: '#fff', padding: '16px', marginBottom: '8px', borderBottom: '1px solid #f0f0f0' }}>
                                     <Row gutter={16} style={{ width: '100%' }}>
                                         <Col xs={24} sm={6} md={4} style={{ display: 'flex', alignItems: 'center' }}>
-                                            <Text strong>{item.contract_id}</Text>
+                                            <Link href={`/reports/document?contract_id=${item.contract_id}`} className="text-blue-600 hover:text-blue-800 hover:underline">
+                                                <Text strong>{item.contract_id}</Text>
+                                            </Link>
                                         </Col>
                                         <Col xs={24} sm={6} md={4} style={{ display: 'flex', alignItems: 'center' }}>
                                             {/* Support for multiple lands */}

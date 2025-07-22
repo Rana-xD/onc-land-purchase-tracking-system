@@ -74,6 +74,7 @@ Route::middleware('auth')->group(function () {
     
     // Document Creation routes - Web UI routes (Inertia)
     Route::get('/documents', [\App\Http\Controllers\DocumentCreationController::class, 'index'])->name('documents.index');
+    Route::get('/documents/{contract_id}', [ReportController::class, 'documentReportByContract'])->name('documents.show');
     
     // Report routes
     Route::prefix('reports')->name('reports.')->group(function () {
