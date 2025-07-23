@@ -92,6 +92,44 @@ Route::middleware('auth')->group(function () {
         Route::post('/yearly/export', [\App\Http\Controllers\Reports\YearlyReportController::class, 'exportYearlyReport']);
     });
     
+    // Commission Management routes
+    Route::prefix('commissions')->name('commissions.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\CommissionController::class, 'index'])->name('index');
+        Route::get('/pre-purchase', [\App\Http\Controllers\CommissionController::class, 'prePurchase'])->name('pre-purchase');
+        Route::get('/post-purchase', [\App\Http\Controllers\CommissionController::class, 'postPurchase'])->name('post-purchase');
+        Route::get('/post-purchase/create', [\App\Http\Controllers\CommissionController::class, 'createPostPurchase'])->name('post-purchase.create');
+        Route::get('/post-purchase/{commission}/edit', [\App\Http\Controllers\CommissionController::class, 'editPostPurchase'])->name('post-purchase.edit');
+        Route::get('/post-purchase/{commission}/steps', [\App\Http\Controllers\CommissionController::class, 'manageSteps'])->name('post-purchase.steps');
+        
+        // Pre-purchase Commission API routes
+        Route::prefix('api/pre-purchase')->group(function () {
+            Route::get('/', [\App\Http\Controllers\PrePurchaseCommissionController::class, 'index']);
+            Route::post('/', [\App\Http\Controllers\PrePurchaseCommissionController::class, 'store']);
+            Route::get('/{commission}', [\App\Http\Controllers\PrePurchaseCommissionController::class, 'show']);
+            Route::put('/{commission}', [\App\Http\Controllers\PrePurchaseCommissionController::class, 'update']);
+            Route::delete('/{commission}', [\App\Http\Controllers\PrePurchaseCommissionController::class, 'destroy']);
+            Route::patch('/{commission}/mark-paid', [\App\Http\Controllers\PrePurchaseCommissionController::class, 'markAsPaid']);
+        });
+        
+        // Post-purchase Commission API routes
+        Route::prefix('api/post-purchase')->group(function () {
+            Route::get('/', [\App\Http\Controllers\PostPurchaseCommissionController::class, 'index']);
+            Route::post('/', [\App\Http\Controllers\PostPurchaseCommissionController::class, 'store']);
+            Route::get('/{commission}', [\App\Http\Controllers\PostPurchaseCommissionController::class, 'show']);
+            Route::put('/{commission}', [\App\Http\Controllers\PostPurchaseCommissionController::class, 'update']);
+            Route::delete('/{commission}', [\App\Http\Controllers\PostPurchaseCommissionController::class, 'destroy']);
+            Route::get('/{commission}/payment-steps', [\App\Http\Controllers\PostPurchaseCommissionController::class, 'getPaymentSteps']);
+        });
+        
+        // Payment Step API routes
+        Route::prefix('api/payment-steps')->group(function () {
+            Route::patch('/{paymentStep}/mark-paid', [\App\Http\Controllers\CommissionPaymentStepController::class, 'markAsPaid']);
+            Route::get('/overdue', [\App\Http\Controllers\CommissionPaymentStepController::class, 'getOverdueSteps']);
+            Route::get('/upcoming', [\App\Http\Controllers\CommissionPaymentStepController::class, 'getUpcomingSteps']);
+            Route::get('/statistics', [\App\Http\Controllers\CommissionPaymentStepController::class, 'getStatistics']);
+        });
+    });
+    
     // Deposit Contracts routes
     Route::prefix('deposit-contracts')->name('deposit-contracts.')->group(function () {
         Route::get('/', [\App\Http\Controllers\DocumentCreationController::class, 'depositContractsIndex'])->name('index');

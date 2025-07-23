@@ -107,7 +107,18 @@ const items = [
             <DollarOutlined />
         ),
     ]),
-    getItem('គ្រប់គ្រងកម៉ីសិន', 'commission', <PercentageOutlined />),
+    getItem('គ្រប់គ្រងកម៉ីសិន', 'commission', <PercentageOutlined />, [
+        getItem(
+            <Link href={route('commissions.pre-purchase')}>មុនទិញ</Link>,
+            'pre-purchase-commission',
+            <DollarOutlined />
+        ),
+        getItem(
+            <Link href={route('commissions.post-purchase')}>ក្រោយទិញ</Link>,
+            'post-purchase-commission',
+            <DollarOutlined />
+        ),
+    ]),
     getItem(
         <Link href={route('users.management')}>គ្រប់គ្រងអ្នកប្រើប្រាស់</Link>, 
         'user-management', 
@@ -141,6 +152,11 @@ export default function AdminLayout({ children, title }) {
         if (url.startsWith('/reports/yearly')) return ['yearly-report'];
         if (url.startsWith('/reports/payment-status')) return ['payment-status-report'];
         
+        // Handle commission routes
+        if (url.startsWith('/commissions/pre-purchase')) return ['pre-purchase-commission'];
+        if (url.startsWith('/commissions/post-purchase')) return ['post-purchase-commission'];
+        if (url.startsWith('/commissions')) return ['commission'];
+        
         return ['dashboard'];
     };
     
@@ -156,6 +172,9 @@ export default function AdminLayout({ children, title }) {
         if (selectedKeys.includes('document-report') || selectedKeys.includes('monthly-report') || 
             selectedKeys.includes('yearly-report') || selectedKeys.includes('payment-status-report')) {
             return ['reports'];
+        }
+        if (selectedKeys.includes('pre-purchase-commission') || selectedKeys.includes('post-purchase-commission')) {
+            return ['commission'];
         }
         return [];
     };
