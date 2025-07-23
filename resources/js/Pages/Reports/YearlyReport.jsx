@@ -227,7 +227,7 @@ const YearlyReport = ({ auth }) => {
             width: 150,
             align: 'center',
             render: (text) => (
-                <Link href={`/reports/document?contract_id=${text}`} className="text-blue-600 hover:text-blue-800 hover:underline">
+                <Link href={`/reports/document?contract_id=${text}`} className="text-blue-600 hover:text-blue-800 font-bold">
                     {text}
                 </Link>
             ),

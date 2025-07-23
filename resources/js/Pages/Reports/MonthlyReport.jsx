@@ -432,8 +432,8 @@ const MonthlyReport = ({ auth }) => {
                                 <List.Item style={listItemStyle}>
                                     <Row gutter={16} style={{ width: '100%' }}>
                                         <Col xs={24} sm={6} md={4}>
-                                            <Link href={`/reports/document?contract_id=${item.contract_id}`} className="text-blue-600 hover:text-blue-800 hover:underline">
-                                                <Text strong>{item.contract_id}</Text>
+                                            <Link href={`/reports/document?contract_id=${item.contract_id}`} className="text-blue-600 hover:text-blue-800 font-bold">
+                                                {item.contract_id}
                                             </Link>
                                         </Col>
                                         <Col xs={24} sm={6} md={4}>
