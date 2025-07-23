@@ -31,6 +31,20 @@ import {
     AuditOutlined,
     SearchOutlined,
     QuestionCircleOutlined,
+    // New unique icons for better menu differentiation
+    ShoppingOutlined,
+    ShopOutlined,
+    HomeOutlined,
+    DatabaseOutlined,
+    FileDoneOutlined,
+    ContainerOutlined,
+    BarChartOutlined,
+    LineChartOutlined,
+    PieChartOutlined,
+    WalletOutlined,
+    MoneyCollectOutlined,
+    CreditCardOutlined,
+    GiftOutlined
 } from '@ant-design/icons';
 import khKH from 'antd/locale/km_KH';
 
@@ -56,24 +70,24 @@ const items = [
         'dashboard', 
         <DashboardOutlined />
     ),
-    getItem('ទិន្នន័យបញ្ចូល', 'data-entry', <FileTextOutlined />, [
+    getItem('ទិន្នន័យបញ្ចូល', 'data-entry', <DatabaseOutlined />, [
         getItem(
             <Link href={route('data-entry.buyers.index')}>ព័ត៌មានអ្នកទិញ</Link>,
             'buyer-info',
-            <UserOutlined />
+            <ShoppingOutlined />
         ),
         getItem(
             <Link href={route('data-entry.sellers.index')}>ព័ត៌មានអ្នកលក់</Link>,
             'seller-info',
-            <UserOutlined />
+            <ShopOutlined />
         ),
         getItem(
             <Link href={route('data-entry.lands.index')}>ព័ត៌មានដី</Link>,
             'land-info',
-            <BankOutlined />
+            <HomeOutlined />
         ),
     ]),
-    getItem('បង្កើតឯកសារ', 'create-docs', <FileOutlined />, [
+    getItem('បង្កើតឯកសារ', 'create-docs', <FileDoneOutlined />, [
         getItem(
             <Link href={route('deposit-contracts.index')}>លិខិតកក់ប្រាក់</Link>,
             'deposit-contracts',
@@ -82,41 +96,41 @@ const items = [
         getItem(
             <Link href={route('sale-contracts.index')}>លិខិតទិញ លក់</Link>,
             'sale-contracts',
-            <FileTextOutlined />
+            <ContainerOutlined />
         ),
     ]),
-    getItem('របាយការណ៍', 'reports', <FileOutlined />, [
+    getItem('របាយការណ៍', 'reports', <BarChartOutlined />, [
         getItem(
             <Link href={route('reports.document')}>របាយការណ៍កិច្ចសន្យា</Link>,
             'document-report',
-            <FileOutlined />
+            <FileTextOutlined />
         ),
         getItem(
             <Link href={route('reports.monthly')}>របាយការណ៍ប្រចាំខែ</Link>,
             'monthly-report',
-            <FileOutlined />
+            <LineChartOutlined />
         ),
         getItem(
             <Link href={route('reports.yearly')}>របាយការណ៍ប្រចាំឆ្នាំ</Link>,
             'yearly-report',
-            <FileOutlined />
+            <PieChartOutlined />
         ),
         getItem(
             <Link href={route('reports.payment-status')}>របាយការណ៍ចំនួនទឹកប្រាក់ទូទាត់ហើយនិងមិនទាន់ទូទាត់</Link>,
             'payment-status-report',
-            <DollarOutlined />
+            <WalletOutlined />
         ),
     ]),
-    getItem('គ្រប់គ្រងកម៉ីសិន', 'commission', <PercentageOutlined />, [
+    getItem('គ្រប់គ្រងកម៉ីសិន', 'commission', <GiftOutlined />, [
         getItem(
             <Link href={route('commissions.pre-purchase')}>មុនទិញ</Link>,
             'pre-purchase-commission',
-            <DollarOutlined />
+            <MoneyCollectOutlined />
         ),
         getItem(
             <Link href={route('commissions.post-purchase')}>ក្រោយទិញ</Link>,
             'post-purchase-commission',
-            <DollarOutlined />
+            <CreditCardOutlined />
         ),
     ]),
     getItem(

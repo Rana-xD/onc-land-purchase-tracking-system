@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { 
-    Table, Button, Input, Space, Popconfirm, 
-    Typography, Card, Row, Col, Breadcrumb, message,
-    Tag
+    Table, Button, Input, Space, Popconfirm, Tag, 
+    Typography, Card, Row, Col, Breadcrumb, message, Tooltip
 } from 'antd';
 import { 
     SearchOutlined, PlusOutlined, EditOutlined, 
@@ -159,24 +158,28 @@ export default function LandsList({ lands, pagination }) {
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
-                    <Button 
-                        type="default" 
-                        icon={<EditOutlined />} 
-                        size="small"
-                        onClick={() => router.visit(route('data-entry.lands.edit', record.id))}
-                    />
+                    <Tooltip title="កែប្រែព័ត៌មានដី">
+                        <Button 
+                            type="default" 
+                            icon={<EditOutlined />} 
+                            size="small"
+                            onClick={() => router.visit(route('data-entry.lands.edit', record.id))}
+                        />
+                    </Tooltip>
                     <Popconfirm
                         title="តើអ្នកពិតជាចង់លុបទិន្នន័យនេះមែនទេ?"
                         onConfirm={() => handleDelete(record.id)}
                         okText="យល់ព្រម"
                         cancelText="បោះបង់"
                     >
-                        <Button 
-                            type="default" 
-                            danger 
-                            icon={<DeleteOutlined />} 
-                            size="small"
-                        />
+                        <Tooltip title="លុបព័ត៌មានដី">
+                            <Button 
+                                type="default" 
+                                danger 
+                                icon={<DeleteOutlined />} 
+                                size="small"
+                            />
+                        </Tooltip>
                     </Popconfirm>
                 </Space>
             ),
@@ -210,13 +213,15 @@ export default function LandsList({ lands, pagination }) {
                                     onSearch={handleSearch}
                                     style={{ width: 250 }}
                                 />
-                                <Button 
-                                    type="primary" 
-                                    icon={<PlusOutlined />}
-                                    onClick={() => router.visit(route('data-entry.lands.create'))}
-                                >
-                                    បន្ថែមថ្មី
-                                </Button>
+                                <Tooltip title="បន្ថែមដីថ្មី">
+                                    <Button 
+                                        type="primary" 
+                                        icon={<PlusOutlined />}
+                                        onClick={() => router.visit(route('data-entry.lands.create'))}
+                                    >
+                                        បន្ថែមថ្មី
+                                    </Button>
+                                </Tooltip>
                             </Space>
                         </Col>
                     </Row>

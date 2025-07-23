@@ -13,7 +13,8 @@ import {
     Row,
     Col,
     Input,
-    Descriptions
+    Descriptions,
+    Tooltip
 } from 'antd';
 import { 
     ArrowLeftOutlined,
@@ -133,14 +134,16 @@ export default function ManagePaymentSteps({ commission }) {
             align: 'center',
             render: (_, record) => (
                 record.status === 'pending' && (
-                    <Button
-                        type="primary"
-                        icon={<CheckCircleOutlined />}
-                        onClick={() => showMarkPaidModal(record)}
-                        size="small"
-                    >
-                        បញ្ជាក់ការទូទាត់
-                    </Button>
+                    <Tooltip title="បញ្ជាក់ថាជំហាននេះត្រូវបានបង់រួចហើយ">
+                        <Button
+                            type="primary"
+                            icon={<CheckCircleOutlined />}
+                            onClick={() => showMarkPaidModal(record)}
+                            size="small"
+                        >
+                            បញ្ជាក់ការទូទាត់
+                        </Button>
+                    </Tooltip>
                 )
             ),
         },

@@ -3,7 +3,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { 
     Table, Button, Input, Space, Popconfirm, Tag, 
-    Typography, Card, Row, Col, Breadcrumb, message
+    Typography, Card, Row, Col, Breadcrumb, message, Tooltip
 } from 'antd';
 import { 
     SearchOutlined, PlusOutlined, EditOutlined, 
@@ -162,24 +162,28 @@ export default function SellersList({ sellers, pagination }) {
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
-                    <Button 
-                        type="default" 
-                        icon={<EditOutlined />} 
-                        size="small"
-                        onClick={() => router.visit(route('data-entry.sellers.edit', record.id))}
-                    />
+                    <Tooltip title="កែប្រែព័ត៌មានអ្នកលក់">
+                        <Button 
+                            type="default" 
+                            icon={<EditOutlined />} 
+                            size="small"
+                            onClick={() => router.visit(route('data-entry.sellers.edit', record.id))}
+                        />
+                    </Tooltip>
                     <Popconfirm
                         title="តើអ្នកពិតជាចង់លុបទិន្នន័យនេះមែនទេ?"
                         onConfirm={() => handleDelete(record.id)}
                         okText="យល់ព្រម"
                         cancelText="បោះបង់"
                     >
-                        <Button 
-                            type="default" 
-                            danger 
-                            icon={<DeleteOutlined />} 
-                            size="small"
-                        />
+                        <Tooltip title="លុបព័ត៌មានអ្នកលក់">
+                            <Button 
+                                type="default" 
+                                danger 
+                                icon={<DeleteOutlined />} 
+                                size="small"
+                            />
+                        </Tooltip>
                     </Popconfirm>
                 </Space>
             ),
@@ -213,13 +217,15 @@ export default function SellersList({ sellers, pagination }) {
                                     onSearch={handleSearch}
                                     style={{ width: 250 }}
                                 />
-                                <Button 
-                                    type="primary" 
-                                    icon={<PlusOutlined />}
-                                    onClick={() => router.visit(route('data-entry.sellers.create'))}
-                                >
-                                    បន្ថែមថ្មី
-                                </Button>
+                                <Tooltip title="បន្ថែមអ្នកលក់ថ្មី">
+                                    <Button 
+                                        type="primary" 
+                                        icon={<PlusOutlined />}
+                                        onClick={() => router.visit(route('data-entry.sellers.create'))}
+                                    >
+                                        បន្ថែមថ្មី
+                                    </Button>
+                                </Tooltip>
                             </Space>
                         </Col>
                     </Row>

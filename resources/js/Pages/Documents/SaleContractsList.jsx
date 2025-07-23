@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import { Card, Table, Button, Typography, Space, Input, Popconfirm, message } from 'antd';
+import { Card, Table, Button, Typography, Space, Input, Popconfirm, message, Tooltip } from 'antd';
 import { PlusOutlined, SearchOutlined, FilePdfOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 import AdminLayout from '@/Layouts/AdminLayout';
 import axios from 'axios';
@@ -136,12 +136,16 @@ export default function SaleContractsList({ initialDocuments }) {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          <Link href={route('sale-contracts.success', { id: record.id })}>
-            <Button type="text" icon={<EyeOutlined />} title="មើល" />
-          </Link>
-          <Link href={route('sale-contracts.download', { id: record.id })} target="_blank">
-            <Button type="text" icon={<FilePdfOutlined />} title="ទាញយក PDF" />
-          </Link>
+          <Tooltip title="មើលលិខិតទិញលក់">
+            <Link href={route('sale-contracts.success', { id: record.id })}>
+              <Button type="text" icon={<EyeOutlined />} />
+            </Link>
+          </Tooltip>
+          <Tooltip title="ទាញយក PDF">
+            <Link href={route('sale-contracts.download', { id: record.id })} target="_blank">
+              <Button type="text" icon={<FilePdfOutlined />} />
+            </Link>
+          </Tooltip>
           <Popconfirm
             title="តើអ្នកប្រាកដជាចង់លុបឯកសារនេះមែនទេ?"
             description="ការលុបនេះមិនអាចត្រឡប់ក្រោយវិញបានទេ"
@@ -149,12 +153,13 @@ export default function SaleContractsList({ initialDocuments }) {
             okText="បាទ/ចាស"
             cancelText="ទេ"
           >
-            <Button 
-              type="text" 
-              danger 
-              icon={<DeleteOutlined />} 
-              title="លុប"
-            />
+            <Tooltip title="លុបលិខិតទិញលក់">
+              <Button 
+                type="text" 
+                danger 
+                icon={<DeleteOutlined />} 
+              />
+            </Tooltip>
           </Popconfirm>
         </Space>
       ),

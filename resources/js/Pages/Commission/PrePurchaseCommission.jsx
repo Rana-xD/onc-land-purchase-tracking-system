@@ -15,7 +15,8 @@ import {
     Popconfirm,
     Row,
     Col,
-    Spin
+    Spin,
+    Tooltip
 } from 'antd';
 import { 
     PlusOutlined, 
@@ -206,24 +207,28 @@ export default function PrePurchaseCommission() {
             align: 'center',
             render: (_, record) => (
                 <Space>
-                    <Button
-                        type="link"
-                        icon={<EditOutlined />}
-                        onClick={() => showModal(record)}
-                        size="small"
-                    />
+                    <Tooltip title="កែប្រែកម៉ីសិន">
+                        <Button
+                            type="link"
+                            icon={<EditOutlined />}
+                            onClick={() => showModal(record)}
+                            size="small"
+                        />
+                    </Tooltip>
                     <Popconfirm
                         title="តើអ្នកពិតជាចង់លុបមែនទេ?"
                         onConfirm={() => handleDelete(record.id)}
                         okText="យល់ព្រម"
                         cancelText="បោះបង់"
                     >
-                        <Button
-                            type="link"
-                            danger
-                            icon={<DeleteOutlined />}
-                            size="small"
-                        />
+                        <Tooltip title="លុបកម៉ីសិន">
+                            <Button
+                                type="link"
+                                danger
+                                icon={<DeleteOutlined />}
+                                size="small"
+                            />
+                        </Tooltip>
                     </Popconfirm>
                     {record.status === 'pending' && (
                         <Popconfirm
@@ -232,12 +237,14 @@ export default function PrePurchaseCommission() {
                             okText="យល់ព្រម"
                             cancelText="បោះបង់"
                         >
-                            <Button
-                                type="link"
-                                icon={<CheckCircleOutlined />}
-                                size="small"
-                                style={{ color: '#52c41a' }}
-                            />
+                            <Tooltip title="បញ្ជាក់ការទូទាត់">
+                                <Button
+                                    type="link"
+                                    icon={<CheckCircleOutlined />}
+                                    size="small"
+                                    style={{ color: '#52c41a' }}
+                                />
+                            </Tooltip>
                         </Popconfirm>
                     )}
                 </Space>
@@ -270,13 +277,15 @@ export default function PrePurchaseCommission() {
                             />
                         </Col>
                         <Col>
-                            <Button
-                                type="primary"
-                                icon={<PlusOutlined />}
-                                onClick={() => showModal()}
-                            >
-                                បន្ថែមថ្មី
-                            </Button>
+                            <Tooltip title="បន្ថែមកម៉ីសិនមុនទិញថ្មី">
+                                <Button
+                                    type="primary"
+                                    icon={<PlusOutlined />}
+                                    onClick={() => showModal()}
+                                >
+                                    បន្ថែមថ្មី
+                                </Button>
+                            </Tooltip>
                         </Col>
                     </Row>
 

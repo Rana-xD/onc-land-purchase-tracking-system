@@ -11,7 +11,8 @@ import {
     message, 
     Popconfirm,
     Row,
-    Col
+    Col,
+    Tooltip
 } from 'antd';
 import { 
     PlusOutlined, 
@@ -154,31 +155,36 @@ export default function PostPurchaseCommission() {
             align: 'center',
             render: (_, record) => (
                 <Space>
-                    <Button
-                        type="link"
-                        icon={<EyeOutlined />}
-                        onClick={() => handleViewSteps(record)}
-                        size="small"
-                        title="មើលជំហាន"
-                    />
-                    <Button
-                        type="link"
-                        icon={<EditOutlined />}
-                        onClick={() => handleEdit(record)}
-                        size="small"
-                    />
+                    <Tooltip title="មើលជំហានទូទាត់">
+                        <Button
+                            type="link"
+                            icon={<EyeOutlined />}
+                            onClick={() => handleViewSteps(record)}
+                            size="small"
+                        />
+                    </Tooltip>
+                    <Tooltip title="កែប្រែកម៉ីសិន">
+                        <Button
+                            type="link"
+                            icon={<EditOutlined />}
+                            onClick={() => handleEdit(record)}
+                            size="small"
+                        />
+                    </Tooltip>
                     <Popconfirm
                         title="តើអ្នកពិតជាចង់លុបមែនទេ?"
                         onConfirm={() => handleDelete(record.id)}
                         okText="យល់ព្រម"
                         cancelText="បោះបង់"
                     >
-                        <Button
-                            type="link"
-                            danger
-                            icon={<DeleteOutlined />}
-                            size="small"
-                        />
+                        <Tooltip title="លុបកម៉ីសិន">
+                            <Button
+                                type="link"
+                                danger
+                                icon={<DeleteOutlined />}
+                                size="small"
+                            />
+                        </Tooltip>
                     </Popconfirm>
                 </Space>
             ),
@@ -212,13 +218,15 @@ export default function PostPurchaseCommission() {
                             />
                         </Col>
                         <Col>
-                            <Button
-                                type="primary"
-                                icon={<PlusOutlined />}
-                                onClick={handleCreate}
-                            >
-                                បន្ថែមថ្មី
-                            </Button>
+                            <Tooltip title="បន្ថែមកម៉ីសិនក្រោយទិញថ្មី">
+                                <Button
+                                    type="primary"
+                                    icon={<PlusOutlined />}
+                                    onClick={handleCreate}
+                                >
+                                    បន្ថែមថ្មី
+                                </Button>
+                            </Tooltip>
                         </Col>
                     </Row>
 

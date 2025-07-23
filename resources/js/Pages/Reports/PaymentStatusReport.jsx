@@ -14,7 +14,8 @@ import {
     Tag,
     Space,
     Divider,
-    Alert
+    Alert,
+    Tooltip
 } from 'antd';
 import { DownloadOutlined, FileExcelOutlined, FilePdfOutlined, DollarOutlined, FileOutlined, FolderOutlined } from '@ant-design/icons';
 import AdminLayout from '@/Layouts/AdminLayout';
@@ -187,24 +188,28 @@ const PaymentStatusReport = ({ auth }) => {
                             </Col>
                             <Col xs={24} sm={12} style={{ textAlign: 'right' }}>
                                 <Space>
-                                    <Button 
-                                        type="primary"
-                                        icon={<FilePdfOutlined />}
-                                        style={{ backgroundColor: '#1890ff' }}
-                                        onClick={() => handleExport('pdf')}
-                                        loading={exporting && exportFormat === 'pdf'}
-                                    >
-                                        PDF
-                                    </Button>
-                                    <Button 
-                                        type="primary"
-                                        style={{ backgroundColor: '#52c41a' }}
-                                        icon={<FileExcelOutlined />} 
-                                        onClick={() => handleExport('excel')}
-                                        loading={exporting && exportFormat === 'excel'}
-                                    >
-                                        Excel
-                                    </Button>
+                                    <Tooltip title="នាំចេញរបាយការណ៍ជាឯកសារ PDF">
+                                        <Button 
+                                            type="primary"
+                                            style={{ backgroundColor: '#ff4d4f' }}
+                                            icon={<FilePdfOutlined />} 
+                                            onClick={() => handleExport('pdf')}
+                                            loading={exporting && exportFormat === 'pdf'}
+                                        >
+                                            PDF
+                                        </Button>
+                                    </Tooltip>
+                                    <Tooltip title="នាំចេញរបាយការណ៍ជាឯកសារ Excel">
+                                        <Button 
+                                            type="primary"
+                                            style={{ backgroundColor: '#52c41a' }}
+                                            icon={<FileExcelOutlined />} 
+                                            onClick={() => handleExport('excel')}
+                                            loading={exporting && exportFormat === 'excel'}
+                                        >
+                                            Excel
+                                        </Button>
+                                    </Tooltip>
                                 </Space>
                             </Col>
                         </Row>
