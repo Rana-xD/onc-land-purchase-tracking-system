@@ -7,6 +7,7 @@ use App\Models\Buyer;
 use App\Models\Document;
 use App\Services\FileUploadService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -29,6 +30,11 @@ class BuyerApiController extends Controller
      */
     public function index(Request $request)
     {
+        // Check if user has permission to view buyers
+        if (!Auth::user()->hasPermission('buyers.view')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $query = Buyer::query();
 
         // Search functionality
@@ -88,6 +94,11 @@ class BuyerApiController extends Controller
      */
     public function store(Request $request)
     {
+        // Check if user has permission to create buyers
+        if (!Auth::user()->hasPermission('buyers.create')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         // Debug logging
         $logPrefix = '[BuyerApiController:store] ';
         
@@ -171,6 +182,11 @@ class BuyerApiController extends Controller
      */
     public function show($id)
     {
+        // Check if user has permission to view buyers
+        if (!Auth::user()->hasPermission('buyers.view')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $buyer = Buyer::with('documents')->findOrFail($id);
         return response()->json($buyer);
     }
@@ -184,6 +200,11 @@ class BuyerApiController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Check if user has permission to edit buyers
+        if (!Auth::user()->hasPermission('buyers.edit')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'sex' => 'required|in:male,female',
@@ -236,6 +257,11 @@ class BuyerApiController extends Controller
      */
     public function destroy($id)
     {
+        // Check if user has permission to delete buyers
+        if (!Auth::user()->hasPermission('buyers.delete')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         try {
             DB::beginTransaction();
 

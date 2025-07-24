@@ -130,8 +130,7 @@ class UserController extends Controller
      */
     public function management()
     {
-        // Skip authorization temporarily to test if that's causing the issue
-        // $this->authorize('viewAny', User::class);
+        $this->authorize('viewAny', User::class);
         
         return Inertia::render('Users/UserManagement');
     }

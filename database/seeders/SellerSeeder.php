@@ -21,16 +21,12 @@ class SellerSeeder extends Seeder
             return;
         }
 
-        // Khmer names for sellers
+        // Khmer names for sellers (only 5)
         $khmerNames = [
-            'គង់ សម្បត្តិ', 'ប៊ុន សុខា', 'ម៉ៅ សុខុម', 'ឈឿន សុភាព', 'ឡុង សុភារិទ្ធ',
-            'ជា សុភី', 'សុខ សុភ័ក្ត្រ', 'ហ៊ុន សុមាលី', 'ឃុន សុមេធា', 'ឡេង សុរិន្ទ',
-            'ឡាយ សុរិយា', 'ស៊ាន សុវណ្ណ', 'វ៉ាន់ សុវណ្ណារី', 'ប៉ែន សុវណ្ណារ៉ា', 'ឃុត សុវត្ថិ',
-            'ឈឿន សុវិចិត្រ', 'ឡុង សូរ៉ា', 'គឹម សូរិយា', 'ហ៊ុយ សេរីរ័ត្ន', 'ឃុត សោភ័ណ',
-            'ឆាយ សោភា', 'ជា សំណាង', 'ហុង សំបូរ'
+            'គង់ សម្បត្តិ', 'ប៊ុន សុខា', 'ម៉ៅ សុខុម', 'ឈឿន សុភាព', 'ឡុង សុភារិទ្ធ'
         ];
 
-        // Create 20+ sellers
+        // Create 5 sellers
         foreach ($khmerNames as $index => $name) {
             $sex = $index % 2 === 0 ? 'male' : 'female';
             $seller = Seller::create([
@@ -46,7 +42,7 @@ class SellerSeeder extends Seeder
             $this->createSampleDocuments($seller);
         }
 
-        $this->command->info('Successfully seeded ' . count($khmerNames) . ' sellers with documents.');
+        $this->command->info('Successfully seeded 5 sellers with documents.');
     }
 
     /**

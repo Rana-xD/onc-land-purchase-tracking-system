@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Commission;
 use App\Services\CommissionCalculationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class CommissionController extends Controller
@@ -21,6 +22,11 @@ class CommissionController extends Controller
      */
     public function index()
     {
+        // Check if user has permission to view commission management
+        if (!Auth::user()->hasPermission('pre_purchase_commission.view')) {
+            abort(403, 'Unauthorized');
+        }
+
         $statistics = $this->commissionService->getCommissionStatistics();
 
         return Inertia::render('Commission/CommissionManagement', [
@@ -33,6 +39,11 @@ class CommissionController extends Controller
      */
     public function prePurchase()
     {
+        // Check if user has permission to view pre-purchase commissions
+        if (!Auth::user()->hasPermission('pre_purchase_commission.view')) {
+            abort(403, 'Unauthorized');
+        }
+
         return Inertia::render('Commission/PrePurchaseCommission');
     }
 
@@ -41,6 +52,11 @@ class CommissionController extends Controller
      */
     public function postPurchase()
     {
+        // Check if user has permission to view post-purchase commissions
+        if (!Auth::user()->hasPermission('post_purchase_commission.view')) {
+            abort(403, 'Unauthorized');
+        }
+
         return Inertia::render('Commission/PostPurchaseCommission');
     }
 
@@ -49,6 +65,11 @@ class CommissionController extends Controller
      */
     public function createPostPurchase()
     {
+        // Check if user has permission to create post-purchase commissions
+        if (!Auth::user()->hasPermission('post_purchase_commission.create')) {
+            abort(403, 'Unauthorized');
+        }
+
         return Inertia::render('Commission/CreatePostPurchaseCommission');
     }
 
@@ -57,6 +78,11 @@ class CommissionController extends Controller
      */
     public function editPostPurchase(Commission $commission)
     {
+        // Check if user has permission to edit post-purchase commissions
+        if (!Auth::user()->hasPermission('post_purchase_commission.edit')) {
+            abort(403, 'Unauthorized');
+        }
+
         if ($commission->commission_type !== 'post_purchase') {
             return redirect()->route('commissions.post-purchase')
                 ->with('error', 'Commission not found');
@@ -72,6 +98,11 @@ class CommissionController extends Controller
      */
     public function manageSteps(Commission $commission)
     {
+        // Check if user has permission to manage commission payment steps
+        if (!Auth::user()->hasPermission('post_purchase_commission.edit')) {
+            abort(403, 'Unauthorized');
+        }
+
         if ($commission->commission_type !== 'post_purchase') {
             return redirect()->route('commissions.post-purchase')
                 ->with('error', 'Commission not found');

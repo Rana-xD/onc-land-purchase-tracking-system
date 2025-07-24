@@ -133,11 +133,18 @@ const items = [
             <CreditCardOutlined />
         ),
     ]),
-    getItem(
-        <Link href={route('users.management')}>គ្រប់គ្រងអ្នកប្រើប្រាស់</Link>, 
-        'user-management', 
-        <TeamOutlined />
-    ),
+    getItem('គ្រប់គ្រងអ្នកប្រើប្រាស់', 'user-management', <TeamOutlined />, [
+        getItem(
+            <Link href={route('users.management')}>អ្នកប្រើប្រាស់</Link>,
+            'users',
+            <UserOutlined />
+        ),
+        getItem(
+            <Link href={route('roles.index')}>តួនាទី និង សិទ្ធិ</Link>,
+            'roles-permissions',
+            <SettingOutlined />
+        ),
+    ]),
 ];
 
 export default function AdminLayout({ children, title }) {
@@ -150,7 +157,8 @@ export default function AdminLayout({ children, title }) {
     // Determine which menu item should be selected based on the current URL
     const getSelectedKeys = () => {
         if (url.startsWith('/dashboard')) return ['dashboard'];
-        if (url.startsWith('/user-management')) return ['user-management'];
+        if (url.startsWith('/user-management')) return ['users'];
+        if (url.startsWith('/roles')) return ['roles-permissions'];
         if (url.startsWith('/data-entry/buyers')) return ['buyer-info'];
         if (url.startsWith('/data-entry/sellers')) return ['seller-info'];
         if (url.startsWith('/data-entry/lands')) return ['land-info'];
@@ -189,6 +197,9 @@ export default function AdminLayout({ children, title }) {
         }
         if (selectedKeys.includes('pre-purchase-commission') || selectedKeys.includes('post-purchase-commission')) {
             return ['commission'];
+        }
+        if (selectedKeys.includes('users') || selectedKeys.includes('roles-permissions')) {
+            return ['user-management'];
         }
         return [];
     };

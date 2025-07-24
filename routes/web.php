@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\LandController;
 use App\Http\Controllers\Api\SellerApiController;
 use App\Http\Controllers\Api\SellerController;
 use App\Http\Controllers\Api\UserApiController;
+use App\Http\Controllers\CommissionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DataEntryController;
 use App\Http\Controllers\ProfileController;
@@ -51,7 +52,7 @@ Route::middleware('auth')->group(function () {
     // User routes
     
     // User routes with role-based access control
-    Route::middleware('role:administrator,manager')->group(function () {
+    Route::middleware('role:admin,manager')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
         
@@ -62,6 +63,18 @@ Route::middleware('auth')->group(function () {
     Route::middleware('auth')->get('/user-management', function () {
         return Inertia::render('Users/UserManagement');
     })->name('users.management');
+    
+    // Role and Permission Management routes
+    Route::middleware('auth')->prefix('roles')->name('roles.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\RoleController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\RoleController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\RoleController::class, 'store'])->name('store');
+        Route::get('/{role}', [\App\Http\Controllers\RoleController::class, 'show'])->name('show');
+        Route::get('/{role}/edit', [\App\Http\Controllers\RoleController::class, 'edit'])->name('edit');
+        Route::put('/{role}', [\App\Http\Controllers\RoleController::class, 'update'])->name('update');
+        Route::delete('/{role}', [\App\Http\Controllers\RoleController::class, 'destroy'])->name('destroy');
+        Route::patch('/{role}/toggle-status', [\App\Http\Controllers\RoleController::class, 'toggleStatus'])->name('toggle-status');
+    });
     
     // Simple test routes
     Route::get('/test-page', function () {
@@ -76,12 +89,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/documents', [\App\Http\Controllers\DocumentCreationController::class, 'index'])->name('documents.index');
     Route::get('/documents/{contract_id}', [ReportController::class, 'documentReportByContract'])->name('documents.show');
     
-    // Report routes
-    Route::prefix('reports')->name('reports.')->group(function () {
+    // Reports routes
+    Route::prefix('reports')->name('reports.')->middleware('\App\Http\Middleware\CheckRole:admin,manager,staff')->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index');
         Route::get('/document', [ReportController::class, 'documentReport'])->name('document');
         Route::get('/monthly', [ReportController::class, 'monthlyReport'])->name('monthly');
-        Route::get('/payment-status', [ReportController::class, 'paymentStatusReport'])->name('payment-status');
         Route::get('/yearly', [ReportController::class, 'yearlyReport'])->name('yearly');
+        Route::get('/payment-status', [ReportController::class, 'paymentStatusReport'])->name('payment-status');
         
         // Payment Status Report API endpoints
         Route::post('/payment-status/data', [\App\Http\Controllers\Reports\PaymentStatusReportController::class, 'getPaymentStatusData']);
@@ -92,14 +106,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/yearly/export', [\App\Http\Controllers\Reports\YearlyReportController::class, 'exportYearlyReport']);
     });
     
-    // Commission Management routes
-    Route::prefix('commissions')->name('commissions.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\CommissionController::class, 'index'])->name('index');
-        Route::get('/pre-purchase', [\App\Http\Controllers\CommissionController::class, 'prePurchase'])->name('pre-purchase');
-        Route::get('/post-purchase', [\App\Http\Controllers\CommissionController::class, 'postPurchase'])->name('post-purchase');
-        Route::get('/post-purchase/create', [\App\Http\Controllers\CommissionController::class, 'createPostPurchase'])->name('post-purchase.create');
-        Route::get('/post-purchase/{commission}/edit', [\App\Http\Controllers\CommissionController::class, 'editPostPurchase'])->name('post-purchase.edit');
-        Route::get('/post-purchase/{commission}/steps', [\App\Http\Controllers\CommissionController::class, 'manageSteps'])->name('post-purchase.steps');
+    // Commission routes
+    Route::prefix('commissions')->name('commissions.')->middleware('\App\Http\Middleware\CheckRole:admin,manager,staff')->group(function () {
+        Route::get('/', [CommissionController::class, 'index'])->name('index');
+        Route::get('/pre-purchase', [CommissionController::class, 'prePurchase'])->name('pre-purchase');
+        Route::get('/post-purchase', [CommissionController::class, 'postPurchase'])->name('post-purchase');
+        Route::get('/post-purchase/{commission}/payment-steps', [CommissionController::class, 'managePaymentSteps'])->name('post-purchase.payment-steps');
+        Route::get('/post-purchase/create', [CommissionController::class, 'createPostPurchase'])->name('post-purchase.create');
+        Route::get('/post-purchase/{commission}/edit', [CommissionController::class, 'editPostPurchase'])->name('post-purchase.edit');
         
         // Pre-purchase Commission API routes
         Route::prefix('api/pre-purchase')->group(function () {
@@ -131,7 +145,7 @@ Route::middleware('auth')->group(function () {
     });
     
     // Deposit Contracts routes
-    Route::prefix('deposit-contracts')->name('deposit-contracts.')->group(function () {
+    Route::prefix('deposit-contracts')->name('deposit-contracts.')->middleware('\App\Http\Middleware\CheckRole:admin,manager,staff')->group(function () {
         Route::get('/', [\App\Http\Controllers\DocumentCreationController::class, 'depositContractsIndex'])->name('index');
         Route::get('/create', [\App\Http\Controllers\DocumentCreationController::class, 'createDepositContract'])->name('create');
         Route::get('/select-buyers', [\App\Http\Controllers\DocumentCreationController::class, 'selectBuyers'])->defaults('type', 'deposit_contract')->name('select-buyers');
@@ -145,7 +159,7 @@ Route::middleware('auth')->group(function () {
     });
     
     // Sale Contracts routes
-    Route::prefix('sale-contracts')->name('sale-contracts.')->group(function () {
+    Route::prefix('sale-contracts')->name('sale-contracts.')->middleware('\App\Http\Middleware\CheckRole:admin,manager,staff')->group(function () {
         Route::get('/', [\App\Http\Controllers\DocumentCreationController::class, 'saleContractsIndex'])->name('index');
         Route::get('/create', [\App\Http\Controllers\DocumentCreationController::class, 'createSaleContract'])->name('create');
         Route::get('/select-buyers', [\App\Http\Controllers\DocumentCreationController::class, 'selectBuyers'])->defaults('type', 'sale_contract')->name('select-buyers');
@@ -159,7 +173,7 @@ Route::middleware('auth')->group(function () {
     });
     
     // Data Entry routes
-    Route::prefix('data-entry')->name('data-entry.')->group(function () {
+    Route::prefix('data-entry')->name('data-entry.')->middleware('\App\Http\Middleware\CheckRole:admin,manager,staff')->group(function () {
         Route::get('/', [DataEntryController::class, 'index'])->name('index');
         
         // Buyer routes
@@ -188,14 +202,14 @@ Route::middleware('auth')->group(function () {
     });
     
     // Administrator-only routes
-    Route::middleware('role:administrator')->group(function () {
+    Route::middleware('role:admin')->group(function () {
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
     
     // API Routes
-    Route::prefix('api')->middleware(['auth', 'verified'])->group(function () {
+    Route::prefix('api')->middleware(['auth', 'verified', '\App\Http\Middleware\CheckRole:admin,manager,staff'])->group(function () {
         // User management endpoints
         Route::prefix('users')->group(function () {
             Route::get('/', [UserApiController::class, 'index']);
@@ -204,6 +218,18 @@ Route::middleware('auth')->group(function () {
             Route::put('/{id}', [UserApiController::class, 'update']);
             Route::delete('/{id}', [UserApiController::class, 'destroy']);
             Route::post('/{id}/toggle-status', [UserApiController::class, 'toggleStatus']);
+        });
+        
+        // Role management endpoints
+        Route::prefix('roles')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Api\RoleApiController::class, 'index']);
+            Route::post('/', [\App\Http\Controllers\Api\RoleApiController::class, 'store']);
+            Route::get('/for-select', [\App\Http\Controllers\Api\RoleApiController::class, 'getForSelect']);
+            Route::get('/permissions', [\App\Http\Controllers\Api\RoleApiController::class, 'getPermissions']);
+            Route::get('/{id}', [\App\Http\Controllers\Api\RoleApiController::class, 'show']);
+            Route::put('/{id}', [\App\Http\Controllers\Api\RoleApiController::class, 'update']);
+            Route::delete('/{id}', [\App\Http\Controllers\Api\RoleApiController::class, 'destroy']);
+            Route::post('/{id}/toggle-status', [\App\Http\Controllers\Api\RoleApiController::class, 'toggleStatus']);
         });
         
         // File Upload endpoints

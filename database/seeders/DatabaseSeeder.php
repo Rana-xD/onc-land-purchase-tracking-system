@@ -13,11 +13,17 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            // First, create permissions and roles
+            PermissionSeeder::class,
+            DefaultRoleSeeder::class,
+            
+            // Then create users (which depend on roles)
             UserSeeder::class,
+            
+            // Finally, create other data
             SellerSeeder::class,
             BuyerSeeder::class,
             LandSeeder::class,
-            // Removed buyer, seller, and land seeders for development simplicity
         ]);
     }
 }

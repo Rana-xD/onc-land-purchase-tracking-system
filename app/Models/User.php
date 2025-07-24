@@ -22,7 +22,7 @@ class User extends Authenticatable
         'name',
         'username',
         'password',
-        'role',
+        'role_id',
         'is_active',
     ];
 
@@ -45,12 +45,19 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
-            'role' => 'string',
             'is_active' => 'boolean',
             'deleted_at' => 'datetime',
         ];
     }
     
+    
+    /**
+     * Get the role assigned to this user.
+     */
+    public function assignedRole()
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
     
     /**
      * Check if the user has the given role.
@@ -60,7 +67,31 @@ class User extends Authenticatable
      */
     public function hasRole(string $role): bool
     {
-        return $this->role === $role;
+        return $this->assignedRole && $this->assignedRole->name === $role;
+    }
+    
+    /**
+     * Check if user has a specific permission.
+     */
+    public function hasPermission(string $permission): bool
+    {
+        if (!$this->assignedRole) {
+            return false;
+        }
+        
+        return $this->assignedRole->hasPermission($permission);
+    }
+    
+    /**
+     * Get all permissions for this user through their role.
+     */
+    public function getPermissions()
+    {
+        if (!$this->assignedRole) {
+            return collect();
+        }
+        
+        return $this->assignedRole->permissions;
     }
     
     /**

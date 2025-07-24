@@ -14,7 +14,7 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->role === 'administrator' || $user->role === 'manager';
+        return $user->hasPermission('users.view');
     }
 
     /**
@@ -22,7 +22,7 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-        return $user->role === 'administrator' || $user->role === 'manager' || $user->id === $model->id;
+        return $user->hasPermission('users.view') || $user->id === $model->id;
     }
 
     /**
@@ -30,7 +30,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role === 'administrator';
+        return $user->hasPermission('users.create');
     }
 
     /**
@@ -38,14 +38,9 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        // Admin can update any user
-        if ($user->role === 'administrator') {
+        // Check if user has permission to edit users
+        if ($user->hasPermission('users.edit')) {
             return true;
-        }
-        
-        // Manager can update staff but not other managers or admins
-        if ($user->role === 'manager') {
-            return $model->role === 'staff';
         }
         
         // Users can update their own profile
@@ -57,17 +52,8 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        // Admin can delete any user except themselves (handled in controller)
-        if ($user->role === 'administrator') {
-            return true;
-        }
-        
-        // Manager can delete staff but not other managers or admins
-        if ($user->role === 'manager') {
-            return $model->role === 'staff';
-        }
-        
-        return false;
+        // Check if user has permission to delete users
+        return $user->hasPermission('users.delete');
     }
     
     /**
@@ -80,16 +66,7 @@ class UserPolicy
             return false;
         }
         
-        // Admin can toggle status for any user except themselves
-        if ($user->role === 'administrator') {
-            return true;
-        }
-        
-        // Manager can toggle status for staff only
-        if ($user->role === 'manager') {
-            return $model->role === 'staff';
-        }
-        
-        return false;
+        // Check if user has permission to toggle user status
+        return $user->hasPermission('users.toggle_status');
     }
 }

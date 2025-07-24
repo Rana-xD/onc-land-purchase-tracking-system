@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DocumentCreation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class ReportController extends Controller
@@ -15,6 +16,11 @@ class ReportController extends Controller
      */
     public function documentReport()
     {
+        // Check if user has permission to view document reports
+        if (!Auth::user()->hasPermission('reports.document')) {
+            abort(403, 'Unauthorized');
+        }
+
         return Inertia::render('Reports/DocumentReport');
     }
 
@@ -25,6 +31,11 @@ class ReportController extends Controller
      */
     public function monthlyReport()
     {
+        // Check if user has permission to view monthly reports
+        if (!Auth::user()->hasPermission('reports.monthly')) {
+            abort(403, 'Unauthorized');
+        }
+
         return Inertia::render('Reports/MonthlyReport');
     }
 
@@ -35,6 +46,11 @@ class ReportController extends Controller
      */
     public function paymentStatusReport()
     {
+        // Check if user has permission to view payment status reports
+        if (!Auth::user()->hasPermission('reports.payment_status')) {
+            abort(403, 'Unauthorized');
+        }
+
         return Inertia::render('Reports/PaymentStatusReport');
     }
     
@@ -45,6 +61,11 @@ class ReportController extends Controller
      */
     public function yearlyReport()
     {
+        // Check if user has permission to view yearly reports
+        if (!Auth::user()->hasPermission('reports.yearly')) {
+            abort(403, 'Unauthorized');
+        }
+
         return Inertia::render('Reports/YearlyReport');
     }
     
@@ -56,6 +77,11 @@ class ReportController extends Controller
      */
     public function documentReportByContract($contract_id)
     {
+        // Check if user has permission to view document reports
+        if (!Auth::user()->hasPermission('reports.document')) {
+            abort(403, 'Unauthorized');
+        }
+
         // Find the contract by document_code (which is displayed as contract_id in the UI)
         $contract = DocumentCreation::where('document_code', $contract_id)->first();
         

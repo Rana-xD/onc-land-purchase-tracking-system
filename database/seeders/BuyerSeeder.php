@@ -21,17 +21,12 @@ class BuyerSeeder extends Seeder
             return;
         }
 
-        // Khmer names for buyers
+        // Khmer names for buyers (only 5)
         $khmerNames = [
-            'សុខ វាសនា', 'ចាន់ សុភា', 'ឡុង សុផល', 'ឈឿន សុខា', 'ហេង សុខុម',
-            'ធារី សុខហៀង', 'ពៅ សុខាលី', 'ឡេង សុខឃីម', 'ម៉េង សុខារី', 'ឆាយ សុខឿន',
-            'ជា សុខចិត្ត', 'ហុង សុខចិន្តា', 'ពិសិដ្ឋ សុខជា', 'ហ៊ុន សុខជីវ័ន', 'ម៉ៅ សុខដា',
-            'ធី សុខដារា', 'សុខ ដារ៉ា', 'ឈុន សុខដារិទ្ធ', 'ឡុង សុខតារា', 'ស៊ាន សុខតារានី',
-            'វ៉ាន់ សុខថន', 'ប៉ែន សុខទី', 'ឡាយ សុខទេវី', 'ឃុន សុខធារី', 'ឡេង សុខនី',
-            'ឈឿន សុខនីតា', 'ឡុង សុខបញ្ញា', 'គឹម សុខប៊ុនថន', 'ហ៊ុយ សុខពេជ្រ', 'ឃុត សុខពេជ្រតារា'
+            'សុខ វាសនា', 'ចាន់ សុភា', 'ឡុង សុផល', 'ឈឿន សុខា', 'ហេង សុខុម'
         ];
 
-        // Create 30+ buyers
+        // Create 5 buyers
         foreach ($khmerNames as $index => $name) {
             $sex = $index % 2 === 0 ? 'male' : 'female';
             $buyer = Buyer::create([
@@ -47,7 +42,7 @@ class BuyerSeeder extends Seeder
             $this->createSampleDocuments($buyer);
         }
 
-        $this->command->info('Successfully seeded ' . count($khmerNames) . ' buyers with documents.');
+        $this->command->info('Successfully seeded 5 buyers with documents.');
     }
 
     /**

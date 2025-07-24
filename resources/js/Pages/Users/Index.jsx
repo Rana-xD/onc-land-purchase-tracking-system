@@ -118,7 +118,7 @@ export default function UsersIndex({ users, auth }) {
             form.setFieldsValue({
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role_id: user.role_id
             });
         } else {
             setEditingUserId(null);
@@ -230,7 +230,7 @@ export default function UsersIndex({ users, auth }) {
                             មើល
                         </Button>
                     </Link>
-                    {(auth.user.role === 'administrator' || (auth.user.role === 'manager' && record.role === 'staff')) && (
+                    {(auth.user.assigned_role?.name === 'administrator' || (auth.user.assigned_role?.name === 'manager' && record.assigned_role?.name === 'staff')) && (
                         <Button 
                             type="default" 
                             icon={<EditOutlined />} 
@@ -240,7 +240,7 @@ export default function UsersIndex({ users, auth }) {
                             កែប្រែ
                         </Button>
                     )}
-                    {(auth.user.role === 'administrator' || (auth.user.role === 'manager' && record.role === 'staff')) && (
+                    {(auth.user.assigned_role?.name === 'administrator' || (auth.user.assigned_role?.name === 'manager' && record.assigned_role?.name === 'staff')) && (
                         <Popconfirm
                             title="តើអ្នកពិតជាចង់លុបអ្នកប្រើប្រាស់នេះមែនទេ?"
                             onConfirm={() => handleDelete(record.id)}

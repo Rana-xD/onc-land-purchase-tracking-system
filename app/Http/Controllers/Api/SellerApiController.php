@@ -7,6 +7,7 @@ use App\Models\Document;
 use App\Models\Seller;
 use App\Services\FileUploadService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -28,6 +29,11 @@ class SellerApiController extends Controller
      */
     public function index(Request $request)
     {
+        // Check if user has permission to view sellers
+        if (!Auth::user()->hasPermission('sellers.view')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $query = Seller::query();
 
         // Search functionality
@@ -87,6 +93,11 @@ class SellerApiController extends Controller
      */
     public function store(Request $request)
     {
+        // Check if user has permission to create sellers
+        if (!Auth::user()->hasPermission('sellers.create')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'sex' => 'required|in:male,female',
@@ -139,6 +150,11 @@ class SellerApiController extends Controller
      */
     public function show($id)
     {
+        // Check if user has permission to view sellers
+        if (!Auth::user()->hasPermission('sellers.view')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $seller = Seller::with('documents')->findOrFail($id);
         return response()->json($seller);
     }
@@ -152,6 +168,11 @@ class SellerApiController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Check if user has permission to edit sellers
+        if (!Auth::user()->hasPermission('sellers.edit')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'sex' => 'required|in:male,female',
@@ -204,6 +225,11 @@ class SellerApiController extends Controller
      */
     public function destroy($id)
     {
+        // Check if user has permission to delete sellers
+        if (!Auth::user()->hasPermission('sellers.delete')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         try {
             DB::beginTransaction();
 

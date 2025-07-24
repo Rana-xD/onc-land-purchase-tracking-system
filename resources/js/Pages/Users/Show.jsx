@@ -60,8 +60,8 @@ export default function UserShow({ user, activities, auth }) {
                     <Descriptions.Item label="ឈ្មោះ">{user.name}</Descriptions.Item>
                     <Descriptions.Item label="អ៊ីមែល">{user.email}</Descriptions.Item>
                     <Descriptions.Item label="តួនាទី">
-                        <Tag color={getRoleColor(user.role)}>
-                            {getRoleName(user.role)}
+                        <Tag color="blue">
+                            {user.assigned_role ? user.assigned_role.display_name : 'មិនបានកំណត់'}
                         </Tag>
                     </Descriptions.Item>
                     <Descriptions.Item label="បង្កើតនៅ">
@@ -78,7 +78,7 @@ export default function UserShow({ user, activities, auth }) {
                             ត្រឡប់ក្រោយ
                         </button>
                     </Link>
-                    {(auth.user.role === 'administrator' || (auth.user.role === 'manager' && user.role === 'staff')) && (
+                    {(auth.user.assigned_role?.name === 'administrator' || (auth.user.assigned_role?.name === 'manager' && user.assigned_role?.name === 'staff')) && (
                         <Link href={route('users.edit', user.id)}>
                             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                                 កែប្រែ

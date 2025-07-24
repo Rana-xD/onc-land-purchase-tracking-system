@@ -14,7 +14,7 @@ export default function MinimalUserManagement({ auth }) {
                             {auth?.user && (
                                 <div className="mt-4">
                                     <p>Logged in as: {auth.user.name}</p>
-                                    <p>Role: {auth.user.role}</p>
+                                    <p>Role: {auth.user.assigned_role ? auth.user.assigned_role.display_name : 'មិនបានកំណត់'}</p>
                                 </div>
                             )}
                         </div>

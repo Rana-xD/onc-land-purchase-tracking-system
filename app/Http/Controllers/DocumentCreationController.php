@@ -7,6 +7,7 @@ use App\Models\DocumentCreation;
 use App\Models\Land;
 use App\Models\Seller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class DocumentCreationController extends Controller
@@ -19,6 +20,11 @@ class DocumentCreationController extends Controller
      */
     public function apiCreateDepositContract(Request $request)
     {
+        // Check if user has permission to create deposit contracts
+        if (!Auth::user()->hasPermission('deposit_contracts.create')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $document = new DocumentCreation();
         $document->document_type = 'deposit_contract';
         $document->status = 'draft';
@@ -37,6 +43,11 @@ class DocumentCreationController extends Controller
      */
     public function apiCreateSaleContract(Request $request)
     {
+        // Check if user has permission to create sale contracts
+        if (!Auth::user()->hasPermission('sale_contracts.create')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $document = new DocumentCreation();
         $document->document_type = 'sale_contract';
         $document->status = 'draft';
@@ -226,6 +237,11 @@ class DocumentCreationController extends Controller
      */
     public function list()
     {
+        // Check if user has permission to view documents
+        if (!Auth::user()->hasPermission('deposit_contracts.view') && !Auth::user()->hasPermission('sale_contracts.view')) {
+            abort(403, 'Unauthorized');
+        }
+
         $documents = DocumentCreation::with(['buyers.buyer', 'sellers.seller', 'lands.land', 'paymentSteps', 'creator'])
             ->where('status', 'completed')
             ->orderBy('created_at', 'desc')
@@ -279,6 +295,12 @@ class DocumentCreationController extends Controller
     public function destroy($id)
     {
         $document = DocumentCreation::findOrFail($id);
+        
+        // Check if user has permission to delete contracts
+        $permissionNeeded = $document->document_type === 'deposit_contract' ? 'deposit_contracts.delete' : 'sale_contracts.delete';
+        if (!Auth::user()->hasPermission($permissionNeeded)) {
+            abort(403, 'Unauthorized');
+        }
         
         // Delete related records first
         $document->buyers()->delete();

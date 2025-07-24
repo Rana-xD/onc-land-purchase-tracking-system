@@ -33,8 +33,11 @@ import {
 import axios from 'axios';
 
 export default function UserManagement({ auth }) {
-    // Check if user has administrator role
-    if (auth?.user?.role !== 'administrator') {
+    // Check if user has admin role using new role system
+    const hasAdminAccess = auth?.user?.assigned_role?.name === 'admin' || 
+                          auth?.user?.assigned_role?.name === 'manager';
+    
+    if (!hasAdminAccess) {
         return (
             <AdminLayout>
                 <Head title="មិនមានសិទ្ធិ" />
@@ -73,6 +76,7 @@ export default function UserManagement({ auth }) {
         role: 'all',
         status: 'all'
     });
+    const [availableRoles, setAvailableRoles] = useState([]);
 
     // Fetch users with filters and pagination
     const fetchUsers = async (params = {}) => {
@@ -109,9 +113,20 @@ export default function UserManagement({ auth }) {
         }
     };
 
+    // Fetch available roles
+    const fetchRoles = async () => {
+        try {
+            const response = await axios.get('/api/roles/for-select');
+            setAvailableRoles(response.data.data || []);
+        } catch (error) {
+            console.error('Error fetching roles:', error);
+        }
+    };
+
     // Initial data load
     useEffect(() => {
         fetchUsers();
+        fetchRoles();
     }, []);
 
     // Handle table change (pagination, filters, sorter)
@@ -158,19 +173,17 @@ export default function UserManagement({ auth }) {
 
     // Show modal for creating/editing user
     const showModal = (user = null) => {
+        setEditingUser(user);
         setIsModalOpen(true);
-        form.resetFields();
-        
         if (user) {
-            setEditingUser(user);
             form.setFieldsValue({
                 name: user.name,
                 username: user.username,
-                role: user.role,
+                role_id: user.role_id,
                 is_active: user.is_active
             });
         } else {
-            setEditingUser(null);
+            form.resetFields();
         }
     };
 
@@ -304,11 +317,17 @@ export default function UserManagement({ auth }) {
             title: 'តួនាទី',
             dataIndex: 'role',
             key: 'role',
-            render: (role) => (
-                <Tag color={getRoleColor(role)}>
-                    {getRoleName(role)}
-                </Tag>
-            ),
+            render: (role, record) => {
+                // Check if user has new role system (role_id) or old system (role)
+                const displayRole = record.assigned_role ? record.assigned_role.display_name : getRoleName(role);
+                const roleColor = record.assigned_role ? 'blue' : getRoleColor(role);
+                
+                return (
+                    <Tag color={roleColor}>
+                        {displayRole}
+                    </Tag>
+                );
+            },
         },
         {
             title: 'ស្ថានភាព',
@@ -331,7 +350,7 @@ export default function UserManagement({ auth }) {
                             icon={<EditOutlined />} 
                             size="small"
                             onClick={() => showModal(record)}
-                            disabled={auth.user.id === record.id && auth.user.role !== 'administrator'}
+                            disabled={auth.user.id === record.id && !auth.user.assigned_role?.name === 'administrator'}
                         />
                     </Tooltip>
                     
@@ -540,16 +559,23 @@ export default function UserManagement({ auth }) {
                         </>
                     )}
                     <Form.Item
-                        name="role"
+                        name="role_id"
                         label="តួនាទី"
                         rules={[{ required: true, message: 'សូមជ្រើសរើសតួនាទី!' }]}
                     >
                         <Select
+                            placeholder="ជ្រើសរើសតួនាទី"
                             disabled={editingUser && auth.user.id === editingUser.id}
+                            showSearch
+                            filterOption={(input, option) =>
+                                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                            }
                         >
-                            <Select.Option value="administrator">អេមីន</Select.Option>
-                            <Select.Option value="manager">អ្នកគ្រប់គ្រង</Select.Option>
-                            <Select.Option value="staff">បុគ្គលិក</Select.Option>
+                            {availableRoles.map(role => (
+                                <Select.Option key={role.id} value={role.id}>
+                                    {role.display_name}
+                                </Select.Option>
+                            ))}
                         </Select>
                     </Form.Item>
                     {editingUser && (

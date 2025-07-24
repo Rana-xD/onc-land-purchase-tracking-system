@@ -21,17 +21,31 @@ class CheckRole
             return redirect()->route('login');
         }
         
-        // Check if user has one of the required roles
-        $userRole = $request->user()->role;
+        $user = $request->user();
+        
+        // Check if user is active
+        if (!$user->is_active) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Account inactive'], 403);
+            }
+            return redirect()->route('login')->with('error', 'គណនីរបស់អ្នកត្រូវបានបិទ។'); // Your account has been deactivated
+        }
+        
+        // Check if user has one of the required roles using new role system
         $hasAccess = false;
         
         foreach ($roles as $role) {
             // Support comma-separated roles in route definition
             $allowedRoles = explode(',', $role);
             
-            if (in_array($userRole, $allowedRoles)) {
-                $hasAccess = true;
-                break;
+            foreach ($allowedRoles as $allowedRole) {
+                $allowedRole = trim($allowedRole);
+                
+                // Check if user has the required role using new role system
+                if ($user->assignedRole && $user->assignedRole->name === $allowedRole) {
+                    $hasAccess = true;
+                    break 2; // Break out of both loops
+                }
             }
         }
         

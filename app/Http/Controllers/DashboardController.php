@@ -9,6 +9,7 @@ use App\Models\SaleContract;
 use App\Models\DocumentCreation;
 use App\Models\ContractDocument;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Carbon\Carbon;
 
@@ -19,6 +20,11 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        // Check if user has permission to view dashboard
+        if (!Auth::user()->hasPermission('dashboard.view')) {
+            abort(403, 'Unauthorized');
+        }
+
         // Get user count
         $userCount = User::count();
         
@@ -44,6 +50,11 @@ class DashboardController extends Controller
      */
     public function paymentOverview()
     {
+        // Check if user has permission to view dashboard
+        if (!Auth::user()->hasPermission('dashboard.view')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         // Get all payment steps from contracts
         $paymentSteps = PaymentStep::all();
         
@@ -66,6 +77,11 @@ class DashboardController extends Controller
      */
     public function upcomingPayments()
     {
+        // Check if user has permission to view dashboard
+        if (!Auth::user()->hasPermission('dashboard.view')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         // Get current date and date 6 months from now
         $today = Carbon::now()->startOfMonth();
         $sixMonthsLater = Carbon::now()->addMonths(5)->endOfMonth();

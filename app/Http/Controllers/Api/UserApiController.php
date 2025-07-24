@@ -21,12 +21,12 @@ class UserApiController extends Controller
      */
     public function index(Request $request)
     {
-        // Only administrators can list users
-        if (Auth::user()->role !== 'administrator') {
+        // Check if user has permission to view users
+        if (!Auth::user()->hasPermission('users.view')) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $query = User::query();
+        $query = User::with('assignedRole');
 
         // Apply search filter
         if ($search = $request->input('search')) {
@@ -39,7 +39,9 @@ class UserApiController extends Controller
         // Apply role filter
         if ($role = $request->input('role')) {
             if ($role !== 'all') {
-                $query->where('role', $role);
+                $query->whereHas('assignedRole', function ($q) use ($role) {
+                    $q->where('name', $role);
+                });
             }
         }
 
@@ -66,8 +68,8 @@ class UserApiController extends Controller
      */
     public function show($id)
     {
-        // Only administrators can view user details
-        if (Auth::user()->role !== 'administrator') {
+        // Check if user has permission to view users
+        if (!Auth::user()->hasPermission('users.view')) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -83,8 +85,8 @@ class UserApiController extends Controller
      */
     public function store(Request $request)
     {
-        // Only administrators can create users
-        if (Auth::user()->role !== 'administrator') {
+        // Check if user has permission to create users
+        if (!Auth::user()->hasPermission('users.create')) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -99,7 +101,7 @@ class UserApiController extends Controller
                 'unique:users,username',
             ],
             'password' => 'required|string|min:6|confirmed',
-            'role' => 'required|in:administrator,manager,staff',
+            'role_id' => 'required|exists:roles,id',
             'is_active' => 'boolean',
         ]);
 
@@ -111,6 +113,9 @@ class UserApiController extends Controller
 
         // Create the user
         $user = User::create($validated);
+        
+        // Load the assigned role for response
+        $user->load('assignedRole');
 
         return response()->json([
             'message' => 'បានបន្ថែមអ្នកប្រើប្រាស់ដោយជោគជ័យ', // User added successfully
@@ -127,8 +132,8 @@ class UserApiController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Only administrators can update users
-        if (Auth::user()->role !== 'administrator') {
+        // Check if user has permission to edit users
+        if (!Auth::user()->hasPermission('users.edit')) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -146,7 +151,7 @@ class UserApiController extends Controller
                 'max:50',
                 Rule::unique('users')->ignore($user->id),
             ],
-            'role' => 'required|in:administrator,manager,staff',
+            'role_id' => 'required|exists:roles,id',
             'is_active' => 'boolean',
         ];
 
@@ -161,19 +166,24 @@ class UserApiController extends Controller
         $validated['username'] = strtolower($validated['username']);
 
         // Prevent changing own role
-        if ($user->id === $currentUser->id && $user->role !== $validated['role']) {
+        if ($user->id === $currentUser->id && $user->role_id !== $validated['role_id']) {
             return response()->json([
                 'message' => 'អ្នកមិនអាចផ្លាស់ប្តូរតួនាទីរបស់ខ្លួនឯងបានទេ' // You cannot change your own role
             ], 403);
         }
 
         // Check if this is the last administrator
-        if ($user->role === 'administrator' && $validated['role'] !== 'administrator') {
-            $adminCount = User::where('role', 'administrator')->count();
-            if ($adminCount <= 1) {
-                return response()->json([
-                    'message' => 'មិនអាចផ្លាស់ប្តូរតួនាទីរបស់អ្នកគ្រប់គ្រងចុងក្រោយបានទេ' // Cannot change the role of the last administrator
-                ], 403);
+        if ($user->hasRole('administrator')) {
+            $newRole = \App\Models\Role::find($validated['role_id']);
+            if ($newRole->name !== 'administrator') {
+                $adminCount = User::whereHas('assignedRole', function ($q) {
+                    $q->where('name', 'administrator');
+                })->count();
+                if ($adminCount <= 1) {
+                    return response()->json([
+                        'message' => 'មិនអាចផ្លាស់ប្តូរតួនាទីរបស់អ្នកគ្រប់គ្រងចុងក្រោយបានទេ' // Cannot change the role of the last administrator
+                    ], 403);
+                }
             }
         }
 
@@ -186,6 +196,9 @@ class UserApiController extends Controller
 
         // Update the user
         $user->update($validated);
+        
+        // Load the assigned role for response
+        $user->load('assignedRole');
 
         return response()->json([
             'message' => 'បានកែប្រែអ្នកប្រើប្រាស់ដោយជោគជ័យ', // User updated successfully
@@ -201,8 +214,8 @@ class UserApiController extends Controller
      */
     public function destroy($id)
     {
-        // Only administrators can delete users
-        if (Auth::user()->role !== 'administrator') {
+        // Check if user has permission to delete users
+        if (!Auth::user()->hasPermission('users.delete')) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -217,8 +230,10 @@ class UserApiController extends Controller
         }
 
         // Check if this is the last administrator
-        if ($user->role === 'administrator') {
-            $adminCount = User::where('role', 'administrator')->count();
+        if ($user->hasRole('administrator')) {
+            $adminCount = User::whereHas('assignedRole', function ($q) {
+                $q->where('name', 'administrator');
+            })->count();
             if ($adminCount <= 1) {
                 return response()->json([
                     'message' => 'មិនអាចលុបអ្នកគ្រប់គ្រងចុងក្រោយបានទេ' // Cannot delete the last administrator
@@ -244,8 +259,8 @@ class UserApiController extends Controller
      */
     public function toggleStatus($id)
     {
-        // Only administrators can toggle user status
-        if (Auth::user()->role !== 'administrator') {
+        // Check if user has permission to toggle user status
+        if (!Auth::user()->hasPermission('users.toggle_status')) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -260,10 +275,10 @@ class UserApiController extends Controller
         }
 
         // Check if this is the last administrator and we're trying to deactivate
-        if ($user->role === 'administrator' && $user->is_active) {
-            $activeAdminCount = User::where('role', 'administrator')
-                                    ->where('is_active', true)
-                                    ->count();
+        if ($user->hasRole('administrator') && $user->is_active) {
+            $activeAdminCount = User::whereHas('assignedRole', function ($q) {
+                $q->where('name', 'administrator');
+            })->where('is_active', true)->count();
             if ($activeAdminCount <= 1) {
                 return response()->json([
                     'message' => 'មិនអាចបិទអ្នកគ្រប់គ្រងចុងក្រោយបានទេ' // Cannot deactivate the last administrator

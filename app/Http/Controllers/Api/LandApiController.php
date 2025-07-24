@@ -7,6 +7,7 @@ use App\Models\Document;
 use App\Models\Land;
 use App\Services\FileUploadService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -28,6 +29,11 @@ class LandApiController extends Controller
      */
     public function index(Request $request)
     {
+        // Check if user has permission to view lands
+        if (!Auth::user()->hasPermission('lands.view')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $query = Land::query();
 
         // Search functionality
@@ -104,6 +110,11 @@ class LandApiController extends Controller
      */
     public function store(Request $request)
     {
+        // Check if user has permission to create lands
+        if (!Auth::user()->hasPermission('lands.create')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $validator = Validator::make($request->all(), [
             'plot_number' => 'required|string|max:255',
             'size' => 'required|numeric|min:0',
@@ -154,6 +165,11 @@ class LandApiController extends Controller
      */
     public function show($id)
     {
+        // Check if user has permission to view lands
+        if (!Auth::user()->hasPermission('lands.view')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $land = Land::with('documents')->findOrFail($id);
         return response()->json($land);
     }
@@ -167,6 +183,11 @@ class LandApiController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Check if user has permission to edit lands
+        if (!Auth::user()->hasPermission('lands.edit')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $validator = Validator::make($request->all(), [
             'plot_number' => 'required|string|max:255',
             'size' => 'required|numeric|min:0',
@@ -217,6 +238,11 @@ class LandApiController extends Controller
      */
     public function destroy($id)
     {
+        // Check if user has permission to delete lands
+        if (!Auth::user()->hasPermission('lands.delete')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         try {
             DB::beginTransaction();
 
