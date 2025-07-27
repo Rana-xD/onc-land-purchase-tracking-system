@@ -1,0 +1,1 @@
+const o=["០","១","២","៣","៤","៥","៦","៧","៨","៩"],i=["0","1","2","3","4","5","6","7","8","9"],s=r=>{if(!r)return"";let n=r.toString();for(let e=0;e<10;e++){const t=new RegExp(o[e],"g");n=n.replace(t,i[e])}return n},g=r=>r?s(r.toString().toLowerCase()):"";export{g as n};
