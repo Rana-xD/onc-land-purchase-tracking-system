@@ -25,7 +25,7 @@ class DocumentExportService
         $paymentSteps = $contract->documentCreation->paymentSteps;
         
         // Get all lands associated with this contract through document_creation
-        $documentLands = $contract->documentCreation->documentLands()->with('land')->get();
+        $documentLands = $contract->documentCreation->lands()->with('land')->get();
         
         // Get all buyers associated with this contract through document_creation
         $documentBuyers = $contract->documentCreation->buyers()->with('buyer')->get();
@@ -99,13 +99,19 @@ class DocumentExportService
                     'due_date' => $step->due_date->format('Y-m-d'),
                     'status' => $step->status,
                     'payment_contract_created' => $step->payment_contract_created,
-                    'documents' => $step->documents->map(function ($doc) {
-                        return [
-                            'type' => $doc->document_type,
-                            'name' => $doc->file_name,
-                            'uploaded_at' => $doc->uploaded_at->format('Y-m-d H:i:s'),
-                        ];
-                    }),
+                    // Note: Documents are now associated with sale contracts, not individual payment steps
+                    'documents' => [], // Individual payment steps no longer have documents
+                ];
+            }),
+            // Contract-level documents (associated with the sale contract)
+            'contract_documents' => $contract->documents->map(function ($doc) {
+                return [
+                    'name' => $doc->file_name,
+                    'file_path' => $doc->file_path,
+                    'file_size' => $doc->file_size,
+                    'mime_type' => $doc->mime_type,
+                    'uploaded_at' => $doc->uploaded_at ? $doc->uploaded_at->format('Y-m-d H:i:s') : 'N/A',
+                    'uploaded_by' => $doc->uploader ? $doc->uploader->name : 'Unknown',
                 ];
             }),
             'exported_by' => $user->name,

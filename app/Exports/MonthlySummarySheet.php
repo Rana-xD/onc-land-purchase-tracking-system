@@ -180,7 +180,7 @@ class MonthlySummarySheet implements FromCollection, WithHeadings, WithMapping, 
         $sheet->getStyle('A1:F1')->applyFromArray([
             'font' => [
                 'bold' => true,
-                'size' => 12,
+                'size' => 27,
             ],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,

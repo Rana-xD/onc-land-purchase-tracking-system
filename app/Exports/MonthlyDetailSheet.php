@@ -90,7 +90,7 @@ class MonthlyDetailSheet implements FromCollection, WithHeadings, WithMapping, W
         $sheet->getStyle('A1:J1')->applyFromArray([
             'font' => [
                 'bold' => true,
-                'size' => 12,
+                'size' => 27,
             ],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,

@@ -100,7 +100,7 @@ const PaymentStatusReport = ({ auth }) => {
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `payment_status_report_${new Date().toISOString().split('T')[0]}.${format}`);
+            link.setAttribute('download', `payment_status_report_${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : format}`);
             document.body.appendChild(link);
             link.click();
             link.remove();

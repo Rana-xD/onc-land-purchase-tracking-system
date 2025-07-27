@@ -2,16 +2,20 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
+use Maatwebsite\Excel\Concerns\WithDrawings;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Font;
 use Illuminate\Support\Collection;
 
-class ContractInfoSheet implements FromCollection, WithHeadings, WithMapping, WithTitle, WithStyles, ShouldAutoSize
+class ContractInfoSheet implements FromArray, WithTitle, WithStyles, ShouldAutoSize, WithColumnWidths
 {
     protected $data;
 
@@ -21,189 +25,91 @@ class ContractInfoSheet implements FromCollection, WithHeadings, WithMapping, Wi
     }
 
     /**
-     * @return \Illuminate\Support\Collection
+     * @return array
      */
-    public function collection()
+    public function array(): array
     {
-        // Create a collection with contract info
-        $collection = collect([
-            [
-                'section' => 'Contract Information',
-                'key' => 'Contract ID',
-                'value' => $this->data['contract']['id'],
-            ],
-            [
-                'section' => 'Contract Information',
-                'key' => 'Contract Date',
-                'value' => $this->data['contract']['date'],
-            ],
-            [
-                'section' => 'Contract Information',
-                'key' => 'Status',
-                'value' => ucfirst($this->data['contract']['status']),
-            ],
-            [
-                'section' => 'Contract Information',
-                'key' => 'Total Amount',
-                'value' => '$' . number_format($this->data['contract']['total_amount'], 2),
-            ],
-        ]);
+        $data = [];
         
-        // Add buyers information - handle both multiple buyers and legacy single buyer
+        // Title row
+        $data[] = ['កម្ពុជាការតាមដានដី - ព្រៃព្រឹកសញ្ញា', '', ''];
+        $data[] = ['', '', ''];
+        
+        // Contract Information Section
+        $data[] = ['📋 ព័ត៌មានសញ្ញា', '', ''];
+        $data[] = ['លេខសញ្ញា:', $this->data['contract']['id'], ''];
+        $data[] = ['កាលបរិច្ឆេទសញ្ញា:', $this->data['contract']['date'], ''];
+        $data[] = ['ស្ថានភាព:', ucfirst($this->data['contract']['status']), ''];
+        $data[] = ['ចំនួនសរុប:', '$' . number_format($this->data['contract']['total_amount'], 2), ''];
+        $data[] = ['', '', ''];
+        
+        // Buyer Information Section
+        $data[] = ['👤 ព័ត៌មានអ្នកទិញ', '', ''];
         if (isset($this->data['buyers']) && count($this->data['buyers']) > 0) {
-            // Process multiple buyers
             foreach ($this->data['buyers'] as $index => $buyer) {
                 $buyerNumber = $index + 1;
-                $collection->push([
-                    'section' => 'Buyer Information',
-                    'key' => "Buyer #{$buyerNumber} - Name",
-                    'value' => $buyer['name'],
-                ]);
-                $collection->push([
-                    'section' => 'Buyer Information',
-                    'key' => "Buyer #{$buyerNumber} - Phone",
-                    'value' => $buyer['phone'] ?? 'N/A',
-                ]);
-                $collection->push([
-                    'section' => 'Buyer Information',
-                    'key' => "Buyer #{$buyerNumber} - Address",
-                    'value' => $buyer['address'] ?? 'N/A',
-                ]);
+                if ($index > 0) $data[] = ['', '', '']; // Separator between buyers
+                $data[] = ["អ្នកទិញ #{$buyerNumber}", '', ''];
+                $data[] = ['ឈ្មោះ:', $buyer['name'], ''];
+                $data[] = ['ទូរស័ព្ទ:', $buyer['phone'] ?? 'N/A', ''];
+                $data[] = ['អាសយដ្ឋាន:', $buyer['address'] ?? 'N/A', ''];
             }
         } elseif (isset($this->data['buyer'])) {
-            // Fallback for backward compatibility with single buyer
-            $collection->push([
-                'section' => 'Buyer Information',
-                'key' => 'Name',
-                'value' => $this->data['buyer']['name'],
-            ]);
-            $collection->push([
-                'section' => 'Buyer Information',
-                'key' => 'Phone',
-                'value' => $this->data['buyer']['phone'] ?? 'N/A',
-            ]);
-            $collection->push([
-                'section' => 'Buyer Information',
-                'key' => 'Address',
-                'value' => $this->data['buyer']['address'] ?? 'N/A',
-            ]);
+            $data[] = ['ឈ្មោះ:', $this->data['buyer']['name'], ''];
+            $data[] = ['ទូរស័ព្ទ:', $this->data['buyer']['phone'] ?? 'N/A', ''];
+            $data[] = ['អាសយដ្ឋាន:', $this->data['buyer']['address'] ?? 'N/A', ''];
         }
+        $data[] = ['', '', ''];
         
-        // Add sellers information - handle both multiple sellers and legacy single seller
+        // Seller Information Section
+        $data[] = ['🏢 ព័ត៌មានអ្នកលក់', '', ''];
         if (isset($this->data['sellers']) && count($this->data['sellers']) > 0) {
-            // Process multiple sellers
             foreach ($this->data['sellers'] as $index => $seller) {
                 $sellerNumber = $index + 1;
-                $collection->push([
-                    'section' => 'Seller Information',
-                    'key' => "Seller #{$sellerNumber} - Name",
-                    'value' => $seller['name'],
-                ]);
-                $collection->push([
-                    'section' => 'Seller Information',
-                    'key' => "Seller #{$sellerNumber} - Phone",
-                    'value' => $seller['phone'] ?? 'N/A',
-                ]);
-                $collection->push([
-                    'section' => 'Seller Information',
-                    'key' => "Seller #{$sellerNumber} - Address",
-                    'value' => $seller['address'] ?? 'N/A',
-                ]);
+                if ($index > 0) $data[] = ['', '', '']; // Separator between sellers
+                $data[] = ["អ្នកលក់ #{$sellerNumber}", '', ''];
+                $data[] = ['ឈ្មោះ:', $seller['name'], ''];
+                $data[] = ['ទូរស័ព្ទ:', $seller['phone'] ?? 'N/A', ''];
+                $data[] = ['អាសយដ្ឋាន:', $seller['address'] ?? 'N/A', ''];
             }
         } elseif (isset($this->data['seller'])) {
-            // Fallback for backward compatibility with single seller
-            $collection->push([
-                'section' => 'Seller Information',
-                'key' => 'Name',
-                'value' => $this->data['seller']['name'],
-            ]);
-            $collection->push([
-                'section' => 'Seller Information',
-                'key' => 'Phone',
-                'value' => $this->data['seller']['phone'] ?? 'N/A',
-            ]);
-            $collection->push([
-                'section' => 'Seller Information',
-                'key' => 'Address',
-                'value' => $this->data['seller']['address'] ?? 'N/A',
-            ]);
+            $data[] = ['ឈ្មោះ:', $this->data['seller']['name'], ''];
+            $data[] = ['ទូរស័ᖖ្ទ:', $this->data['seller']['phone'] ?? 'N/A', ''];
+            $data[] = ['អាសយដ្ឋាន:', $this->data['seller']['address'] ?? 'N/A', ''];
         }
+        $data[] = ['', '', ''];
         
-        // Add lands information - handle both multiple lands and legacy single land
+        // Land Information Section
+        $data[] = ['🌞️ ព័ត៌មានដី', '', ''];
         if (isset($this->data['lands']) && count($this->data['lands']) > 0) {
-            // Process multiple lands
             foreach ($this->data['lands'] as $index => $land) {
                 $landNumber = $index + 1;
-                $collection->push([
-                    'section' => 'Land Information',
-                    'key' => "Land #{$landNumber} - Plot Number",
-                    'value' => $land['plot_number'],
-                ]);
-                $collection->push([
-                    'section' => 'Land Information',
-                    'key' => "Land #{$landNumber} - Size",
-                    'value' => $land['size'] . ' m²',
-                ]);
-                $collection->push([
-                    'section' => 'Land Information',
-                    'key' => "Land #{$landNumber} - Location",
-                    'value' => $land['location'],
-                ]);
-                $collection->push([
-                    'section' => 'Land Information',
-                    'key' => "Land #{$landNumber} - Price per m²",
-                    'value' => '$' . number_format($land['price_per_m2'], 2),
-                ]);
-                $collection->push([
-                    'section' => 'Land Information',
-                    'key' => "Land #{$landNumber} - Total Price",
-                    'value' => '$' . number_format($land['total_price'], 2),
-                ]);
+                if ($index > 0) $data[] = ['', '', '']; // Separator between lands
+                $data[] = ["ដី #{$landNumber}", '', ''];
+                $data[] = ['លេខដីធ្លី:', $land['plot_number'], ''];
+                $data[] = ['ទំហំ:', $land['size'] . ' m²', ''];
+                $data[] = ['ទីតាំង:', $land['location'], ''];
+                $data[] = ['តម្លៃក្នុងមួយ m²:', '$' . number_format($land['price_per_m2'], 2), ''];
+                $data[] = ['តម្លៃសរុប:', '$' . number_format($land['total_price'], 2), ''];
             }
         } elseif (isset($this->data['land'])) {
-            // Fallback for backward compatibility with single land
-            $collection->push([
-                'section' => 'Land Information',
-                'key' => 'Plot Number',
-                'value' => $this->data['land']['plot_number'],
-            ]);
-            $collection->push([
-                'section' => 'Land Information',
-                'key' => 'Size',
-                'value' => $this->data['land']['size'],
-            ]);
-            $collection->push([
-                'section' => 'Land Information',
-                'key' => 'Location',
-                'value' => $this->data['land']['location'],
-            ]);
+            $data[] = ['លេខដីធ្លី:', $this->data['land']['plot_number'], ''];
+            $data[] = ['ទំហំ:', $this->data['land']['size'], ''];
+            $data[] = ['ទីតាំង:', $this->data['land']['location'], ''];
         }
         
-        return $collection;
+    return $data;
     }
 
     /**
      * @return array
      */
-    public function headings(): array
+    public function columnWidths(): array
     {
         return [
-            'Section',
-            'Field',
-            'Value',
-        ];
-    }
-
-    /**
-     * @param mixed $row
-     * @return array
-     */
-    public function map($row): array
-    {
-        return [
-            $row['section'],
-            $row['key'],
-            $row['value'],
+            'A' => 25,
+            'B' => 40,
+            'C' => 15,
         ];
     }
 
@@ -221,12 +127,92 @@ class ContractInfoSheet implements FromCollection, WithHeadings, WithMapping, Wi
      */
     public function styles(Worksheet $sheet)
     {
-        return [
-            // Style the header row
-            1 => ['font' => ['bold' => true, 'size' => 12]],
+        $lastRow = $sheet->getHighestRow();
+        
+        // Title styling - Increased font size by 100% total (60% + 40%) for Khmer readability
+        $sheet->mergeCells('A1:C1');
+        $sheet->getStyle('A1')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 36, // Increased from 26 to 36 (additional 40% increase)
+                'color' => ['rgb' => '2E5984']
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'E8F4FD']
+            ]
+        ]);
+        
+        // Section headers styling (rows with emojis)
+        for ($row = 1; $row <= $lastRow; $row++) {
+            $cellValue = $sheet->getCell('A' . $row)->getValue();
             
-            // Add a bit of styling to make it more readable
-            'A' => ['font' => ['bold' => true]],
-        ];
+            // Section headers
+            if (strpos($cellValue, '📋') !== false || 
+                strpos($cellValue, '👤') !== false || 
+                strpos($cellValue, '🏢') !== false || 
+                strpos($cellValue, '🏞️') !== false || 
+                strpos($cellValue, '📊') !== false) {
+                
+                $sheet->mergeCells('A' . $row . ':C' . $row);
+                $sheet->getStyle('A' . $row)->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'size' => 27, // Increased from 19 to 27 (additional 40% increase)
+                        'color' => ['rgb' => 'FFFFFF']
+                    ],
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => '4472C4']
+                    ],
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_LEFT,
+                        'vertical' => Alignment::VERTICAL_CENTER
+                    ]
+                ]);
+            }
+            
+            // Sub-section headers (Buyer #1, Seller #1, etc.)
+            if ($cellValue !== null && preg_match('/^(Buyer|Seller|Land) #\d+$/', $cellValue)) {
+                $sheet->mergeCells('A' . $row . ':C' . $row);
+                $sheet->getStyle('A' . $row)->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'size' => 25, // Increased from 18 to 25 (additional 40% increase)
+                        'color' => ['rgb' => '2E5984']
+                    ],
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => 'F2F2F2']
+                    ]
+                ]);
+            }
+            
+            // Field labels (first column with colons)
+            if ($cellValue !== null && strpos($cellValue, ':') !== false && $cellValue !== '') {
+                $sheet->getStyle('A' . $row)->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'color' => ['rgb' => '2E5984']
+                    ]
+                ]);
+            }
+        }
+        
+        // Apply borders to all data
+        $sheet->getStyle('A1:C' . $lastRow)->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => 'D0D0D0']
+                ]
+            ]
+        ]);
+        
+        return [];
     }
 }

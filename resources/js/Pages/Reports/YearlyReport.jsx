@@ -333,10 +333,10 @@ const YearlyReport = ({ auth }) => {
                         />
                         <Button
                             type="primary"
+                            style={{ backgroundColor: '#52c41a', marginRight: 8 }}
                             icon={<FileExcelOutlined />}
                             onClick={() => handleExport('excel')}
                             loading={exporting && exportFormat === 'excel'}
-                            style={{ marginRight: 8 }}
                         >
                             Excel
                         </Button>

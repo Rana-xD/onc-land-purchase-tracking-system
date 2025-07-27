@@ -77,13 +77,8 @@ class PaymentStep extends Model
         return $this->belongsTo(User::class, 'payment_contract_created_by');
     }
 
-    /**
-     * Get the documents associated with this payment step.
-     */
-    public function documents(): HasMany
-    {
-        return $this->hasMany(PaymentDocument::class);
-    }
+    // Note: Documents are now associated with sale contracts (ContractDocument model)
+    // rather than individual payment steps. Use $contract->documents to access documents.
 
     /**
      * Check if a payment contract can be created for this step.

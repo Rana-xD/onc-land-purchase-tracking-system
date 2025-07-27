@@ -29,7 +29,13 @@ export default function BuyerShow({ buyer, documents }) {
             });
         } catch (error) {
             console.error('Error deleting buyer:', error);
-            message.error('មានបញ្ហាក្នុងការលុបអ្នកទិញ');
+            
+            // Check if it's an authorization error (403)
+            if (error.response && error.response.status === 403) {
+                message.error('អ្នកមិនមានសិទ្ធិលុបទិន្នន័យអ្នកទិញ');
+            } else {
+                message.error('មានបញ្ហាក្នុងការលុបអ្នកទិញ');
+            }
         }
     };
     

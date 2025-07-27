@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use App\Models\PaymentStep;
 use App\Models\DocumentCreation;
@@ -72,6 +73,14 @@ class SaleContract extends Model
             'document_creation_id', // Local key on SaleContract table
             'id' // Local key on DocumentCreation table
         );
+    }
+
+    /**
+     * Get the documents associated with this sale contract.
+     */
+    public function documents(): HasMany
+    {
+        return $this->hasMany(ContractDocument::class, 'sale_contract_id');
     }
 
     /**

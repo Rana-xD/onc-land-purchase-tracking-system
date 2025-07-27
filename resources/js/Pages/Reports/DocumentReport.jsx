@@ -320,6 +320,8 @@ export default function DocumentReport({ auth }) {
                                             នាំចេញជា PDF
                                         </Button>
                                         <Button 
+                                            type="primary"
+                                            style={{ backgroundColor: '#52c41a' }}
                                             icon={<FileExcelOutlined />} 
                                             onClick={() => handleExport('excel')}
                                         >

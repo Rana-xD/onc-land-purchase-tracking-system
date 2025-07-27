@@ -7,6 +7,7 @@ use App\Services\Reports\YearlyReportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class YearlyReportController extends Controller
 {
@@ -53,8 +54,9 @@ class YearlyReportController extends Controller
         try {
             $format = $request->input('format', 'pdf');
             $year = $request->input('year', Carbon::now()->year);
+            $user = Auth::user();
             
-            $response = $this->yearlyReportService->exportYearlyReport($year, $format);
+            $response = $this->yearlyReportService->exportYearlyReport($year, $format, $user);
             
             return $response;
         } catch (\Exception $e) {

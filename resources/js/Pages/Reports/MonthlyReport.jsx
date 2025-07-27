@@ -138,7 +138,7 @@ const MonthlyReport = ({ auth }) => {
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            const filename = `monthly_report_${dateRange[0].format('YYYYMMDD')}_to_${dateRange[1].format('YYYYMMDD')}.${format}`;
+            const filename = `monthly_report_${dateRange[0].format('YYYYMMDD')}_to_${dateRange[1].format('YYYYMMDD')}.${format === 'excel' ? 'xlsx' : format}`;
             link.setAttribute('download', filename);
             document.body.appendChild(link);
             link.click();
@@ -348,10 +348,10 @@ const MonthlyReport = ({ auth }) => {
                                     <Tooltip title="នាំចេញជា Excel">
                                         <Button 
                                             type="primary"
+                                            style={{ backgroundColor: '#52c41a' }}
                                             icon={<FileExcelOutlined />} 
                                             onClick={() => handleExport('excel')}
                                             loading={exporting && exportFormat === 'excel'}
-
                                         >
                                             Excel
                                         </Button>

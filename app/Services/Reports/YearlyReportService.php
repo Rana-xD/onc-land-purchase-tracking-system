@@ -149,20 +149,16 @@ class YearlyReportService
      *
      * @param int $year
      * @param string $format
-     * @return \Illuminate\Http\Response
+     * @param \App\Models\User $user
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
-    public function exportYearlyReport(int $year, string $format)
+    public function exportYearlyReport(int $year, string $format, $user)
     {
         // Get report data
         $reportData = $this->generateYearlyReport($year);
         
-        // For simplicity, we'll just return the JSON data for now
-        // In a real implementation, you would generate PDF or Excel here
-        $filename = "yearly_report_{$year}." . ($format === 'pdf' ? 'pdf' : 'xlsx');
-        
-        return Response::json([
-            'data' => $reportData,
-            'filename' => $filename
-        ]);
+        // Use the YearlyExportService for actual export
+        $exportService = new \App\Services\Reports\YearlyExportService();
+        return $exportService->exportYearlyReport($reportData, $format, $year, $user);
     }
 }

@@ -29,7 +29,6 @@ class ContractExport implements FromCollection, WithHeadings, WithMapping, WithT
         $sheets = [
             new ContractInfoSheet($this->data),
             new PaymentStepsSheet($this->data),
-            new DocumentsSheet($this->data),
         ];
 
         return $sheets;

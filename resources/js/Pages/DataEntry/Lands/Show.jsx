@@ -29,7 +29,13 @@ export default function LandShow({ land, documents }) {
             });
         } catch (error) {
             console.error('Error deleting land:', error);
-            message.error('មានបញ្ហាក្នុងការលុបដី');
+            
+            // Check if it's an authorization error (403)
+            if (error.response && error.response.status === 403) {
+                message.error('អ្នកមិនមានសិទ្ធិលុបទិន្នន័យដី');
+            } else {
+                message.error('មានបញ្ហាក្នុងការលុបដី');
+            }
         }
     };
     
