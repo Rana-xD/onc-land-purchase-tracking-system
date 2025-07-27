@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Seller;
 use App\Models\Document;
+use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -15,6 +16,9 @@ class SellerSeeder extends Seeder
      */
     public function run(): void
     {
+        // Create a faker instance
+        $faker = Faker::create('km_KH');
+        
         // Only seed if no sellers exist
         if (Seller::count() > 0) {
             $this->command->info('Sellers table already has data. Skipping seeding.');
@@ -32,10 +36,10 @@ class SellerSeeder extends Seeder
             $seller = Seller::create([
                 'name' => $name,
                 'sex' => $sex,
-                'date_of_birth' => fake()->dateTimeBetween('-70 years', '-18 years')->format('Y-m-d'),
-                'identity_number' => fake()->unique()->numerify('##########'),
-                'address' => $this->getKhmerAddress(),
-                'phone_number' => '0' . fake()->numberBetween(10, 99) . ' ' . fake()->numerify('### ###'),
+                'date_of_birth' => $faker->dateTimeBetween('-70 years', '-18 years')->format('Y-m-d'),
+                'identity_number' => $faker->unique()->numerify('##########'),
+                'address' => $this->getKhmerAddress($faker),
+                'phone_number' => '0' . $faker->numberBetween(10, 99) . ' ' . $faker->numerify('### ###'),
             ]);
 
             // Create sample documents for each seller
@@ -165,10 +169,16 @@ startxref
     /**
      * Get a random Khmer address.
      *
+     * @param \Faker\Generator $faker
      * @return string
      */
-    private function getKhmerAddress(): string
+    private function getKhmerAddress($faker = null): string
     {
+        // If no faker instance is provided, create one
+        if (!$faker) {
+            $faker = Faker::create('km_KH');
+        }
+        
         $provinces = [
             'ភ្នំពេញ', 'កណ្តាល', 'កំពង់ចាម', 'កំពង់ឆ្នាំង', 'កំពង់ស្ពឺ', 'កំពង់ធំ', 
             'កំពត', 'កោះកុង', 'ក្រចេះ', 'មណ្ឌលគិរី', 'ព្រះវិហារ', 'ព្រៃវែង', 'ពោធិ៍សាត់', 
@@ -188,9 +198,9 @@ startxref
         $province = $provinces[array_rand($provinces)];
         $district = $districts[array_rand($districts)];
         $commune = $communes[array_rand($communes)];
-        $village = 'ភូមិ ' . fake()->randomNumber(1);
-        $street = 'ផ្លូវ ' . fake()->randomNumber(3);
-        $house = 'ផ្ទះលេខ ' . fake()->randomNumber(3);
+        $village = 'ភូមិ ' . $faker->randomNumber(1);
+        $street = 'ផ្លូវ ' . $faker->randomNumber(3);
+        $house = 'ផ្ទះលេខ ' . $faker->randomNumber(3);
 
         return "{$house}, {$street}, {$village}, {$commune}, {$district}, {$province}";
     }
