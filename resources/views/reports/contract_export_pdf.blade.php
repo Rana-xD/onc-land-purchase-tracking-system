@@ -2,22 +2,11 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Contract Report - {{ $contract['id'] }}</title>
+    <title>របាយការណ៍កិច្ចសន្យា - {{ $contract['id'] }}</title>
     <style>
-        @font-face {
-            font-family: 'Koh Santepheap';
-            src: url("{!! storage_path('fonts/KohSantepheap-Regular.ttf') !!}") format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
-        @font-face {
-            font-family: 'Koh Santepheap';
-            src: url("{!! storage_path('fonts/KohSantepheap-Bold.ttf') !!}") format('truetype');
-            font-weight: bold;
-            font-style: normal;
-        }
+
         body {
-            font-family: 'Koh Santepheap', sans-serif;
+            font-family: serif;
             margin: 0;
             padding: 20px;
             color: #333;
@@ -84,60 +73,60 @@
 </head>
 <body>
     <div class="header">
-        <div class="title">Contract Report</div>
-        <div class="subtitle">Contract ID: {{ $contract['id'] }}</div>
-        <div class="subtitle">Date: {{ $contract['date'] }}</div>
+        <div class="title">📋 របាយការណ៍កិច្ចសន្យា</div>
+        <div class="subtitle">លេខកិច្ចសន្យា៖ {{ $contract['id'] }}</div>
+        <div class="subtitle">កាលបរិច្ឆេទ៖ {{ $contract['date'] }}</div>
     </div>
 
     <div class="section">
-        <div class="section-title">Contract Information</div>
+        <div class="section-title">🏠 ព័ត៌មានកិច្ចសន្យា</div>
         <div class="info-row">
-            <span class="label">Contract ID:</span> {{ $contract['id'] }}
+            <span class="label">លេខកិច្ចសន្យា៖</span> {{ $contract['id'] }}
         </div>
         <div class="info-row">
-            <span class="label">Contract Date:</span> {{ $contract['date'] }}
+            <span class="label">កាលបរិច្ឆេទកិច្ចសន្យា៖</span> {{ $contract['date'] }}
         </div>
         <div class="info-row">
-            <span class="label">Status:</span> {{ ucfirst($contract['status']) }}
+            <span class="label">ស្ថានភាព៖</span> {{ $contract['status'] == 'active' ? 'សកម្ម' : ($contract['status'] == 'completed' ? 'បានបញ្ចប់' : 'បានលុបចោល') }}
         </div>
         <div class="info-row">
-            <span class="label">Total Amount:</span> ${{ number_format($contract['total_amount'], 2) }}
+            <span class="label">តម្លៃសរុប៖</span> ${{ number_format($contract['total_amount'], 2) }}
         </div>
     </div>
 
     <div class="section">
-        <div class="section-title">Buyer Information</div>
+        <div class="section-title">👤 ព័ត៌មានអ្នកទិញ</div>
         @if(isset($buyers) && count($buyers) > 0)
             @foreach($buyers as $index => $buyer)
                 <div style="margin-bottom: 15px; @if($index > 0) border-top: 1px dashed #ccc; padding-top: 15px; @endif">
                     <div class="info-row">
-                        <span class="label">Buyer #{{ $index + 1 }}</span>
+                        <span class="label">អ្នកទិញ #{{ $index + 1 }}</span>
                     </div>
                     <div class="info-row">
-                        <span class="label">Name:</span> {{ $buyer['name'] }}
+                        <span class="label">ឈ្មោះ៖</span> {{ $buyer['name'] }}
                     </div>
                     <div class="info-row">
-                        <span class="label">Phone:</span> {{ $buyer['phone'] ?? 'N/A' }}
+                        <span class="label">លេខទូរស័ព្ទ៖</span> {{ $buyer['phone'] ?? 'មិនមាន' }}
                     </div>
                     <div class="info-row">
-                        <span class="label">Address:</span> {{ $buyer['address'] ?? 'N/A' }}
+                        <span class="label">អាសយដ្ឋាន៖</span> {{ $buyer['address'] ?? 'មិនមាន' }}
                     </div>
                 </div>
             @endforeach
         @elseif(isset($buyer))
             <!-- Fallback for backward compatibility -->
             <div class="info-row">
-                <span class="label">Name:</span> {{ $buyer['name'] }}
+                <span class="label">ឈ្មោះ៖</span> {{ $buyer['name'] }}
             </div>
             <div class="info-row">
-                <span class="label">Phone:</span> {{ $buyer['phone'] ?? 'N/A' }}
+                <span class="label">លេខទូរស័ព្ទ៖</span> {{ $buyer['phone'] ?? 'មិនមាន' }}
             </div>
             <div class="info-row">
-                <span class="label">Address:</span> {{ $buyer['address'] ?? 'N/A' }}
+                <span class="label">អាសយដ្ឋាន៖</span> {{ $buyer['address'] ?? 'មិនមាន' }}
             </div>
         @else
             <div class="info-row">
-                <span>No buyer information available</span>
+                <span>មិនមានព័ត៌មានអ្នកទិញ</span>
             </div>
         @endif
     </div>

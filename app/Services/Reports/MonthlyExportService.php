@@ -6,7 +6,7 @@ use App\Exports\MonthlyReportExport;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
-use PDF;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class MonthlyExportService
 {
@@ -49,19 +49,19 @@ class MonthlyExportService
     protected function exportToPdf(array $data, string $filename)
     {
         // Generate PDF
-        $pdf = PDF::loadView('reports.monthly_report_pdf', $data);
-        
-        // Set PDF options for Khmer font support
+        $pdf = Pdf::loadView('reports.monthly_report_pdf', $data);
         $pdf->setOptions([
-            'font_path' => base_path('resources/fonts/'),
-            'font_data' => [
-                'koh-santepheap' => [
-                    'R' => 'KohSantepheap-Regular.ttf',
-                    'B' => 'KohSantepheap-Bold.ttf',
-                ],
-            ],
-            'default_font' => 'koh-santepheap',
+            'isHtml5ParserEnabled' => true,
+            'isPhpEnabled' => true,
+            'defaultFont' => 'serif',
+            'isRemoteEnabled' => true,
+            'fontDir' => storage_path('fonts'),
+            'fontCache' => storage_path('fonts'),
+            'isUnicodeEnabled' => true,
+            'isFontSubsettingEnabled' => true,
         ]);
+        
+
         
         // Return download response
         return $pdf->download($filename . '.pdf');

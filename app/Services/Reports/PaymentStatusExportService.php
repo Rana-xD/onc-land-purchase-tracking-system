@@ -40,7 +40,17 @@ class PaymentStatusExportService
                 // Export to PDF
                 $filename .= '.pdf';
                 
-                $pdf = Pdf::loadView('reports.payment-status-pdf', compact('data'));
+                $pdf = Pdf::loadView('reports.payment-status-pdf', $data);
+                $pdf->setOptions([
+                    'isHtml5ParserEnabled' => true,
+                    'isPhpEnabled' => true,
+                    'defaultFont' => 'serif',
+                    'isRemoteEnabled' => true,
+                    'fontDir' => storage_path('fonts'),
+                    'fontCache' => storage_path('fonts'),
+                    'isUnicodeEnabled' => true,
+                    'isFontSubsettingEnabled' => true,
+                ]);
                 return $pdf->download($filename);
             }
             

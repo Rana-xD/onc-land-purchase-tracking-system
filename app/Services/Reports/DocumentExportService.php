@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ContractExport;
-use PDF;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class DocumentExportService
 {
@@ -135,19 +135,17 @@ class DocumentExportService
      */
     protected function exportToPdf(SaleContract $contract, array $data)
     {
-        // Generate PDF
-        $pdf = PDF::loadView('reports.contract_export_pdf', $data);
-        
-        // Set PDF options for Khmer font support
+        // Generate PDF with Khmer font support
+        $pdf = Pdf::loadView('reports.contract_export_pdf', $data);
         $pdf->setOptions([
-            'font_path' => base_path('resources/fonts/'),
-            'font_data' => [
-                'koh-santepheap' => [
-                    'R' => 'KohSantepheap-Regular.ttf',
-                    'B' => 'KohSantepheap-Bold.ttf',
-                ],
-            ],
-            'default_font' => 'koh-santepheap',
+            'isHtml5ParserEnabled' => true,
+            'isPhpEnabled' => true,
+            'defaultFont' => 'serif',
+            'isRemoteEnabled' => true,
+            'fontDir' => storage_path('fonts'),
+            'fontCache' => storage_path('fonts'),
+            'isUnicodeEnabled' => true,
+            'isFontSubsettingEnabled' => true,
         ]);
         
         // Generate filename
