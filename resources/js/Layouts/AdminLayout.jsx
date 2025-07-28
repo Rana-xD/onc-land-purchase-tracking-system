@@ -8,7 +8,6 @@ import {
     Dropdown, 
     theme,
     ConfigProvider,
-    Badge,
     Space,
     Divider
 } from 'antd';
@@ -20,7 +19,6 @@ import {
     TeamOutlined,
     UserOutlined,
     SettingOutlined,
-    BellOutlined,
     LogoutOutlined,
     FileTextOutlined,
     FileProtectOutlined,
@@ -305,40 +303,6 @@ export default function AdminLayout({ children, title }) {
                         
                         <div className="flex items-center space-x-4">
                             <Space size="large">
-
-                                
-                                <Dropdown 
-                                    menu={{ 
-                                        items: [
-                                            {
-                                                key: 'notifications',
-                                                label: <span className="khmer-text">ការជូនដំណឹងទាំងអស់</span>,
-                                                icon: <BellOutlined />
-                                            },
-                                            {
-                                                type: 'divider'
-                                            },
-                                            {
-                                                key: 'mark-all-read',
-                                                label: <span className="khmer-text">គូសចំណាំថាបានអានទាំងអស់</span>
-                                            }
-                                        ] 
-                                    }} 
-                                    placement="bottomRight"
-                                    arrow
-                                >
-                                    <Badge count={5} size="small">
-                                        <Button 
-                                            type="text" 
-                                            icon={<BellOutlined style={{ fontSize: '18px' }} />} 
-                                            style={{ height: 40, width: 40 }}
-                                        />
-                                    </Badge>
-                                </Dropdown>
-                                
-
-                                
-                                <Divider type="vertical" style={{ height: 24, margin: '0 8px' }} />
                                 
                                 <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
                                     <div className="cursor-pointer flex items-center">

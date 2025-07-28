@@ -1,7 +1,6 @@
 import React from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head } from '@inertiajs/react';
-import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
 import { Row, Col, Tabs } from 'antd';
@@ -25,11 +24,6 @@ export default function Edit({
             key: 'password',
             label: <span className="khmer-text">ពាក្យសម្ងាត់</span>,
             children: <UpdatePasswordForm />,
-        },
-        {
-            key: 'delete',
-            label: <span className="khmer-text">លុបគណនី</span>,
-            children: <DeleteUserForm />,
         },
     ];
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useForm, usePage } from '@inertiajs/react';
-import { Form, Input, Button, Card, Typography, message, Space, Divider } from 'antd';
-import { UserOutlined, MailOutlined, SaveOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { Form, Input, Button, Card, Typography, App, Space, Divider } from 'antd';
+import { UserOutlined, SaveOutlined, CheckCircleOutlined } from '@ant-design/icons';
 
 export default function UpdateProfileInformation({
     mustVerifyEmail,
@@ -9,20 +9,25 @@ export default function UpdateProfileInformation({
     className = '',
 }) {
     const { Title, Text } = Typography;
+    const { message } = App.useApp();
     const user = usePage().props.auth.user;
 
     const { data, setData, patch, errors, processing, recentlySuccessful } =
         useForm({
             name: user.name,
-            email: user.email,
         });
 
     const submit = (e) => {
         e.preventDefault();
 
         patch(route('profile.update'), {
+            preserveScroll: true,
             onSuccess: () => {
                 message.success('ព័ត៌មានគណនីត្រូវបានធ្វើបច្ចុប្បន្នភាពដោយជោគជ័យ');
+            },
+            onError: (errors) => {
+                console.error('Profile update errors:', errors);
+                message.error('មានបញ្ហាក្នុងការធ្វើបច្ចុប្បន្នភាពព័ត៌មានគណនី');
             }
         });
     };
@@ -36,7 +41,7 @@ export default function UpdateProfileInformation({
             <div className="mb-6">
                 <Title level={4} className="khmer-heading mb-2">ព័ត៌មានគណនី</Title>
                 <Text type="secondary" className="khmer-text">
-                    ធ្វើបច្ចុប្បន្នភាពព័ត៌មានគណនីនិងអាសយដ្ឋានអ៊ីមែលរបស់អ្នក។
+                    ធ្វើបច្ចុប្បន្នភាពព័ត៌មានគណនីរបស់អ្នក។
                 </Text>
             </div>
 
@@ -60,44 +65,6 @@ export default function UpdateProfileInformation({
                         placeholder="បញ្ចូលឈ្មោះរបស់អ្នក"
                     />
                 </Form.Item>
-
-                <Form.Item 
-                    label="អ៊ីមែល" 
-                    validateStatus={errors.email ? 'error' : ''}
-                    help={errors.email}
-                >
-                    <Input 
-                        prefix={<MailOutlined style={{ color: 'rgba(0,0,0,.25)' }} />}
-                        type="email"
-                        value={data.email}
-                        onChange={(e) => setData('email', e.target.value)}
-                        size="large"
-                        autoComplete="email"
-                        placeholder="បញ្ចូលអាសយដ្ឋានអ៊ីមែលរបស់អ្នក"
-                    />
-                </Form.Item>
-
-                {mustVerifyEmail && user.email_verified_at === null && (
-                    <div className="mb-4">
-                        <Text type="warning" className="khmer-text block mb-2">
-                            អាសយដ្ឋានអ៊ីមែលរបស់អ្នកមិនទាន់បានផ្ទៀងផ្ទាត់នៅឡើយទេ។
-                        </Text>
-                        <Link
-                            href={route('verification.send')}
-                            method="post"
-                            as="button"
-                            className="khmer-text text-blue-600 hover:text-blue-800"
-                        >
-                            ចុចទីនេះដើម្បីផ្ញើអ៊ីមែលផ្ទៀងផ្ទាត់ម្តងទៀត។
-                        </Link>
-
-                        {status === 'verification-link-sent' && (
-                            <Text type="success" className="khmer-text block mt-2">
-                                តំណភ្ជាប់ផ្ទៀងផ្ទាត់ថ្មីត្រូវបានផ្ញើទៅអាសយដ្ឋានអ៊ីមែលរបស់អ្នក។
-                            </Text>
-                        )}
-                    </div>
-                )}
 
                 <Divider />
                 

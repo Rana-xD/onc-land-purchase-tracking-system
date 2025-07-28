@@ -1,5 +1,5 @@
 import React from 'react';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, App, message } from 'antd';
 import antdTheme from './antd-theme';
 
 /**
@@ -7,9 +7,20 @@ import antdTheme from './antd-theme';
  * to all child components based on the Land Purchase Tracking System design system.
  */
 export default function ThemeProvider({ children }) {
+  // Configure message component globally
+  React.useEffect(() => {
+    message.config({
+      top: 100,
+      duration: 3,
+      maxCount: 3,
+    });
+  }, []);
+
   return (
     <ConfigProvider theme={antdTheme}>
-      {children}
+      <App>
+        {children}
+      </App>
     </ConfigProvider>
   );
 }
