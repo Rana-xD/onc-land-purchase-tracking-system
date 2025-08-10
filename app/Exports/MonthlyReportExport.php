@@ -43,29 +43,30 @@ class MonthlyReportExport implements FromArray, WithTitle, WithStyles, WithColum
         
         // Table headers
         $data[] = [
-            'លេខសញ្ញា',
+            'លេខកុងត្រា',
+            'លេខក្បាលដី',
+            'អ្នកទិញ',
+            'អ្នកលក់',
             'ជំហាន',
             'ការពិពណ៌នា', 
             'ចំនួនទឹកប្រាក់',
             'កាលបរិច្ឆេទកំណត់',
             'ស្ថានភាព',
-            'អ្នកទិញ',
-            'អ្នកលក់',
-            'ដីធ្លី'
+          
         ];
         
         // Payment data
         foreach ($this->data['payments'] as $payment) {
             $data[] = [
                 $payment['contract_id'] ?? 'N/A',
+                $payment['land_plot_number'] ?? 'N/A', // Correct field name
+                $payment['buyer_names'] ?? 'N/A', // Correct field name
+                $payment['seller_names'] ?? 'N/A', // Correct field name
                 'ជំហាន ' . ($payment['step_number'] ?? 'N/A'),
                 $payment['payment_time_description'] ?? 'N/A', // Correct field name
                 '$' . number_format($payment['amount'] ?? 0, 2),
                 $payment['due_date'] ?? 'N/A',
                 ucfirst($payment['status'] ?? 'unknown'),
-                $payment['buyer_names'] ?? 'N/A', // Correct field name
-                $payment['seller_names'] ?? 'N/A', // Correct field name
-                $payment['land_plot_number'] ?? 'N/A' // Correct field name
             ];
         }
         

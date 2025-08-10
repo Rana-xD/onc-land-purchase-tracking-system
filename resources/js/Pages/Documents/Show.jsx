@@ -21,7 +21,7 @@ export default function ShowDocument({ document }) {
 
   return (
     <AdminLayout>
-      <Head title={`ឯកសារលេខ ${document.id}`} />
+      <Head title={`កិច្ចសន្យាលេខ ${document.id}`} />
       
       <div className="container mx-auto py-6">
         <Card>
@@ -32,13 +32,13 @@ export default function ShowDocument({ document }) {
                   ត្រឡប់ក្រោយ
                 </Button>
               </Link>
-              <Title level={3} className="m-0">ព័ត៌មានលម្អិតនៃឯកសារ</Title>
+              <Title level={3} className="m-0">ព័ត៌មានលម្អិតនៃកិច្ចសន្យា</Title>
             </Space>
             
             <Space>
               <Link href={`/documents/${document.id}/download`} target="_blank">
                 <Button icon={<FilePdfOutlined />}>
-                  ទាញយកឯកសារ PDF
+                  ទាញយកកិច្ចសន្យា PDF
                 </Button>
               </Link>
             </Space>
@@ -51,7 +51,7 @@ export default function ShowDocument({ document }) {
               <Descriptions.Item label="លេខសម្គាល់">
                 {document.id}
               </Descriptions.Item>
-              <Descriptions.Item label="ប្រភេទឯកសារ">
+              <Descriptions.Item label="ប្រភេទកិច្ចសន្យា">
                 <Tag color={document.document_type === 'deposit_contract' ? 'blue' : 'green'}>
                   {getDocumentTypeDisplay(document.document_type)}
                 </Tag>

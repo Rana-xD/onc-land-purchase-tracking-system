@@ -132,7 +132,7 @@ export default function LandShow({ land, documents }) {
                         </Col>
                         
                         <Col xs={24} md={8}>
-                            <Card title="ឯកសារបង្ហាញ" className="mb-6">
+                            <Card title="កិច្ចសន្យាបង្ហាញ" className="mb-6">
                                 {documents && documents.filter(doc => doc.is_display).length > 0 ? (
                                     documents.filter(doc => doc.is_display).map(doc => (
                                         <div key={doc.id} className="display-document">
@@ -156,7 +156,7 @@ export default function LandShow({ land, documents }) {
                                         </div>
                                     ))
                                 ) : (
-                                    <Text type="secondary">គ្មានឯកសារបង្ហាញ</Text>
+                                    <Text type="secondary">គ្មានកិច្ចសន្យាបង្ហាញ</Text>
                                 )}
                             </Card>
                         </Col>
@@ -164,7 +164,7 @@ export default function LandShow({ land, documents }) {
                     
                     <Divider />
                     
-                    <Card title="ឯកសារទាំងអស់">
+                    <Card title="កិច្ចសន្យាទាំងអស់">
                         <Row gutter={[16, 16]}>
                             {documents && documents.length > 0 ? (
                                 documents.map(doc => (
@@ -191,7 +191,7 @@ export default function LandShow({ land, documents }) {
                                                 title={doc.file_name} 
                                                 description={
                                                     <>
-                                                        {doc.is_display && <Tag color="blue">ឯកសារបង្ហាញ</Tag>}
+                                                        {doc.is_display && <Tag color="blue">កិច្ចសន្យាបង្ហាញ</Tag>}
                                                     </>
                                                 }
                                             />
@@ -200,7 +200,7 @@ export default function LandShow({ land, documents }) {
                                 ))
                             ) : (
                                 <Col span={24}>
-                                    <Text type="secondary">គ្មានឯកសារ</Text>
+                                    <Text type="secondary">គ្មានកិច្ចសន្យា</Text>
                                 </Col>
                             )}
                         </Row>

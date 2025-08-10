@@ -19,6 +19,8 @@ import {
 } from 'antd';
 import { DownloadOutlined, FileExcelOutlined, FilePdfOutlined, DollarOutlined, FileOutlined, FolderOutlined } from '@ant-design/icons';
 import AdminLayout from '@/Layouts/AdminLayout';
+import PaymentStatusReportHTML from '@/Components/PDF/PaymentStatusReportHTML';
+import useHTMLToPDF from '@/Hooks/useHTMLToPDF';
 
 const { Title, Text } = Typography;
 
@@ -49,6 +51,9 @@ const PaymentStatusReport = ({ auth }) => {
     const [exportFormat, setExportFormat] = useState(null);
     const [reportData, setReportData] = useState(null);
     const [error, setError] = useState(null);
+    
+    // HTML-to-PDF hook
+    const { generatePDFFromComponent } = useHTMLToPDF();
 
     // Format currency
     const formatCurrency = (amount) => {
@@ -81,40 +86,60 @@ const PaymentStatusReport = ({ auth }) => {
 
     // Handle export
     const handleExport = useCallback(async (format) => {
+        if (!reportData) {
+            message.error('សូមទាញយកទិន្នន័យរបាយការណ៍ជាមុនសិន');
+            return;
+        }
+
         setExporting(true);
         setExportFormat(format);
-        message.loading(`Preparing ${format.toUpperCase()} export...`);
         
         try {
-            const response = await axios.post('/reports/payment-status/export', { format }, {
-                responseType: 'blob'
-            });
-            
-            // Create a blob from the response data
-            const blob = new Blob(
-                [response.data], 
-                { type: format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
-            );
-            
-            // Create a download link and trigger download
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `payment_status_report_${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : format}`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            
-            message.success(`${format.toUpperCase()} exported successfully!`);
+            if (format === 'pdf') {
+                const filename = `payment_status_report_${new Date().toISOString().split('T')[0]}.pdf`;
+                
+                const htmlComponent = (
+                    <PaymentStatusReportHTML 
+                        data={reportData}
+                        exportedBy={auth.user.name}
+                    />
+                );
+
+                const result = await generatePDFFromComponent(htmlComponent, filename);
+                
+                if (!result.success) {
+                    throw new Error(result.error);
+                }
+                
+                message.success('នាំចេញ PDF បានជោគជ័យ');
+            } else if (format === 'excel') {
+                // Keep existing Excel export logic
+                const response = await axios.post('/reports/payment-status/export', { format: 'excel' }, {
+                    responseType: 'blob'
+                });
+                
+                const blob = new Blob([response.data], { 
+                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+                });
+                
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `payment_status_report_${new Date().toISOString().split('T')[0]}.xlsx`);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                
+                message.success('នាំចេញ Excel បានជោគជ័យ');
+            }
         } catch (err) {
             console.error(`Error exporting ${format}:`, err);
-            setError(`Failed to export report as ${format}`);
-            message.error(`Failed to export ${format.toUpperCase()}. Please try again.`);
+            message.error(`មានបញ្ហាក្នុងការនាំចេញ: ${err.message}`);
         } finally {
             setExporting(false);
             setExportFormat(null);
         }
-    }, []);
+    }, [reportData, auth.user.name, generatePDFFromComponent]);
 
     return (
         <AdminLayout user={auth.user}>
@@ -188,10 +213,10 @@ const PaymentStatusReport = ({ auth }) => {
                             </Col>
                             <Col xs={24} sm={12} style={{ textAlign: 'right' }}>
                                 <Space>
-                                    <Tooltip title="នាំចេញរបាយការណ៍ជាឯកសារ PDF">
+                                    <Tooltip title="នាំចេញរបាយការណ៍ជាកិច្ចសន្យា PDF">
                                         <Button 
                                             type="primary"
-                                            style={{ backgroundColor: '#ff4d4f' }}
+                                            danger
                                             icon={<FilePdfOutlined />} 
                                             onClick={() => handleExport('pdf')}
                                             loading={exporting && exportFormat === 'pdf'}
@@ -199,7 +224,7 @@ const PaymentStatusReport = ({ auth }) => {
                                             PDF
                                         </Button>
                                     </Tooltip>
-                                    <Tooltip title="នាំចេញរបាយការណ៍ជាឯកសារ Excel">
+                                    <Tooltip title="នាំចេញរបាយការណ៍ជាកិច្ចសន្យា Excel">
                                         <Button 
                                             type="primary"
                                             style={{ backgroundColor: '#52c41a' }}

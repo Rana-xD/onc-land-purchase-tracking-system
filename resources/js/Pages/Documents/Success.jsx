@@ -21,15 +21,15 @@ export default function Success({ document }) {
 
   return (
     <AdminLayout>
-      <Head title="បង្កើតឯកសារបានជោគជ័យ" />
+      <Head title="បង្កើតកិច្ចសន្យាបានជោគជ័យ" />
       
       <div className="container mx-auto py-6">
         <Card>
           <Result
             status="success"
             icon={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
-            title="បង្កើតឯកសារបានជោគជ័យ!"
-            subTitle="ឯកសាររបស់អ្នកត្រូវបានបង្កើតដោយជោគជ័យ"
+            title="បង្កើតកិច្ចសន្យាបានជោគជ័យ!"
+            subTitle="កិច្ចសន្យារបស់អ្នកត្រូវបានបង្កើតដោយជោគជ័យ"
             extra={[
               <Button 
                 key="download" 
@@ -38,14 +38,14 @@ export default function Success({ document }) {
                 href={`/documents/${document.id}/download`}
                 target="_blank"
               >
-                ទាញយកឯកសារ PDF
+                ទាញយកកិច្ចសន្យា PDF
               </Button>,
               <Button 
                 key="create-new" 
                 icon={<PlusOutlined />}
                 href={document.document_type === 'deposit_contract' ? route('deposit-contracts.index') : route('sale-contracts.index')}
               >
-                បង្កើតឯកសារថ្មី
+                បង្កើតកិច្ចសន្យាថ្មី
               </Button>,
               <Button 
                 key="home" 
@@ -60,10 +60,10 @@ export default function Success({ document }) {
           <Divider />
           
           <div className="max-w-3xl mx-auto">
-            <Title level={4} className="mb-4">ព័ត៌មានលម្អិតនៃឯកសារ</Title>
+            <Title level={4} className="mb-4">ព័ត៌មានលម្អិតនៃកិច្ចសន្យា</Title>
             
             <Descriptions bordered column={{ xs: 1, sm: 2 }}>
-              <Descriptions.Item label="ប្រភេទឯកសារ">
+              <Descriptions.Item label="ប្រភេទកិច្ចសន្យា">
                 <Tag color={document.document_type === 'deposit_contract' ? 'blue' : 'green'}>
                   {getDocumentTypeDisplay(document.document_type)}
                 </Tag>

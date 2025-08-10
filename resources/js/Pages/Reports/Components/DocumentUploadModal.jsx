@@ -39,12 +39,12 @@ export default function DocumentUploadModal({ visible, onCancel, saleContract, o
         try {
             // Check if we have a valid sale contract first
             if (!saleContract || !saleContract.contract_id) {
-                message.error('ត្រូវការកិច្ចសន្យាលក់ទិញដើម្បីផ្ទុកឯកសារ');
+                message.error('ត្រូវការកិច្ចសន្យាលក់ទិញដើម្បីផ្ទុកកិច្ចសន្យា');
                 return;
             }
             
             if (fileList.length === 0) {
-                message.error('សូមជ្រើសរើសឯកសារមួយដើម្បីផ្ទុក');
+                message.error('សូមជ្រើសរើសកិច្ចសន្យាមួយដើម្បីផ្ទុក');
                 return;
             }
 
@@ -80,10 +80,10 @@ export default function DocumentUploadModal({ visible, onCancel, saleContract, o
                 },
             });
             
-            message.success('ផ្ទុកឯកសារជោគជ័យ');
+            message.success('ផ្ទុកកិច្ចសន្យាជោគជ័យ');
             onSuccess();
         } catch (error) {
-            console.error('បញ្ហាក្នុងការផ្ទុកឯកសារ:', error);
+            console.error('បញ្ហាក្នុងការផ្ទុកកិច្ចសន្យា:', error);
             
             // Handle validation errors from the backend
             const errorData = error.response?.data?.error;
@@ -112,11 +112,11 @@ export default function DocumentUploadModal({ visible, onCancel, saleContract, o
                     message.error(errorMessages.join('\n'));
                 } else {
                     // Fallback if we couldn't extract meaningful messages
-                    message.error('មិនអាចផ្ទុកឯកសារបាន');
+                    message.error('មិនអាចផ្ទុកកិច្ចសន្យាបាន');
                 }
             } else {
                 // Generic error message
-                message.error('មិនអាចផ្ទុកឯកសារបាន');
+                message.error('មិនអាចផ្ទុកកិច្ចសន្យាបាន');
             }
         } finally {
             setUploading(false);
@@ -135,14 +135,14 @@ export default function DocumentUploadModal({ visible, onCancel, saleContract, o
                                file.type === 'image/png';
             
             if (!isValidType) {
-                message.error('អ្នកអាចផ្ទុកបានតែឯកសារប្រភេទ PDF, JPG, រឹ PNG ប៉ុណ្ណោះ!');
+                message.error('អ្នកអាចផ្ទុកបានតែកិច្ចសន្យាប្រភេទ PDF, JPG, រឹ PNG ប៉ុណ្ណោះ!');
                 return Upload.LIST_IGNORE;
             }
             
             // Check file size (max 10MB)
             const isLessThan10MB = file.size / 1024 / 1024 < 10;
             if (!isLessThan10MB) {
-                message.error('ឯកសារត្រូវតែមានទំហំតូចជាង 10MB!');
+                message.error('កិច្ចសន្យាត្រូវតែមានទំហំតូចជាង 10MB!');
                 return Upload.LIST_IGNORE;
             }
             
@@ -155,8 +155,8 @@ export default function DocumentUploadModal({ visible, onCancel, saleContract, o
     return (
         <Modal
             title={saleContract 
-                ? `ផ្ទុកឯកសារសម្រាប់កិច្ចសន្យាលក់ទិញ ${saleContract.title || ''}` 
-                : `ផ្ទុកឯកសារទូទៅ`}
+                ? `ផ្ទុកកិច្ចសន្យាសម្រាប់កិច្ចសន្យាលក់ទិញ ${saleContract.title || ''}` 
+                : `ផ្ទុកកិច្ចសន្យាទូទៅ`}
             open={visible}
             onCancel={onCancel}
             footer={[
@@ -170,19 +170,19 @@ export default function DocumentUploadModal({ visible, onCancel, saleContract, o
                     loading={uploading}
                     disabled={fileList.length === 0}
                 >
-                    ផ្ទុកឯកសារ
+                    ផ្ទុកកិច្ចសន្យា
                 </Button>,
             ]}
         >
             <Spin spinning={uploading}>
                 <Form form={form} layout="vertical">
                     
-                    <Form.Item label="ឯកសារ">
+                    <Form.Item label="កិច្ចសន្យា">
                         <Dragger {...uploadProps}>
                             <p className="ant-upload-drag-icon">
                                 <InboxOutlined />
                             </p>
-                            <p className="ant-upload-text">ចុចហើយអូសឯកសារទៅកាន់តំបន់នេះដើម្បីផ្ទុក</p>
+                            <p className="ant-upload-text">ចុចហើយអូសកិច្ចសន្យាទៅកាន់តំបន់នេះដើម្បីផ្ទុក</p>
                             <p className="ant-upload-hint">
                                 គាំទ្រប្រភេទ PDF, JPG, PNG។ ទំហំអតិបរមា: 10MB
                             </p>

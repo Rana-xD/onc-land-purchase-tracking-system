@@ -1,11 +1,15 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Link } from '@inertiajs/react';
 import { Card, DatePicker, Button, List, Spin, Row, Col, Alert, Empty, Space, Typography, Divider, Tag, Badge, Tooltip, Select } from 'antd';
-import { CalendarOutlined, FileExcelOutlined, FilePdfOutlined, FolderOutlined, DownloadOutlined, UserOutlined, HomeOutlined, DollarOutlined, FileOutlined } from '@ant-design/icons';
+import { CalendarOutlined, FileExcelOutlined, FilePdfOutlined, FolderOutlined, DownloadOutlined, UserOutlined, HomeOutlined, DollarOutlined, FileOutlined, StarOutlined } from '@ant-design/icons';
 import { Head } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import axios from 'axios';
 import moment from 'moment';
+import MonthlyReportPDF from '@/Components/PDF/MonthlyReportPDF';
+import MonthlyReportHTML from '@/Components/PDF/MonthlyReportHTML';
+import usePDFExport from '@/Hooks/usePDFExport';
+import useHTMLToPDF from '@/Hooks/useHTMLToPDF';
 
 // Custom Khmer month mapping
 const khmerMonths = {
@@ -58,6 +62,10 @@ const MonthlyReport = ({ auth }) => {
     const [exportFormat, setExportFormat] = useState(null);
     const [reportData, setReportData] = useState(null);
     const [error, setError] = useState(null);
+    
+    // React PDF export hook
+    const { generatePDF } = usePDFExport();
+    const { generatePDFFromComponent } = useHTMLToPDF();
 
     // Initialize start and end months
     const [startMonth, setStartMonth] = useState(moment());
@@ -114,7 +122,7 @@ const MonthlyReport = ({ auth }) => {
         }
     }, [startMonth, endMonth]);
 
-    // Handle export
+    // Handle backend export (Excel and legacy PDF)
     const handleExport = useCallback(async (format) => {
         const dateRange = getDateRange();
         if (!dateRange || !dateRange[0] || !dateRange[1]) {
@@ -151,6 +159,49 @@ const MonthlyReport = ({ auth }) => {
             setExportFormat(null);
         }
     }, [startMonth, endMonth]);
+
+    // Handle React PDF export (with Khmer support)
+    const handleReactPDFExport = useCallback(async () => {
+        const dateRange = getDateRange();
+        if (!dateRange || !dateRange[0] || !dateRange[1]) {
+            setError('សូមជ្រើសរើសកាលបរិច្ឆេទ');
+            return;
+        }
+
+        if (!reportData) {
+            setError('សូមទាញយកទិន្នន័យរបាយការណ៍ជាមុនសិន');
+            return;
+        }
+
+        setExporting(true);
+        setExportFormat('react-pdf');
+
+        try {
+            const filename = `monthly_report_khmer_${dateRange[0].format('YYYYMMDD')}_to_${dateRange[1].format('YYYYMMDD')}.pdf`;
+            
+            const htmlComponent = (
+                <MonthlyReportHTML 
+                    data={reportData}
+                    startDate={dateRange[0].format('YYYY-MM-DD')}
+                    endDate={dateRange[1].format('YYYY-MM-DD')}
+                    exportedBy={auth.user.name}
+                />
+            );
+
+            const result = await generatePDFFromComponent(htmlComponent, filename);
+            
+            if (!result.success) {
+                throw new Error(result.error);
+            }
+
+        } catch (err) {
+            console.error('Error exporting React PDF:', err);
+            setError(`Failed to export Khmer PDF: ${err.message}`);
+        } finally {
+            setExporting(false);
+            setExportFormat(null);
+        }
+    }, [startMonth, endMonth, reportData, auth.user.name, generatePDFFromComponent]);
 
     // Handle month/year changes
     const handleStartMonthChange = (month) => {
@@ -337,10 +388,10 @@ const MonthlyReport = ({ auth }) => {
                                     <Tooltip title="នាំចេញជា PDF">
                                         <Button 
                                             type="primary"
-                                            icon={<FilePdfOutlined />} 
-                                            onClick={() => handleExport('pdf')}
-                                            loading={exporting && exportFormat === 'pdf'}
                                             danger
+                                            icon={<FilePdfOutlined />} 
+                                            onClick={handleReactPDFExport}
+                                            loading={exporting && exportFormat === 'react-pdf'}
                                         >
                                             PDF
                                         </Button>

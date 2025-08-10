@@ -76,7 +76,7 @@ export default function DocumentsList({ initialDocuments }) {
       sorter: (a, b) => a.id - b.id,
     },
     {
-      title: 'ប្រភេទឯកសារ',
+      title: 'ប្រភេទកិច្ចសន្យា',
       dataIndex: 'document_type',
       key: 'document_type',
       render: (type) => {
@@ -143,12 +143,12 @@ export default function DocumentsList({ initialDocuments }) {
 
   return (
     <AdminLayout>
-      <Head title="បញ្ជីឯកសារ" />
+      <Head title="បញ្ជីកិច្ចសន្យា" />
       
       <div className="container mx-auto py-6">
         <Card>
           <div className="flex justify-between items-center mb-6">
-            <Title level={3}>បញ្ជីឯកសារ</Title>
+            <Title level={3}>បញ្ជីកិច្ចសន្យា</Title>
             <Space>
               <Input
                 placeholder="ស្វែងរក..."
@@ -159,7 +159,7 @@ export default function DocumentsList({ initialDocuments }) {
               />
               <Link href={route('documents.index')}>
                 <Button type="primary" icon={<PlusOutlined />}>
-                  បង្កើតឯកសារថ្មី
+                  បង្កើតកិច្ចសន្យាថ្មី
                 </Button>
               </Link>
             </Space>

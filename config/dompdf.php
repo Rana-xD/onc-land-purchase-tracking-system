@@ -110,7 +110,28 @@ return [
         /**
          * Whether to enable font subsetting or not.
          */
-        'enable_font_subsetting' => false,
+        'enable_font_subsetting' => true,
+
+        /**
+         * Default font family for PDF generation
+         * Set to a Unicode-compatible font for Khmer support
+         */
+        'default_font' => 'NotoSansKhmer',
+
+        /**
+         * Enable Unicode support for Khmer and other complex scripts
+         */
+        'isUnicodeEnabled' => true,
+
+        /**
+         * Enable HTML5 parser for better CSS support
+         */
+        'isHtml5ParserEnabled' => true,
+
+        /**
+         * Enable remote content loading
+         */
+        'isRemoteEnabled' => true,
 
         /**
          * The PDF rendering backend to use

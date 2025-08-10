@@ -85,7 +85,7 @@ export default function Create() {
 
     const steps = [
         {
-            title: 'បញ្ចូលឯកសារ',
+            title: 'បញ្ចូលកិច្ចសន្យា',
             icon: <UploadOutlined />,
             content: <FileUpload 
                 category="buyer"

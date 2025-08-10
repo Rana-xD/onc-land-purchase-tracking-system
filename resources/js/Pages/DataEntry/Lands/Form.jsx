@@ -103,7 +103,7 @@ export default function LandForm({ land, documents }) {
 
     const steps = [
         {
-            title: 'ឯកសារ',
+            title: 'កិច្ចសន្យា',
             icon: <FileOutlined />,
             content: (
                 <div className="document-step">
@@ -117,7 +117,7 @@ export default function LandForm({ land, documents }) {
                     
                     <div className="mt-6">
                         <Text type="danger" className="khmer-text">
-                            * សូមផ្ទុកឡើងយ៉ាងហោចណាស់ឯកសារមួយ និងកំណត់ឯកសារមួយជាឯកសារបង្ហាញ
+                            * សូមផ្ទុកឡើងយ៉ាងហោចណាស់កិច្ចសន្យាមួយ និងកំណត់កិច្ចសន្យាមួយជាកិច្ចសន្យាបង្ហាញ
                         </Text>
                     </div>
                 </div>
@@ -219,15 +219,15 @@ export default function LandForm({ land, documents }) {
                     </Card>
                     
                     <Card>
-                        <Title level={5} className="khmer-heading mb-4">ឯកសារ</Title>
+                        <Title level={5} className="khmer-heading mb-4">កិច្ចសន្យា</Title>
                         
                         <Text className="khmer-text mb-2 block">
-                            ចំនួនឯកសារ: {files.length}
+                            ចំនួនកិច្ចសន្យា: {files.length}
                         </Text>
                         
                         {files.length === 0 && (
                             <Text type="danger" className="khmer-text">
-                                មិនមានឯកសារត្រូវបានផ្ទុកឡើងទេ
+                                មិនមានកិច្ចសន្យាត្រូវបានផ្ទុកឡើងទេ
                             </Text>
                         )}
                     </Card>

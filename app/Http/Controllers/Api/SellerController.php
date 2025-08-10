@@ -262,7 +262,7 @@ class SellerController extends Controller
         $fileData = $this->fileUploadService->storeTemporary($file);
         
         return response()->json([
-            'message' => 'ផ្ទុកឯកសារបានជោគជ័យ', // Successfully uploaded file
+            'message' => 'ផ្ទុកកិច្ចសន្យាបានជោគជ័យ', // Successfully uploaded file
             'file' => $fileData,
         ]);
     }
@@ -294,7 +294,7 @@ class SellerController extends Controller
         $document->delete();
         
         return response()->json([
-            'message' => 'បានលុបឯកសារដោយជោគជ័យ', // Successfully deleted document
+            'message' => 'បានលុបកិច្ចសន្យាដោយជោគជ័យ', // Successfully deleted document
         ]);
     }
 
@@ -319,7 +319,7 @@ class SellerController extends Controller
         $document->update(['is_display' => true]);
         
         return response()->json([
-            'message' => 'បានកំណត់ឯកសារសម្រាប់បង្ហាញដោយជោគជ័យ', // Successfully set display document
+            'message' => 'បានកំណត់កិច្ចសន្យាសម្រាប់បង្ហាញដោយជោគជ័យ', // Successfully set display document
         ]);
     }
 }

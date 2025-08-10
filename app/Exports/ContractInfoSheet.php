@@ -36,8 +36,8 @@ class ContractInfoSheet implements FromArray, WithTitle, WithStyles, ShouldAutoS
         $data[] = ['', '', ''];
         
         // Contract Information Section
-        $data[] = ['📋 ព័ត៌មានសញ្ញា', '', ''];
-        $data[] = ['លេខសញ្ញា:', $this->data['contract']['id'], ''];
+        $data[] = ['📋 ព័ត៌មានកិច្ចសន្យា', '', ''];
+        $data[] = ['លេខកិច្ចសន្យា:', $this->data['contract']['id'], ''];
         $data[] = ['កាលបរិច្ឆេទសញ្ញា:', $this->data['contract']['date'], ''];
         $data[] = ['ស្ថានភាព:', ucfirst($this->data['contract']['status']), ''];
         $data[] = ['ចំនួនសរុប:', '$' . number_format($this->data['contract']['total_amount'], 2), ''];

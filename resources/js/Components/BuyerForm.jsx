@@ -182,7 +182,7 @@ export default function BuyerForm({ formData, setFormData, displayImage }) {
                             <FileImageOutlined style={{ fontSize: '48px', color: '#1890ff' }} />
                         )}
                         <div style={{ marginTop: '10px' }}>
-                            {displayImage.name || displayImage.fileName || 'ឯកសារ'}
+                            {displayImage.name || displayImage.fileName || 'កិច្ចសន្យា'}
                         </div>
                     </div>
                 )}

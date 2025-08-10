@@ -35,15 +35,15 @@ class PaymentStatusReportExport implements FromArray, WithTitle, WithStyles, Sho
         
         // Summary Section
         $data[] = ['📊 សង្ខេបការទូទាត់', '', '', '', '', '', ''];
-        $data[] = ['សញ្ញាសរុប:', $this->data['summary']['contracts_count'] ?? 0, '', '', '', '', ''];
+        $data[] = ['កិច្ចសន្យាសរុប:', $this->data['summary']['contracts_count'] ?? 0, '', '', '', '', ''];
         $data[] = ['ចំនួនសរុប:', '$' . number_format($this->data['summary']['total_amount'] ?? 0, 2), '', '', '', '', ''];
         $data[] = ['ចំនួនបានទូទាត់:', '$' . number_format($this->data['summary']['total_paid'] ?? 0, 2), '', '', '', '', ''];
         $data[] = ['ចំនួនមិនទានទូទាត់:', '$' . number_format($this->data['summary']['total_unpaid'] ?? 0, 2), '', '', '', '', ''];
         $data[] = ['', '', '', '', '', '', ''];
         
         // Contract Details Section
-        $data[] = ['📋 ស្ថានភាពទូទាត់សញ្ញា', '', '', '', ''];
-        $data[] = ['លេខសញ្ញា', 'លេខដីធ្លី', 'ចំនួនសរុប', 'ចំនួនបានទូទាត់', 'ចំនួនមិនទានទូទាត់'];
+        $data[] = ['📋 ស្ថានភាពទូទាត់', '', '', '', ''];
+        $data[] = ['លេខកិច្ចសន្យា', 'លេខដីធ្លី', 'ចំនួនសរុប', 'ចំនួនបានទូទាត់', 'ចំនួនមិនទានទូទាត់'];
         
         if (isset($this->data['contracts']) && count($this->data['contracts']) > 0) {
             foreach ($this->data['contracts'] as $contract) {
@@ -135,7 +135,7 @@ class PaymentStatusReportExport implements FromArray, WithTitle, WithStyles, Sho
             }
             
             // Table headers
-            if ($cellValue === 'លេខសញ្ញា') {
+            if ($cellValue === 'លេខកិច្ចសន្យា') {
                 $sheet->getStyle('A' . $row . ':E' . $row)->applyFromArray([
                     'font' => [
                         'bold' => true,

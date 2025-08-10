@@ -48,7 +48,7 @@ class ContractDocumentController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                'error' => 'មានបញ្ហាក្នុងការទាញឯកសារ: ' . $e->getMessage()
+                'error' => 'មានបញ្ហាក្នុងការទាញកិច្ចសន្យា: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -188,13 +188,13 @@ class ContractDocumentController extends Controller
             
             // Check if file exists
             if (!Storage::disk('public')->exists($document->file_path)) {
-                return response()->json(['error' => 'ឯកសារមិនមាននៅក្នុងប្រព័ន្ធទេ'], 404);
+                return response()->json(['error' => 'កិច្ចសន្យាមិនមាននៅក្នុងប្រព័ន្ធទេ'], 404);
             }
             
             // Return the file for download
             return response()->download(Storage::disk('public')->path($document->file_path), $document->file_name);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'មានបញ្ហាក្នុងការទាញយកឯកសារ: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'មានបញ្ហាក្នុងការទាញយកកិច្ចសន្យា: ' . $e->getMessage()], 500);
         }
     }
 
@@ -237,9 +237,9 @@ class ContractDocumentController extends Controller
                 }
             }
             
-            return response()->json(['success' => true, 'message' => 'ឯកសារត្រូវបានលុបដោយជោគជ័យ']);
+            return response()->json(['success' => true, 'message' => 'កិច្ចសន្យាត្រូវបានលុបដោយជោគជ័យ']);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'មានបញ្ហាក្នុងការលុបឯកសារ: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'មានបញ្ហាក្នុងការលុបកិច្ចសន្យា: ' . $e->getMessage()], 500);
         }
     }
 }

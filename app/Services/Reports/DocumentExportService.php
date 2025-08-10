@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ContractExport;
-use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class DocumentExportService
 {
@@ -118,42 +118,16 @@ class DocumentExportService
             'exported_at' => now()->format('Y-m-d H:i:s'),
         ];
         
-        // Export based on format
-        if ($format === 'pdf') {
-            return $this->exportToPdf($contract, $data);
-        } else {
+        // Export based on format (PDF now handled by frontend)
+        if ($format === 'excel') {
             return $this->exportToExcel($contract, $data);
+        } else {
+            // PDF export is now handled by frontend HTML-to-PDF
+            abort(400, 'PDF export is now handled by frontend');
         }
     }
     
-    /**
-     * Export contract data to PDF
-     *
-     * @param SaleContract $contract
-     * @param array $data
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
-     */
-    protected function exportToPdf(SaleContract $contract, array $data)
-    {
-        // Generate PDF with Khmer font support
-        $pdf = Pdf::loadView('reports.contract_export_pdf', $data);
-        $pdf->setOptions([
-            'isHtml5ParserEnabled' => true,
-            'isPhpEnabled' => true,
-            'defaultFont' => 'serif',
-            'isRemoteEnabled' => true,
-            'fontDir' => storage_path('fonts'),
-            'fontCache' => storage_path('fonts'),
-            'isUnicodeEnabled' => true,
-            'isFontSubsettingEnabled' => true,
-        ]);
-        
-        // Generate filename
-        $fileName = 'contract_' . $contract->contract_id . '_' . now()->format('Ymd_His') . '.pdf';
-        
-        // Return download response
-        return $pdf->download($fileName);
-    }
+
     
     /**
      * Export contract data to Excel

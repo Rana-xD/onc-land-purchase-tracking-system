@@ -3,8 +3,11 @@
 namespace App\Services\Reports;
 
 use App\Exports\PaymentStatusReportExport;
+use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\FontService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 
@@ -40,17 +43,12 @@ class PaymentStatusExportService
                 // Export to PDF
                 $filename .= '.pdf';
                 
+                // Register Khmer fonts
+                FontService::registerKhmerFonts();
+                
+                // Generate PDF with proper Khmer font support
                 $pdf = Pdf::loadView('reports.payment-status-pdf', $data);
-                $pdf->setOptions([
-                    'isHtml5ParserEnabled' => true,
-                    'isPhpEnabled' => true,
-                    'defaultFont' => 'serif',
-                    'isRemoteEnabled' => true,
-                    'fontDir' => storage_path('fonts'),
-                    'fontCache' => storage_path('fonts'),
-                    'isUnicodeEnabled' => true,
-                    'isFontSubsettingEnabled' => true,
-                ]);
+                $pdf->getDomPDF()->setOptions(FontService::getDomPdfOptions());
                 return $pdf->download($filename);
             }
             

@@ -20,6 +20,8 @@ import {
 import { DownloadOutlined, FileExcelOutlined, FilePdfOutlined, DollarOutlined, FileOutlined, CalendarOutlined } from '@ant-design/icons';
 import AdminLayout from '@/Layouts/AdminLayout';
 import moment from 'moment';
+import YearlyReportHTML from '@/Components/PDF/YearlyReportHTML';
+import useHTMLToPDF from '@/Hooks/useHTMLToPDF';
 
 const { Title, Text } = Typography;
 
@@ -79,6 +81,9 @@ const YearlyReport = ({ auth }) => {
     const [error, setError] = useState(null);
     const [selectedYear, setSelectedYear] = useState(moment().year());
     
+    // HTML-to-PDF hook
+    const { generatePDFFromComponent } = useHTMLToPDF();
+    
     // Format currency
     const formatCurrency = (amount) => {
         if (amount === null || amount === undefined) return '$0.00';
@@ -120,41 +125,64 @@ const YearlyReport = ({ auth }) => {
 
     // Handle export
     const handleExport = useCallback(async (format) => {
+        if (!reportData) {
+            message.error('សូមទាញយកទិន្នន័យរបាយការណ៍ជាមុនសិន');
+            return;
+        }
+
         setExporting(true);
         setExportFormat(format);
-        message.loading(`Preparing ${format.toUpperCase()} export...`);
         
         try {
-            const response = await axios.post('/reports/yearly/export', { 
-                format,
-                year: selectedYear
-            }, {
-                responseType: 'blob'
-            });
-            
-            // Create a blob from the response data
-            const blob = new Blob(
-                [response.data], 
-                { type: format === 'excel' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'application/pdf' }
-            );
-            
-            // Create a link element and trigger download
-            const link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.download = `yearly_report_${selectedYear}.${format === 'excel' ? 'xlsx' : 'pdf'}`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            message.success(`${format.toUpperCase()} export completed successfully`);
+            if (format === 'pdf') {
+                const filename = `yearly_report_${selectedYear}.pdf`;
+                
+                const htmlComponent = (
+                    <YearlyReportHTML 
+                        data={reportData}
+                        year={selectedYear}
+                        exportedBy={auth.user.name}
+                    />
+                );
+
+                const result = await generatePDFFromComponent(htmlComponent, filename);
+                
+                if (!result.success) {
+                    throw new Error(result.error);
+                }
+                
+                message.success('នាំចេញ PDF បានជោគជ័យ');
+            } else if (format === 'excel') {
+                // Keep existing Excel export logic
+                const response = await axios.post('/reports/yearly/export', { 
+                    format: 'excel',
+                    year: selectedYear
+                }, {
+                    responseType: 'blob'
+                });
+                
+                const blob = new Blob([response.data], { 
+                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+                });
+                
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `yearly_report_${selectedYear}.xlsx`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                message.success('នាំចេញ Excel បានជោគជ័យ');
+            }
         } catch (err) {
-            console.error(`Error exporting ${format}:`, err);
-            message.error(`Failed to export ${format.toUpperCase()}. Please try again.`);
+            console.error(`Error exporting report as ${format}:`, err);
+            message.error(`មានបញ្ហាក្នុងការនាំចេញ: ${err.message}`);
         } finally {
             setExporting(false);
             setExportFormat(null);
         }
-    }, [selectedYear]);
+    }, [selectedYear, reportData, auth.user.name, generatePDFFromComponent]);
 
     // Handle year change
     const handleYearChange = (year) => {
@@ -341,6 +369,8 @@ const YearlyReport = ({ auth }) => {
                             Excel
                         </Button>
                         <Button
+                            type="primary"
+                            danger
                             icon={<FilePdfOutlined />}
                             onClick={() => handleExport('pdf')}
                             loading={exporting && exportFormat === 'pdf'}

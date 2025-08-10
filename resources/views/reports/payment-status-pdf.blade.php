@@ -17,7 +17,7 @@
             font-style: normal;
         }
         body {
-            font-family: serif;
+            font-family: "DejaVu Sans", sans-serif;
             margin: 0;
             padding: 20px;
             font-size: 14px;

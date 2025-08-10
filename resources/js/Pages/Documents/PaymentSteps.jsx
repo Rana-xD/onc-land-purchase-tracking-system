@@ -113,12 +113,12 @@ export default function PaymentSteps({ document, paymentSteps }) {
       // Redirect to success page
       window.location.href = route('sale-contracts.success', { id: document.id });
     } catch (error) {
-      console.error('បញ្ហាក្នុងការបង្កើតឯកសារ:', error);
+      console.error('បញ្ហាក្នុងការបង្កើតកិច្ចសន្យា:', error);
       
       if (error.response && error.response.data && error.response.data.error) {
         message.error(error.response.data.error);
       } else {
-        message.error('មានបញ្ហាក្នុងការបង្កើតឯកសារ');
+        message.error('មានបញ្ហាក្នុងការបង្កើតកិច្ចសន្យា');
       }
     } finally {
       setLoading(false);
@@ -146,7 +146,7 @@ export default function PaymentSteps({ document, paymentSteps }) {
       icon: <DollarOutlined />,
     },
     {
-      title: 'បង្កើតឯកសារ',
+      title: 'បង្កើតកិច្ចសន្យា',
       icon: <FileOutlined />,
     }
   ];
@@ -277,7 +277,7 @@ export default function PaymentSteps({ document, paymentSteps }) {
               loading={loading}
               disabled={Math.abs(totalPayment - parseFloat(document.total_land_price)) > 0.01 || hasEmptyFields}
             >
-              បង្កើតឯកសារ
+              បង្កើតកិច្ចសន្យា
             </Button>
           </div>
         </Card>

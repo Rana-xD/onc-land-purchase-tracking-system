@@ -129,7 +129,7 @@ export default function SelectSellers({ document, sellers, selectedSellers }) {
   }
   
   steps.push({
-    title: 'បង្កើតឯកសារ',
+    title: 'បង្កើតកិច្ចសន្យា',
     icon: <FileOutlined />,
   });
 

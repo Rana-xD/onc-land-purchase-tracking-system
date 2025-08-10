@@ -27,10 +27,10 @@ class FileUploadController extends Controller
         $validator = Validator::make($request->all(), [
             'file' => 'required|file|max:10240|mimes:jpg,jpeg,png,pdf',
         ], [
-            'file.required' => 'សូមជ្រើសរើសឯកសារ',
-            'file.file' => 'ឯកសារមិនត្រឹមត្រូវ',
-            'file.max' => 'ទំហំឯកសារមិនត្រូវលើសពី 10MB',
-            'file.mimes' => 'ប្រភេទឯកសារត្រូវតែជា JPG, PNG, ឬ PDF',
+            'file.required' => 'សូមជ្រើសរើសកិច្ចសន្យា',
+            'file.file' => 'កិច្ចសន្យាមិនត្រឹមត្រូវ',
+            'file.max' => 'ទំហំកិច្ចសន្យាមិនត្រូវលើសពី 10MB',
+            'file.mimes' => 'ប្រភេទកិច្ចសន្យាត្រូវតែជា JPG, PNG, ឬ PDF',
         ]);
 
         if ($validator->fails()) {
@@ -54,7 +54,7 @@ class FileUploadController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'មានបញ្ហាក្នុងការបញ្ចូលឯកសារ: ' . $e->getMessage()
+                'message' => 'មានបញ្ហាក្នុងការបញ្ចូលកិច្ចសន្យា: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -80,12 +80,12 @@ class FileUploadController extends Controller
             
             return response()->json([
                 'success' => $deleted,
-                'message' => $deleted ? 'ឯកសារត្រូវបានលុបដោយជោគជ័យ' : 'មិនអាចលុបឯកសារបានទេ'
+                'message' => $deleted ? 'កិច្ចសន្យាត្រូវបានលុបដោយជោគជ័យ' : 'មិនអាចលុបកិច្ចសន្យាបានទេ'
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'មានបញ្ហាក្នុងការលុបឯកសារ: ' . $e->getMessage()
+                'message' => 'មានបញ្ហាក្នុងការលុបកិច្ចសន្យា: ' . $e->getMessage()
             ], 500);
         }
     }

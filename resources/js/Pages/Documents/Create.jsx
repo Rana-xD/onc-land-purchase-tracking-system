@@ -23,14 +23,14 @@ export default function Create({ type }) {
       window.location.href = route(routeName);
     } catch (error) {
       console.error('Error initializing document creation:', error);
-      setError('មានបញ្ហាក្នុងការបង្កើតឯកសារ សូមព្យាយាមម្តងទៀត');
+      setError('មានបញ្ហាក្នុងការបង្កើតកិច្ចសន្យា សូមព្យាយាមម្តងទៀត');
       setLoading(false);
     }
   }, [documentType]);
 
   return (
     <AdminLayout>
-      <Head title={error ? "មានបញ្ហា" : "កំពុងបង្កើតឯកសារ"} />
+      <Head title={error ? "មានបញ្ហា" : "កំពុងបង្កើតកិច្ចសន្យា"} />
       
       <div className="container mx-auto py-6">
         <Card className="text-center">
@@ -51,7 +51,7 @@ export default function Create({ type }) {
           ) : (
             <Result
               icon={<Spin size="large" />}
-              title="កំពុងបង្កើតឯកសារ"
+              title="កំពុងបង្កើតកិច្ចសន្យា"
               subTitle="សូមរង់ចាំមួយភ្លែត..."
             />
           )}

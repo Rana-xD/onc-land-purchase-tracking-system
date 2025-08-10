@@ -145,7 +145,7 @@ class PermissionSeeder extends Seeder
             [
                 'name' => 'deposit_contracts.download',
                 'display_name' => 'ដាអ៊នឡោដលិខិតកក់ប្រាក់',
-                'description' => 'ដាអ៊នឡោដឯកសារលិខិតកក់ប្រាក់',
+                'description' => 'ដាអ៊នឡោដកិច្ចសន្យាលិខិតកក់ប្រាក់',
                 'module' => 'deposit_contracts',
                 'action' => 'download'
             ],
@@ -182,7 +182,7 @@ class PermissionSeeder extends Seeder
             [
                 'name' => 'sale_contracts.download',
                 'display_name' => 'ដាអ៊នឡោដលិខិតទិញលក់',
-                'description' => 'ដាអ៊នឡោដឯកសារលិខិតទិញលក់',
+                'description' => 'ដាអ៊នឡោដកិច្ចសន្យាលិខិតទិញលក់',
                 'module' => 'sale_contracts',
                 'action' => 'download'
             ],
@@ -204,8 +204,8 @@ class PermissionSeeder extends Seeder
             ],
             [
                 'name' => 'reports.document',
-                'display_name' => 'របាយការណ៍ឯកសារ',
-                'description' => 'មើល និងនាំចេញរបាយការណ៍ឯកសារ',
+                'display_name' => 'របាយការណ៍កិច្ចសន្យា',
+                'description' => 'មើល និងនាំចេញរបាយការណ៍កិច្ចសន្យា',
                 'module' => 'reports',
                 'action' => 'document'
             ],

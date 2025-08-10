@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\FontService;
 
 class MonthlyExportService
 {
@@ -48,20 +49,12 @@ class MonthlyExportService
      */
     protected function exportToPdf(array $data, string $filename)
     {
-        // Generate PDF
-        $pdf = Pdf::loadView('reports.monthly_report_pdf', $data);
-        $pdf->setOptions([
-            'isHtml5ParserEnabled' => true,
-            'isPhpEnabled' => true,
-            'defaultFont' => 'serif',
-            'isRemoteEnabled' => true,
-            'fontDir' => storage_path('fonts'),
-            'fontCache' => storage_path('fonts'),
-            'isUnicodeEnabled' => true,
-            'isFontSubsettingEnabled' => true,
-        ]);
+        // Register Khmer fonts
+        FontService::registerKhmerFonts();
         
-
+        // Generate PDF with proper Khmer font support
+        $pdf = Pdf::loadView('reports.monthly_report_pdf', $data);
+        $pdf->getDomPDF()->setOptions(FontService::getDomPdfOptions());
         
         // Return download response
         return $pdf->download($filename . '.pdf');

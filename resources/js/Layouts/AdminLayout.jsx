@@ -85,7 +85,7 @@ const items = [
             <HomeOutlined />
         ),
     ]),
-    getItem('បង្កើតឯកសារ', 'create-docs', <FileDoneOutlined />, [
+    getItem('បង្កើតកិច្ចសន្យា', 'create-docs', <FileDoneOutlined />, [
         getItem(
             <Link href={route('deposit-contracts.index')}>លិខិតកក់ប្រាក់</Link>,
             'deposit-contracts',

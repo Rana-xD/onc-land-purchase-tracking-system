@@ -4,9 +4,8 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>របាយការណ៍កិច្ចសន្យា - {{ $contract['id'] }}</title>
     <style>
-
         body {
-            font-family: serif;
+            font-family: "DejaVu Sans", sans-serif;
             margin: 0;
             padding: 20px;
             color: #333;

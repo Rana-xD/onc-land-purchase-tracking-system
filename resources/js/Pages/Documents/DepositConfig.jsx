@@ -47,7 +47,7 @@ export default function DepositConfig({ document }) {
       if (error.response && error.response.data && error.response.data.error) {
         message.error(error.response.data.error);
       } else {
-        message.error('មានបញ្ហាក្នុងការបង្កើតឯកសារ');
+        message.error('មានបញ្ហាក្នុងការបង្កើតកិច្ចសន្យា');
       }
     } finally {
       setLoading(false);
@@ -75,7 +75,7 @@ export default function DepositConfig({ document }) {
       icon: <DollarOutlined />,
     },
     {
-      title: 'បង្កើតឯកសារ',
+      title: 'បង្កើតកិច្ចសន្យា',
       icon: <FileOutlined />,
     }
   ];
@@ -153,7 +153,7 @@ export default function DepositConfig({ document }) {
               loading={loading}
               disabled={!depositAmount || !depositMonths}
             >
-              បង្កើតឯកសារ
+              បង្កើតកិច្ចសន្យា
             </Button>
           </div>
         </Card>

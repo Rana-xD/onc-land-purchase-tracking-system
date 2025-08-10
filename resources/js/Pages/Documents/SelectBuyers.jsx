@@ -139,7 +139,7 @@ export default function SelectBuyers({ buyers, selectedBuyers, documentType }) {
   }
   
   steps.push({
-    title: 'បង្កើតឯកសារ',
+    title: 'បង្កើតកិច្ចសន្យា',
     icon: <FileOutlined />,
   });
 

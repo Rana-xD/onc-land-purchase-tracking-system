@@ -65,10 +65,10 @@ export default function LandEdit({ land, documents }) {
 
     const steps = [
         {
-            title: 'ឯកសារ',
+            title: 'កិច្ចសន្យា',
             icon: <FileAddOutlined />,
             content: (
-                <Card title="បញ្ចូលឯកសារ" className="mb-6">
+                <Card title="បញ្ចូលកិច្ចសន្យា" className="mb-6">
                     <FileUpload
                         fileList={fileList}
                         setFileList={setFileList}

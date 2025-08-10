@@ -35,8 +35,8 @@ export default function DocumentListModal({ visible, onCancel, paymentStep }) {
             const response = await axios.get(endpoint);
             setDocuments(response.data.documents || []);
         } catch (error) {
-            console.error('បញ្ហាក្នុងការទាញឯកសារ:', error);
-            message.error('មានបញ្ហាក្នុងការផ្ទុកឯកសារ');
+            console.error('បញ្ហាក្នុងការទាញកិច្ចសន្យា:', error);
+            message.error('មានបញ្ហាក្នុងការផ្ទុកកិច្ចសន្យា');
         } finally {
             setLoading(false);
         }
@@ -52,11 +52,11 @@ export default function DocumentListModal({ visible, onCancel, paymentStep }) {
         try {
             setLoading(true);
             await axios.delete(`/api/reports/contract-documents/${documentId}`);
-            message.success('លុបឯកសារជោគជ័យ');
+            message.success('លុបកិច្ចសន្យាជោគជ័យ');
             fetchDocuments();
         } catch (error) {
-            console.error('បញ្ហាក្នុងការលុបឯកសារ:', error);
-            message.error(error.response?.data?.error || 'មានបញ្ហាក្នុងការលុបឯកសារ');
+            console.error('បញ្ហាក្នុងការលុបកិច្ចសន្យា:', error);
+            message.error(error.response?.data?.error || 'មានបញ្ហាក្នុងការលុបកិច្ចសន្យា');
         } finally {
             setLoading(false);
         }
@@ -82,14 +82,14 @@ export default function DocumentListModal({ visible, onCancel, paymentStep }) {
         } else if (type === 'land_certificate') {
             return <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-md text-xs">វិញ្ញាបនបត្រដី</span>;
         } else {
-            return <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-md text-xs">ឯកសារផ្សេងទៀត</span>;
+            return <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-md text-xs">កិច្ចសន្យាផ្សេងទៀត</span>;
         }
     };
 
     // Table columns
     const columns = [
         {
-            title: 'ឈ្មោះឯកសារ',
+            title: 'ឈ្មោះកិច្ចសន្យា',
             dataIndex: 'file_name',
             key: 'file_name',
             render: (text, record) => (
@@ -131,8 +131,8 @@ export default function DocumentListModal({ visible, onCancel, paymentStep }) {
                         />
                     </Tooltip>
                     <Popconfirm
-                        title="លុបឯកសារ"
-                        description="តើអ្នកចង់លុបឯកសារនេះមែនទេ?"
+                        title="លុបកិច្ចសន្យា"
+                        description="តើអ្នកចង់លុបកិច្ចសន្យានេះមែនទេ?"
                         onConfirm={() => handleDelete(record.id)}
                         okText="យល់ព្រម"
                         cancelText="មិនយល់ព្រម"
@@ -154,8 +154,8 @@ export default function DocumentListModal({ visible, onCancel, paymentStep }) {
     return (
         <Modal
             title={paymentStep 
-                ? `ឯកសារសម្រាប់ដំណាក់កាលបង់ប្រាក់ទី${paymentStep.step_number}` 
-                : `ឯកសារទាំងអស់`}
+                ? `កិច្ចសន្យាសម្រាប់ដំណាក់កាលបង់ប្រាក់ទី${paymentStep.step_number}` 
+                : `កិច្ចសន្យាទាំងអស់`}
             open={visible}
             onCancel={onCancel}
             footer={[
@@ -176,7 +176,7 @@ export default function DocumentListModal({ visible, onCancel, paymentStep }) {
                     />
                 ) : (
                     <Empty 
-                        description="មិនមានឯកសារទេ" 
+                        description="មិនមានកិច្ចសន្យាទេ" 
                         image={Empty.PRESENTED_IMAGE_SIMPLE} 
                     />
                 )}

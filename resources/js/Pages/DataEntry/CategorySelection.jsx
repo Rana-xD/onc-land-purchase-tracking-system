@@ -38,7 +38,7 @@ export default function CategorySelection() {
                                 title={<span className="khmer-heading text-lg">អ្នកទិញ</span>}
                                 description={
                                     <span className="khmer-text">
-                                        បញ្ចូលព័ត៌មានលម្អិតអំពីអ្នកទិញដី និងឯកសារពាក់ព័ន្ធ
+                                        បញ្ចូលព័ត៌មានលម្អិតអំពីអ្នកទិញដី និងកិច្ចសន្យាពាក់ព័ន្ធ
                                     </span>
                                 }
                             />
@@ -64,7 +64,7 @@ export default function CategorySelection() {
                                 title={<span className="khmer-heading text-lg">អ្នកលក់</span>}
                                 description={
                                     <span className="khmer-text">
-                                        បញ្ចូលព័ត៌មានលម្អិតអំពីអ្នកលក់ដី និងឯកសារពាក់ព័ន្ធ
+                                        បញ្ចូលព័ត៌មានលម្អិតអំពីអ្នកលក់ដី និងកិច្ចសន្យាពាក់ព័ន្ធ
                                     </span>
                                 }
                             />
@@ -90,7 +90,7 @@ export default function CategorySelection() {
                                 title={<span className="khmer-heading text-lg">ដី</span>}
                                 description={
                                     <span className="khmer-text">
-                                        បញ្ចូលព័ត៌មានលម្អិតអំពីដី និងឯកសារពាក់ព័ន្ធ
+                                        បញ្ចូលព័ត៌មានលម្អិតអំពីដី និងកិច្ចសន្យាពាក់ព័ន្ធ
                                     </span>
                                 }
                             />

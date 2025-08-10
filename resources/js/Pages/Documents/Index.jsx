@@ -9,10 +9,10 @@ const { Title, Text } = Typography;
 export default function DocumentTypeSelection() {
   return (
     <AdminLayout>
-      <Head title="បង្កើតឯកសារថ្មី" />
+      <Head title="បង្កើតកិច្ចសន្យាថ្មី" />
       
       <div className="container mx-auto py-6">
-        <Title level={2} className="mb-6">បង្កើតឯកសារថ្មី</Title>
+        <Title level={2} className="mb-6">បង្កើតកិច្ចសន្យាថ្មី</Title>
         
         <Row gutter={[24, 24]} className="mt-8">
           <Col xs={24} md={12}>

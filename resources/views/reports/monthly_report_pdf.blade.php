@@ -4,20 +4,8 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>របាយការណ៍ប្រចាំខែ</title>
     <style>
-        @font-face {
-            font-family: 'Koh Santepheap';
-            src: url("{!! storage_path('fonts/KohSantepheap-Regular.ttf') !!}") format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
-        @font-face {
-            font-family: 'Koh Santepheap';
-            src: url("{!! storage_path('fonts/KohSantepheap-Bold.ttf') !!}") format('truetype');
-            font-weight: bold;
-            font-style: normal;
-        }
         body {
-            font-family: serif;
+            font-family: "DejaVu Sans", sans-serif;
             margin: 0;
             padding: 20px;
             font-size: 12px;

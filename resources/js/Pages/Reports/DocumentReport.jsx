@@ -14,6 +14,8 @@ import {
 import axios from 'axios';
 import DocumentUploadModal from './Components/DocumentUploadModal';
 import DocumentListModal from './Components/DocumentListModal';
+import DocumentReportHTML from '@/Components/PDF/DocumentReportHTML';
+import useHTMLToPDF from '@/Hooks/useHTMLToPDF';
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
@@ -27,6 +29,10 @@ export default function DocumentReport({ auth }) {
     const [selectedPaymentStep, setSelectedPaymentStep] = useState(null);
     // Add state for the sale contract
     const [saleContract, setSaleContract] = useState(null);
+    const [exporting, setExporting] = useState(false);
+    
+    // HTML-to-PDF hook
+    const { generatePDFFromComponent } = useHTMLToPDF();
     
     // Check for contract_id in URL query params on component mount
     useEffect(() => {
@@ -150,13 +156,55 @@ export default function DocumentReport({ auth }) {
 
     // Handle document export
     const handleExport = async (format) => {
-        if (!searchResult) return;
+        if (!searchResult) {
+            message.error('សូមស្វែងរកកិច្ចសន្យាជាមុនសិន');
+            return;
+        }
+
+        setExporting(true);
         
         try {
-            window.open(`/api/reports/document/export/${searchResult.contract.contract_id}?format=${format}`, '_blank');
+            if (format === 'pdf') {
+                const filename = `document_report_${searchResult.contract.contract_id}_${new Date().toISOString().split('T')[0]}.pdf`;
+                
+                const htmlComponent = (
+                    <DocumentReportHTML 
+                        data={searchResult}
+                        exportedBy={auth.user.name}
+                    />
+                );
+
+                const result = await generatePDFFromComponent(htmlComponent, filename);
+                
+                if (!result.success) {
+                    throw new Error(result.error);
+                }
+                
+                message.success('នាំចេញ PDF បានជោគជ័យ');
+            } else if (format === 'excel') {
+                // Keep existing Excel export logic
+                const response = await axios.post('/api/reports/document/export', {
+                    contract_id: searchResult.contract.contract_id,
+                    format: 'excel'
+                }, {
+                    responseType: 'blob'
+                });
+                
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `document_report_${searchResult.contract.contract_id}.xlsx`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                message.success('នាំចេញ Excel បានជោគជ័យ');
+            }
         } catch (error) {
-            console.error('បញ្ហាក្នុងការនាំចេញ:', error);
-            message.error('មិនអាចនាំចេញឯកសារ');
+            console.error('Export error:', error);
+            message.error(`មានបញ្ហាក្នុងការនាំចេញ: ${error.message}`);
+        } finally {
+            setExporting(false);
         }
     };
 
@@ -177,7 +225,7 @@ export default function DocumentReport({ auth }) {
                 return;
             }
             
-            message.error('សូមស្វែងរកកិច្ចសន្យាមុននឹងផ្ទុកឯកសារ');
+            message.error('សូមស្វែងរកកិច្ចសន្យាមុននឹងផ្ទុកកិច្ចសន្យា');
             return;
         }
         
@@ -273,9 +321,9 @@ export default function DocumentReport({ auth }) {
     return (
         <AdminLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">របាយការណ៍ឯកសារ</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">របាយការណ៍កិច្ចសន្យា</h2>}
         >
-            <Head title="របាយការណ៍ឯកសារ" />
+            <Head title="របាយការណ៍កិច្ចសន្យា" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -314,8 +362,11 @@ export default function DocumentReport({ auth }) {
                                 extra={
                                     <Space>
                                         <Button 
+                                            type="primary"
+                                            danger
                                             icon={<FilePdfOutlined />} 
                                             onClick={() => handleExport('pdf')}
+                                            loading={exporting}
                                         >
                                             នាំចេញជា PDF
                                         </Button>
@@ -331,13 +382,13 @@ export default function DocumentReport({ auth }) {
                                             icon={<UploadOutlined />}
                                             onClick={() => showUploadModal()}
                                         >
-                                            ផ្ទុកឯកសារ
+                                            ផ្ទុកកិច្ចសន្យា
                                         </Button>
                                         <Button 
                                             icon={<ExpandOutlined />}
                                             onClick={() => showListModal(null)}
                                         >
-                                            មើលឯកសារទាំងអស់
+                                            មើលកិច្ចសន្យាទាំងអស់
                                         </Button>
                                     </Space>
                                 }

@@ -123,14 +123,14 @@ export default function FileUpload({
     const handleUpload = async ({ file, onSuccess, onError }) => {
         const isJpgOrPngOrPdf = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'application/pdf';
         if (!isJpgOrPngOrPdf) {
-            messageUtil.error('អ្នកអាចផ្ទុកឡើងបានតែឯកសារប្រភេទ JPG, PNG, ឬ PDF ប៉ុណ្ណោះ!');
+            messageUtil.error('អ្នកអាចផ្ទុកឡើងបានតែកិច្ចសន្យាប្រភេទ JPG, PNG, ឬ PDF ប៉ុណ្ណោះ!');
             onError('File type error');
             return;
         }
         
         const isLessThanMaxSize = file.size / 1024 / 1024 < maxSize;
         if (!isLessThanMaxSize) {
-            messageUtil.error(`អ្នកអាចផ្ទុកឡើងបានតែឯកសារទំហំតូចជាង ${maxSize}MB ប៉ុណ្ណោះ!`);
+            messageUtil.error(`អ្នកអាចផ្ទុកឡើងបានតែកិច្ចសន្យាទំហំតូចជាង ${maxSize}MB ប៉ុណ្ណោះ!`);
             onError('File size error');
             return;
         }
@@ -159,10 +159,10 @@ export default function FileUpload({
                 onSuccess(response);
                 setUploading(false);
             };
-            messageUtil.success('ឯកសារត្រូវបានផ្ទុកឡើងដោយជោគជ័យ');
+            messageUtil.success('កិច្ចសន្យាត្រូវបានផ្ទុកឡើងដោយជោគជ័យ');
         } catch (error) {
             console.error('Error uploading file:', error);
-            messageUtil.error('មានបញ្ហាក្នុងការផ្ទុកឡើងឯកសារ');
+            messageUtil.error('មានបញ្ហាក្នុងការផ្ទុកឡើងកិច្ចសន្យា');
             onError('Upload failed');
         } finally {
             setUploading(false);
@@ -267,16 +267,16 @@ export default function FileUpload({
                 // Check if this is the only display document
                 const displayFiles = fileList.filter(f => f.isDisplay);
                 if (displayFiles.length === 1 && displayFiles[0].uid === file.uid) {
-                    messageUtil.error('មិនអាចលុបឯកសារនេះបានទេ ព្រោះវាជាឯកសារតែមួយគត់ដែលបង្ហាញ។ សូមកំណត់ឯកសារផ្សេងជាឯកសារបង្ហាញជាមុនសិន។');
+                    messageUtil.error('មិនអាចលុបកិច្ចសន្យានេះបានទេ ព្រោះវាជាកិច្ចសន្យាតែមួយគត់ដែលបង្ហាញ។ សូមកំណត់កិច្ចសន្យាផ្សេងជាកិច្ចសន្យាបង្ហាញជាមុនសិន។');
                     return false;
                 }
                 
                 await axios.delete(`/api/${category}s/${referenceId}/documents/${file.response.id}`);
-                messageUtil.success('ឯកសារត្រូវបានលុបដោយជោគជ័យ');
+                messageUtil.success('កិច្ចសន្យាត្រូវបានលុបដោយជោគជ័យ');
                 return true;
             } catch (error) {
                 console.error('Error deleting file:', error);
-                messageUtil.error('មានបញ្ហាក្នុងការលុបឯកសារ');
+                messageUtil.error('មានបញ្ហាក្នុងការលុបកិច្ចសន្យា');
                 return false;
             }
         }
@@ -376,14 +376,14 @@ export default function FileUpload({
         if (file.isExisting && referenceId) {
             try {
                 await axios.put(`/api/${category}s/${referenceId}/documents/${file.response.id}/set-display`);
-                messageUtil.success('ឯកសារត្រូវបានកំណត់ជាឯកសារបង្ហាញដោយជោគជ័យ');
+                messageUtil.success('កិច្ចសន្យាត្រូវបានកំណត់ជាកិច្ចសន្យាបង្ហាញដោយជោគជ័យ');
             } catch (error) {
                 console.error('Error setting display document:', error);
-                messageUtil.error('មានបញ្ហាក្នុងការកំណត់ឯកសារបង្ហាញ');
+                messageUtil.error('មានបញ្ហាក្នុងការកំណត់កិច្ចសន្យាបង្ហាញ');
                 setFileList(fileList); // Revert on failure
             }
         } else {
-            messageUtil.success('ឯកសារត្រូវបានកំណត់ជាឯកសារបង្ហាញដោយជោគជ័យ');
+            messageUtil.success('កិច្ចសន្យាត្រូវបានកំណត់ជាកិច្ចសន្យាបង្ហាញដោយជោគជ័យ');
         }
     };
 
@@ -396,10 +396,10 @@ export default function FileUpload({
 
     return (
         <div className="file-upload">
-            <Title level={5} className="khmer-heading mb-4">ឯកសារ</Title>
+            <Title level={5} className="khmer-heading mb-4">កិច្ចសន្យា</Title>
             
             <Text className="khmer-text mb-4 block">
-                សូមផ្ទុកឡើងឯកសារ (អតិបរមា {maxFiles} ឯកសារ, ទំហំអតិបរមា {maxSize}MB ក្នុងមួយឯកសារ)
+                សូមផ្ទុកឡើងកិច្ចសន្យា (អតិបរមា {maxFiles} កិច្ចសន្យា, ទំហំអតិបរមា {maxSize}MB ក្នុងមួយកិច្ចសន្យា)
             </Text>
             
             {/* Custom grid layout for file cards */}
@@ -446,7 +446,7 @@ export default function FileUpload({
                                         <div style={styles.fileName}>{file.name}</div>
                                     </Tooltip>
                                     {file.isDisplay && (
-                                        <Tag color="blue" style={styles.displayTag}>ឯកសារបង្ហាញ</Tag>
+                                        <Tag color="blue" style={styles.displayTag}>កិច្ចសន្យាបង្ហាញ</Tag>
                                     )}
                                 </div>
                                 
@@ -489,7 +489,7 @@ export default function FileUpload({
                                             };
                                             
                                             Modal.confirm({
-                                                title: 'តើអ្នកពិតជាចង់លុបឯកសារនេះមែនទេ?',
+                                                title: 'តើអ្នកពិតជាចង់លុបកិច្ចសន្យានេះមែនទេ?',
                                                 content: 'សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។',
                                                 okText: 'យល់ព្រម',
                                                 cancelText: 'បោះបង់',

@@ -47,7 +47,7 @@ export default function SaleContractsList({ initialDocuments }) {
         setDocuments(documents.filter(doc => doc.id !== id));
       },
       onError: () => {
-        message.error('មានបញ្ហាក្នុងការលុបឯកសារ');
+        message.error('មានបញ្ហាក្នុងការលុបកិច្ចសន្យា');
       }
     });
   };
@@ -147,7 +147,7 @@ export default function SaleContractsList({ initialDocuments }) {
             </Link>
           </Tooltip>
           <Popconfirm
-            title="តើអ្នកប្រាកដជាចង់លុបឯកសារនេះមែនទេ?"
+            title="តើអ្នកប្រាកដជាចង់លុបកិច្ចសន្យានេះមែនទេ?"
             description="ការលុបនេះមិនអាចត្រឡប់ក្រោយវិញបានទេ"
             onConfirm={() => handleDelete(record.id)}
             okText="បាទ/ចាស"

@@ -47,7 +47,7 @@ class YearlyReportExport implements FromArray, WithTitle, WithStyles, ShouldAuto
         $data[] = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
         
         // Create month headers row (01/25, 02/25, etc.) - these will be merged
-        $monthHeaderRow = ['លេខសញ្ញា', 'លេខដីធ្លី'];
+        $monthHeaderRow = ['លេខកិច្ចសន្យា', 'លេខដីធ្លី'];
         for ($month = 1; $month <= 12; $month++) {
             $monthHeaderRow[] = sprintf('%02d/25', $month); // 01/25, 02/25, etc.
             $monthHeaderRow[] = ''; // Empty cell for merging

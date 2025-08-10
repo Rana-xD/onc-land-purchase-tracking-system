@@ -220,7 +220,7 @@ export default function SelectLands({ document, lands, selectedLands }) {
   }
   
   steps.push({
-    title: 'បង្កើតឯកសារ',
+    title: 'បង្កើតកិច្ចសន្យា',
     icon: <FileOutlined />,
   });
 

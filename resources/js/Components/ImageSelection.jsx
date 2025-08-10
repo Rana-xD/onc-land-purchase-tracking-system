@@ -88,7 +88,7 @@ export default function ImageSelection({ fileList, setFileList }) {
                 </div>
             ) : (
                 <Empty 
-                    description="គ្មានឯកសារត្រូវបានបញ្ចូល" 
+                    description="គ្មានកិច្ចសន្យាត្រូវបានបញ្ចូល" 
                     image={Empty.PRESENTED_IMAGE_SIMPLE} 
                 />
             )}
