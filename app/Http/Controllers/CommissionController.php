@@ -96,7 +96,7 @@ class CommissionController extends Controller
     /**
      * Display the payment steps management page.
      */
-    public function manageSteps(Commission $commission)
+    public function managePaymentSteps(Commission $commission)
     {
         // Check if user has permission to manage commission payment steps
         if (!Auth::user()->hasPermission('post_purchase_commission.edit')) {

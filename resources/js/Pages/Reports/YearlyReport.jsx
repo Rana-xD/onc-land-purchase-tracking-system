@@ -261,13 +261,26 @@ const YearlyReport = ({ auth }) => {
             ),
         },
         {
-            title: 'ដីឡូត៍',
+            title: 'លេខក្បាលដី',
             dataIndex: 'lands',
             key: 'lands',
             fixed: 'left',
             width: 150,
             align: 'center',
             render: renderLands
+        },
+        {
+            title: 'អ្នកលក់',
+            dataIndex: 'sellers',
+            key: 'sellers',
+            fixed: 'left',
+            width: 200,
+            align: 'center',
+            render: (sellers) => {
+                if (!sellers || sellers.length === 0) return <Text>-</Text>;
+                const sellerNames = sellers.map(seller => seller.name || 'N/A').join(', ');
+                return <Text>{sellerNames}</Text>;
+            }
         },
         ...generateMonthColumns(),
         {
@@ -319,6 +332,7 @@ const YearlyReport = ({ auth }) => {
             key: 'summary',
             contract_id: <Text strong>សរុប</Text>,
             lands: <Text strong>{summary.lands_count} ឡូត៍</Text>,
+            sellers: [], // Empty sellers for summary row
             paid_amount: summary.paid_amount,
             unpaid_amount: summary.unpaid_amount,
             total_amount: summary.total_amount,
@@ -426,6 +440,7 @@ const YearlyReport = ({ auth }) => {
                                             <Table.Summary.Row style={{ backgroundColor: '#fafafa', fontWeight: 'bold' }}>
                                                 <Table.Summary.Cell index={0} fixed="left">{summaryRow.contract_id}</Table.Summary.Cell>
                                                 <Table.Summary.Cell index={1} fixed="left">{summaryRow.lands}</Table.Summary.Cell>
+                                                <Table.Summary.Cell index={2} fixed="left">-</Table.Summary.Cell>
                                                 {Object.keys(summaryRow.monthly_data).map(month => (
                                                     <React.Fragment key={`summary_${month}`}>
                                                         <Table.Summary.Cell index={parseInt(month) * 2} align="right">

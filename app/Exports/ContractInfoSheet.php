@@ -86,14 +86,14 @@ class ContractInfoSheet implements FromArray, WithTitle, WithStyles, ShouldAutoS
                 $landNumber = $index + 1;
                 if ($index > 0) $data[] = ['', '', '']; // Separator between lands
                 $data[] = ["ដី #{$landNumber}", '', ''];
-                $data[] = ['លេខដីធ្លី:', $land['plot_number'], ''];
+                $data[] = ['លេខក្បាលដីធ្លី:', $land['plot_number'], ''];
                 $data[] = ['ទំហំ:', $land['size'] . ' m²', ''];
                 $data[] = ['ទីតាំង:', $land['location'], ''];
                 $data[] = ['តម្លៃក្នុងមួយ m²:', '$' . number_format($land['price_per_m2'], 2), ''];
                 $data[] = ['តម្លៃសរុប:', '$' . number_format($land['total_price'], 2), ''];
             }
         } elseif (isset($this->data['land'])) {
-            $data[] = ['លេខដីធ្លី:', $this->data['land']['plot_number'], ''];
+            $data[] = ['លេខក្បាលដីធ្លី:', $this->data['land']['plot_number'], ''];
             $data[] = ['ទំហំ:', $this->data['land']['size'], ''];
             $data[] = ['ទីតាំង:', $this->data['land']['location'], ''];
         }

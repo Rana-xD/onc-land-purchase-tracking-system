@@ -125,7 +125,7 @@ export default function SelectLands({ document, lands, selectedLands }) {
       ),
     },
     {
-      title: 'លេខដី',
+      title: 'លេខក្បាលដី',
       dataIndex: 'plot_number',
       key: 'plot_number',
     },
@@ -252,7 +252,7 @@ export default function SelectLands({ document, lands, selectedLands }) {
           
           <div className="mb-4">
             <Input
-              placeholder="ស្វែងរកតាមលេខដី ទំហំ ឬទីតាំង"
+              placeholder="ស្វែងរកតាមលេខក្បាលដី ទំហំ ឬទីតាំង"
               prefix={<SearchOutlined />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}

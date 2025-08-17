@@ -34,6 +34,16 @@ export default function CreatePostPurchaseCommission() {
     const handleSubmit = async (values) => {
         setLoading(true);
         try {
+            // Validate that payment steps sum equals total amount
+            const totalAmount = parseFloat(values.total_amount);
+            const paymentStepsSum = values.payment_steps.reduce((sum, step) => sum + parseFloat(step.amount || 0), 0);
+            
+            if (Math.abs(totalAmount - paymentStepsSum) > 0.01) {
+                message.error(`ចំនួនសរុបនៃជំហានទូទាត់ ($${paymentStepsSum.toFixed(2)}) មិនត្រូវនឹងចំនួនសរុប ($${totalAmount.toFixed(2)}) ទេ។ សូមពិនិត្យម្តងទៀត។`);
+                setLoading(false);
+                return;
+            }
+
             // Format payment steps
             const formattedPaymentSteps = values.payment_steps.map(step => ({
                 amount: step.amount,
@@ -81,7 +91,7 @@ export default function CreatePostPurchaseCommission() {
 
     return (
         <AdminLayout>
-            <Head title="បន្ថែមកម៉ីសិនក្រោយទិញ" />
+            <Head title="បន្ថែមកុំស្យុងក្រោយទិញ" />
             
             <div style={{ padding: '24px' }}>
                 {/* Header */}
@@ -93,7 +103,7 @@ export default function CreatePostPurchaseCommission() {
                             type="text"
                         />
                         <Title level={2} style={{ margin: 0, textAlign: 'center' }}>
-                            បន្ថែមកម៉ីសិនក្រោយទិញ
+                            បន្ថែមកុំស្យុងក្រោយទិញ
                         </Title>
                     </Space>
                 </div>

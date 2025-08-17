@@ -17,13 +17,13 @@ export default function CommissionManagement({ statistics }) {
 
     return (
         <AdminLayout>
-            <Head title="គ្រប់គ្រងកម៉ីសិន" />
+            <Head title="គ្រប់គ្រងកុំស្យុង" />
             
             <div style={{ padding: '24px' }}>
                 {/* Header */}
                 <div style={{ marginBottom: '24px' }}>
                     <Title level={2} style={{ margin: 0, textAlign: 'center' }}>
-                        គ្រប់គ្រងកម៉ីសិន
+                        គ្រប់គ្រងកុំស្យុង
                     </Title>
                 </div>
 
@@ -35,7 +35,7 @@ export default function CommissionManagement({ statistics }) {
                             title={
                                 <Space>
                                     <DollarOutlined />
-                                    <Text strong>កម៉ីសិនមុនទិញ</Text>
+                                    <Text strong>កុំស្យុងមុនទិញ</Text>
                                 </Space>
                             }
                             extra={
@@ -81,7 +81,7 @@ export default function CommissionManagement({ statistics }) {
                             title={
                                 <Space>
                                     <PercentageOutlined />
-                                    <Text strong>កម៉ីសិនក្រោយទិញ</Text>
+                                    <Text strong>កុំស្យុងក្រោយទិញ</Text>
                                 </Space>
                             }
                             extra={
@@ -177,7 +177,7 @@ export default function CommissionManagement({ statistics }) {
                             >
                                 <Space direction="vertical" align="center">
                                     <DollarOutlined style={{ fontSize: '32px', color: '#1890ff' }} />
-                                    <Text strong>គ្រប់គ្រងកម៉ីសិនមុនទិញ</Text>
+                                    <Text strong>គ្រប់គ្រងកុំស្យុងមុនទិញ</Text>
                                 </Space>
                             </Card>
                         </Link>
@@ -190,7 +190,7 @@ export default function CommissionManagement({ statistics }) {
                             >
                                 <Space direction="vertical" align="center">
                                     <PercentageOutlined style={{ fontSize: '32px', color: '#52c41a' }} />
-                                    <Text strong>គ្រប់គ្រងកម៉ីសិនក្រោយទិញ</Text>
+                                    <Text strong>គ្រប់គ្រងកុំស្យុងក្រោយទិញ</Text>
                                 </Space>
                             </Card>
                         </Link>

@@ -198,7 +198,7 @@ const PaymentStatusReportHTML = ({ data, exportedBy }) => {
           <thead style={styles.tableHeader}>
             <tr>
               <th style={styles.tableHeaderCell}>លេខកិច្ចសន្យា</th>
-              <th style={styles.tableHeaderCell}>លេខដីធ្លី</th>
+              <th style={styles.tableHeaderCell}>លេខក្បាលដីធ្លី</th>
               <th style={styles.tableHeaderCell}>ចំនួនសរុប</th>
               <th style={styles.tableHeaderCell}>ចំនួនបានទូទាត់</th>
               <th style={styles.tableHeaderCell}>ចំនួនមិនទានទូទាត់</th>

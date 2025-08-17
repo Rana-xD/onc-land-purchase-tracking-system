@@ -164,7 +164,11 @@ export default function Create() {
                         <Col>
                             <Space>
                                 {current < steps.length - 1 && (
-                                    <Button type="primary" onClick={next}>
+                                    <Button 
+                                        type="primary" 
+                                        onClick={next}
+                                        disabled={current === 0 && fileList.length < 2}
+                                    >
                                         បន្ទាប់
                                     </Button>
                                 )}
@@ -174,7 +178,7 @@ export default function Create() {
                                         type="primary" 
                                         onClick={handleSubmit}
                                         loading={loading}
-                                        disabled={!formData.name || !formData.identity_number || fileList.length === 0}
+                                        disabled={!formData.name || !formData.identity_number || fileList.length < 2}
                                     >
                                         រក្សាទុក
                                     </Button>

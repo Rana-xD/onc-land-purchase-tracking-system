@@ -241,36 +241,36 @@ class PermissionSeeder extends Seeder
             // Commission Management - Pre-Purchase
             [
                 'name' => 'pre_purchase_commission.view',
-                'display_name' => 'មើលកម៉ីសិនមុនទិញ',
-                'description' => 'មើលកំណត់ត្រាកម៉ីសិនមុនទិញ',
+                'display_name' => 'មើលកុំស្យុងមុនទិញ',
+                'description' => 'មើលកំណត់ត្រាកុំស្យុងមុនទិញ',
                 'module' => 'pre_purchase_commission',
                 'action' => 'view'
             ],
             [
                 'name' => 'pre_purchase_commission.create',
-                'display_name' => 'បង្កើតកម៉ីសិនមុនទិញ',
-                'description' => 'បង្កើតកំណត់ត្រាកម៉ីសិនមុនទិញថ្មី',
+                'display_name' => 'បង្កើតកុំស្យុងមុនទិញ',
+                'description' => 'បង្កើតកំណត់ត្រាកុំស្យុងមុនទិញថ្មី',
                 'module' => 'pre_purchase_commission',
                 'action' => 'create'
             ],
             [
                 'name' => 'pre_purchase_commission.edit',
-                'display_name' => 'កែប្រែកម៉ីសិនមុនទិញ',
-                'description' => 'កែប្រែកំណត់ត្រាកម៉ីសិនមុនទិញ',
+                'display_name' => 'កែប្រែកុំស្យុងមុនទិញ',
+                'description' => 'កែប្រែកំណត់ត្រាកុំស្យុងមុនទិញ',
                 'module' => 'pre_purchase_commission',
                 'action' => 'edit'
             ],
             [
                 'name' => 'pre_purchase_commission.delete',
-                'display_name' => 'លុបកម៉ីសិនមុនទិញ',
-                'description' => 'លុបកំណត់ត្រាកម៉ីសិនមុនទិញ',
+                'display_name' => 'លុបកុំស្យុងមុនទិញ',
+                'description' => 'លុបកំណត់ត្រាកុំស្យុងមុនទិញ',
                 'module' => 'pre_purchase_commission',
                 'action' => 'delete'
             ],
             [
                 'name' => 'pre_purchase_commission.mark_paid',
-                'display_name' => 'ដាក់សម្គាល់កម៉ីសិនមុនទិញបានបង់',
-                'description' => 'ដាក់សម្គាល់កម៉ីសិនមុនទិញជាបានបង់',
+                'display_name' => 'ដាក់សម្គាល់កុំស្យុងមុនទិញបានបង់',
+                'description' => 'ដាក់សម្គាល់កុំស្យុងមុនទិញជាបានបង់',
                 'module' => 'pre_purchase_commission',
                 'action' => 'mark_paid'
             ],
@@ -278,36 +278,36 @@ class PermissionSeeder extends Seeder
             // Commission Management - Post-Purchase
             [
                 'name' => 'post_purchase_commission.view',
-                'display_name' => 'មើលកម៉ីសិនក្រោយទិញ',
-                'description' => 'មើលកំណត់ត្រាកម៉ីសិនក្រោយទិញ',
+                'display_name' => 'មើលកុំស្យុងក្រោយទិញ',
+                'description' => 'មើលកំណត់ត្រាកុំស្យុងក្រោយទិញ',
                 'module' => 'post_purchase_commission',
                 'action' => 'view'
             ],
             [
                 'name' => 'post_purchase_commission.create',
-                'display_name' => 'បង្កើតកម៉ីសិនក្រោយទិញ',
-                'description' => 'បង្កើតកំណត់ត្រាកម៉ីសិនក្រោយទិញថ្មី',
+                'display_name' => 'បង្កើតកុំស្យុងក្រោយទិញ',
+                'description' => 'បង្កើតកំណត់ត្រាកុំស្យុងក្រោយទិញថ្មី',
                 'module' => 'post_purchase_commission',
                 'action' => 'create'
             ],
             [
                 'name' => 'post_purchase_commission.edit',
-                'display_name' => 'កែប្រែកម៉ីសិនក្រោយទិញ',
-                'description' => 'កែប្រែកំណត់ត្រាកម៉ីសិនក្រោយទិញ',
+                'display_name' => 'កែប្រែកុំស្យុងក្រោយទិញ',
+                'description' => 'កែប្រែកំណត់ត្រាកុំស្យុងក្រោយទិញ',
                 'module' => 'post_purchase_commission',
                 'action' => 'edit'
             ],
             [
                 'name' => 'post_purchase_commission.delete',
-                'display_name' => 'លុបកម៉ីសិនក្រោយទិញ',
-                'description' => 'លុបកំណត់ត្រាកម៉ីសិនក្រោយទិញ',
+                'display_name' => 'លុបកុំស្យុងក្រោយទិញ',
+                'description' => 'លុបកំណត់ត្រាកុំស្យុងក្រោយទិញ',
                 'module' => 'post_purchase_commission',
                 'action' => 'delete'
             ],
             [
                 'name' => 'post_purchase_commission.mark_paid',
-                'display_name' => 'ដាក់សម្គាល់កម៉ីសិនក្រោយទិញបានបង់',
-                'description' => 'ដាក់សម្គាល់ការបង់ប្រាក់កម៉ីសិនក្រោយទិញជាបានបង់',
+                'display_name' => 'ដាក់សម្គាល់កុំស្យុងក្រោយទិញបានបង់',
+                'description' => 'ដាក់សម្គាល់ការបង់ប្រាក់កុំស្យុងក្រោយទិញជាបានបង់',
                 'module' => 'post_purchase_commission',
                 'action' => 'mark_paid'
             ],

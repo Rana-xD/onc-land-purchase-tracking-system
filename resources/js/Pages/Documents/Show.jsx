@@ -112,7 +112,7 @@ export default function ShowDocument({ document }) {
                 {document.lands.map(land => (
                   <div key={land.id} className="border p-3 rounded">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      <div><strong>លេខដី:</strong> {land.plot_number}</div>
+                      <div><strong>លេខក្បាលដី:</strong> {land.plot_number}</div>
                       <div><strong>ទំហំ:</strong> {land.size} m²</div>
                       <div><strong>ទីតាំង:</strong> {land.location}</div>
                       <div><strong>តម្លៃ:</strong> ${parseFloat(land.pivot.total_price).toLocaleString()}</div>

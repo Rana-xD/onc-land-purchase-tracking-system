@@ -138,7 +138,7 @@ export default function Success({ document }) {
                       {landRel.land ? (
                         <>
                           <div className="flex justify-between">
-                            <span>លេខដី: {landRel.land.plot_number}</span>
+                            <span>លេខក្បាលដី: {landRel.land.plot_number}</span>
                             <span>ទំហំ: {landRel.land.size} m²</span>
                           </div>
                           <div className="flex justify-between mt-1">

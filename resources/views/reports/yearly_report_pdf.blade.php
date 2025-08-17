@@ -245,7 +245,7 @@
                         <span class="info-value">{{ $contract['seller_name'] ?? 'មិនមាន' }}</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label">🏞️ លេខដី៖</span>
+                        <span class="info-label">🏞️ លេខក្បាលដី៖</span>
                         <span class="info-value">{{ $contract['plot_number'] ?? 'មិនមាន' }}</span>
                     </div>
                     <div class="info-item">

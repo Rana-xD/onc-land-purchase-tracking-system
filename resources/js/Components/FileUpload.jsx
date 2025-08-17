@@ -172,8 +172,25 @@ export default function FileUpload({
     const handleChange = async ({ file, fileList: newFileList }) => {
         console.log('FileUpload handleChange called', { file, fileList: newFileList.length });
         
+        // Handle file replacement logic based on current file count
+        let finalFileList = [...newFileList];
+        
+        // If we have 2 files and user uploads another, replace the oldest non-display file
+        if (fileList.length === 2 && newFileList.length > 2) {
+            const displayFile = fileList.find(f => f.isDisplay);
+            const nonDisplayFile = fileList.find(f => !f.isDisplay);
+            
+            // Keep the display file and the new file, remove the non-display file
+            if (displayFile && nonDisplayFile) {
+                finalFileList = [displayFile, newFileList[newFileList.length - 1]]; // Keep display + new file
+            } else {
+                // If no display file is set, replace the first file
+                finalFileList = [fileList[1], newFileList[newFileList.length - 1]];
+            }
+        }
+        
         // Process each file to ensure it has base64 data
-        const processedFiles = await Promise.all(newFileList.map(async (fileItem) => {
+        const processedFiles = await Promise.all(finalFileList.map(async (fileItem) => {
             // If file already has base64 data, return it as is
             if (fileItem.base64) {
                 return fileItem;

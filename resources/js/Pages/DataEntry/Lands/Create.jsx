@@ -169,7 +169,11 @@ export default function Create() {
                         <Col>
                             <Space>
                                 {current < steps.length - 1 && (
-                                    <Button type="primary" onClick={next}>
+                                    <Button 
+                                        type="primary" 
+                                        onClick={next}
+                                        disabled={current === 0 && fileList.length < 2}
+                                    >
                                         បន្ទាប់
                                     </Button>
                                 )}
@@ -179,7 +183,7 @@ export default function Create() {
                                         type="primary" 
                                         onClick={handleSubmit}
                                         loading={loading}
-                                        disabled={!formData.plot_number || !formData.location || !formData.date_of_registration || !formData.size || fileList.length === 0}
+                                        disabled={!formData.title || !formData.location || fileList.length < 2}
                                     >
                                         រក្សាទុក
                                     </Button>

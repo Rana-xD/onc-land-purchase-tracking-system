@@ -56,7 +56,7 @@ export default function Archive({ auth, statistics, archived }) {
                     ...(data.sale_contracts || []).map(item => ({ ...item, type: 'sale_contracts', typeName: 'កិច្ចសន្យាលក់' }))
                 ];
             case '3': // commissions
-                return (data.commissions || []).map(item => ({ ...item, type: 'commissions', typeName: 'កម៉ីសិន' }));
+                return (data.commissions || []).map(item => ({ ...item, type: 'commissions', typeName: 'កុំស្យុង' }));
             case '4': // users
                 return [
                     ...(data.users || []).map(item => ({ ...item, type: 'users', typeName: 'អ្នកប្រើប្រាស់' })),
@@ -70,7 +70,7 @@ export default function Archive({ auth, statistics, archived }) {
                         lands: 'ដី',
                         document_creations: 'ឯកសារបង្កើត',
                         sale_contracts: 'កិច្ចសន្យាលក់',
-                        commissions: 'កម៉ីសិន',
+                        commissions: 'កុំស្យុង',
                         users: 'អ្នកប្រើប្រាស់',
                         roles: 'តួនាទី'
                     };
@@ -102,7 +102,7 @@ export default function Archive({ auth, statistics, archived }) {
         if (item.title) return item.title;
         if (item.land_title_number) return `ដីលេខ: ${item.land_title_number}`;
         if (item.contract_number) return `កិច្ចសន្យាលេខ: ${item.contract_number}`;
-        if (item.commission_type) return `កម៉ីសិន ${item.commission_type}`;
+        if (item.commission_type) return `កុំស្យុង ${item.commission_type}`;
         return `#${item.id}`;
     };
 
@@ -221,7 +221,7 @@ export default function Archive({ auth, statistics, archived }) {
                         <Col xs={24} sm={12} md={6}>
                             <Card>
                                 <Statistic
-                                    title="កម៉ីសិន"
+                                    title="កុំស្យុង"
                                     value={statistics?.commissions?.total || 0}
                                     prefix={<DollarOutlined />}
                                     valueStyle={{ color: '#faad14' }}
@@ -303,7 +303,7 @@ export default function Archive({ auth, statistics, archived }) {
                                 label: (
                                     <span>
                                         <DollarOutlined />
-                                        កម៉ីសិន
+                                        កុំស្យុង
                                     </span>
                                 ),
                                 children: (

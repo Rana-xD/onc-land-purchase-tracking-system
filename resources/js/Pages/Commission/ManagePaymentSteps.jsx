@@ -158,7 +158,7 @@ export default function ManagePaymentSteps({ commission }) {
 
     return (
         <AdminLayout>
-            <Head title={`ជំហានទូទាត់កម៉ីសិន - ${commission.recipient_name}`} />
+            <Head title={`ជំហានទូទាត់កុំស្យុង - ${commission.recipient_name}`} />
             
             <div style={{ padding: '24px' }}>
                 {/* Header */}
@@ -170,14 +170,14 @@ export default function ManagePaymentSteps({ commission }) {
                             type="text"
                         />
                         <Title level={2} style={{ margin: 0 }}>
-                            ជំហានទូទាត់កម៉ីសិន - {commission.recipient_name}
+                            ជំហានទូទាត់កុំស្យុង - {commission.recipient_name}
                         </Title>
                     </Space>
                 </div>
 
                 {/* Commission Details */}
                 <Card style={{ marginBottom: '24px' }}>
-                    <Descriptions title="ព័ត៌មានកម៉ីសិន" bordered column={2}>
+                    <Descriptions title="ព័ត៌មានកុំស្យុង" bordered column={2}>
                         <Descriptions.Item label="ឈ្មោះអ្នកទទួល">
                             <Text strong>{commission.recipient_name}</Text>
                         </Descriptions.Item>

@@ -90,8 +90,8 @@ export default function EditRole({ role, permissions, rolePermissionIds }) {
             'deposit_contracts': 'លិខិតកក់ប្រាក់',
             'sale_contracts': 'លិខិតទិញលក់',
             'reports': 'របាយការណ៍',
-            'pre_purchase_commission': 'កម៉ីសិនមុនទិញ',
-            'post_purchase_commission': 'កម៉ីសិនក្រោយទិញ',
+            'pre_purchase_commission': 'កុំស្យុងមុនទិញ',
+            'post_purchase_commission': 'កុំស្យុងក្រោយទិញ',
             'users': 'គ្រប់គ្រងអ្នកប្រើប្រាស់',
             'roles': 'គ្រប់គ្រងតួនាទី',
             'permissions': 'គ្រប់គ្រងសិទ្ធិ'

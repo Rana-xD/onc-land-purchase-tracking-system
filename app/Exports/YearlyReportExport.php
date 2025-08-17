@@ -47,7 +47,7 @@ class YearlyReportExport implements FromArray, WithTitle, WithStyles, ShouldAuto
         $data[] = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
         
         // Create month headers row (01/25, 02/25, etc.) - these will be merged
-        $monthHeaderRow = ['លេខកិច្ចសន្យា', 'លេខដីធ្លី'];
+        $monthHeaderRow = ['លេខកិច្ចសន្យា', 'លេខក្បាលដីធ្លី', 'អ្នកលក់ទី១', 'អ្នកលក់ទី២'];
         for ($month = 1; $month <= 12; $month++) {
             $monthHeaderRow[] = sprintf('%02d/25', $month); // 01/25, 02/25, etc.
             $monthHeaderRow[] = ''; // Empty cell for merging
@@ -55,7 +55,7 @@ class YearlyReportExport implements FromArray, WithTitle, WithStyles, ShouldAuto
         $data[] = $monthHeaderRow;
         
         // Create sub-headers row (Paid, Unpaid under each month)
-        $subHeaders = ['', '']; // Empty for Contract ID and Plot Number
+        $subHeaders = ['', '', '', '']; // Empty for Contract ID, Plot Number, and Seller columns
         for ($month = 1; $month <= 12; $month++) {
             $subHeaders[] = 'បានទូទាត់';
             $subHeaders[] = 'មិនទានទូទាត់';
@@ -72,9 +72,15 @@ class YearlyReportExport implements FromArray, WithTitle, WithStyles, ShouldAuto
                     $plotNumber = $contract['lands'][0]['plot_number'] ?? 'N/A';
                 }
                 
+                // Get seller information (max 2 sellers)
+                $seller1 = isset($contract['sellers'][0]) ? $contract['sellers'][0]['name'] : 'N/A';
+                $seller2 = isset($contract['sellers'][1]) ? $contract['sellers'][1]['name'] : 'N/A';
+                
                 $row = [
                     $contract['contract_id'] ?? 'N/A',
-                    $plotNumber
+                    $plotNumber,
+                    $seller1,
+                    $seller2
                 ];
                 
                 // Add monthly data (paid/unpaid for each month)
@@ -101,30 +107,32 @@ class YearlyReportExport implements FromArray, WithTitle, WithStyles, ShouldAuto
         return [
             'A' => 15,  // Contract ID
             'B' => 12,  // Plot Number
-            'C' => 12,  // Jan Paid
-            'D' => 12,  // Jan Unpaid
-            'E' => 12,  // Feb Paid
-            'F' => 12,  // Feb Unpaid
-            'G' => 12,  // Mar Paid
-            'H' => 12,  // Mar Unpaid
-            'I' => 12,  // Apr Paid
-            'J' => 12,  // Apr Unpaid
-            'K' => 12,  // May Paid
-            'L' => 12,  // May Unpaid
-            'M' => 12,  // Jun Paid
-            'N' => 12,  // Jun Unpaid
-            'O' => 12,  // Jul Paid
-            'P' => 12,  // Jul Unpaid
-            'Q' => 12,  // Aug Paid
-            'R' => 12,  // Aug Unpaid
-            'S' => 12,  // Sep Paid
-            'T' => 12,  // Sep Unpaid
-            'U' => 12,  // Oct Paid
-            'V' => 12,  // Oct Unpaid
-            'W' => 12,  // Nov Paid
-            'X' => 12,  // Nov Unpaid
-            'Y' => 12,  // Dec Paid
-            'Z' => 12,  // Dec Unpaid
+            'C' => 18,  // Seller 1
+            'D' => 18,  // Seller 2
+            'E' => 12,  // Jan Paid
+            'F' => 12,  // Jan Unpaid
+            'G' => 12,  // Feb Paid
+            'H' => 12,  // Feb Unpaid
+            'I' => 12,  // Mar Paid
+            'J' => 12,  // Mar Unpaid
+            'K' => 12,  // Apr Paid
+            'L' => 12,  // Apr Unpaid
+            'M' => 12,  // May Paid
+            'N' => 12,  // May Unpaid
+            'O' => 12,  // Jun Paid
+            'P' => 12,  // Jun Unpaid
+            'Q' => 12,  // Jul Paid
+            'R' => 12,  // Jul Unpaid
+            'S' => 12,  // Aug Paid
+            'T' => 12,  // Aug Unpaid
+            'U' => 12,  // Sep Paid
+            'V' => 12,  // Sep Unpaid
+            'W' => 12,  // Oct Paid
+            'X' => 12,  // Oct Unpaid
+            'Y' => 12,  // Nov Paid
+            'Z' => 12,  // Nov Unpaid
+            'AA' => 12, // Dec Paid
+            'AB' => 12, // Dec Unpaid
         ];
     }
 

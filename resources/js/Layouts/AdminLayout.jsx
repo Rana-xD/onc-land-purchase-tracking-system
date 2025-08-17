@@ -130,7 +130,7 @@ const AdminLayout = ({ children, title }) => {
             <WalletOutlined />
         ),
     ]),
-    getItem('គ្រប់គ្រងកម៉ីសិន', 'commission', <GiftOutlined />, [
+    getItem('គ្រប់គ្រងកុំស្យុង', 'commission', <GiftOutlined />, [
         getItem(
             <Link href={route('commissions.pre-purchase')}>មុនទិញ</Link>,
             'pre-purchase-commission',

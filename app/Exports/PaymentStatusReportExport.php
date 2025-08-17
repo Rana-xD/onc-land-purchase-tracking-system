@@ -42,14 +42,20 @@ class PaymentStatusReportExport implements FromArray, WithTitle, WithStyles, Sho
         $data[] = ['', '', '', '', '', '', ''];
         
         // Contract Details Section
-        $data[] = ['📋 ស្ថានភាពទូទាត់', '', '', '', ''];
-        $data[] = ['លេខកិច្ចសន្យា', 'លេខដីធ្លី', 'ចំនួនសរុប', 'ចំនួនបានទូទាត់', 'ចំនួនមិនទានទូទាត់'];
+        $data[] = ['📋 ស្ថានភាពទូទាត់', '', '', '', '', '', ''];
+        $data[] = ['លេខកិច្ចសន្យា', 'លេខក្បាលដីធ្លី', 'អ្នកលក់ទី១', 'អ្នកលក់ទី២', 'ចំនួនសរុប', 'ចំនួនបានទូទាត់', 'ចំនួនមិនទានទូទាត់'];
         
         if (isset($this->data['contracts']) && count($this->data['contracts']) > 0) {
             foreach ($this->data['contracts'] as $contract) {
+                // Get seller information (max 2 sellers)
+                $seller1 = isset($contract['sellers'][0]) ? $contract['sellers'][0]['name'] : 'N/A';
+                $seller2 = isset($contract['sellers'][1]) ? $contract['sellers'][1]['name'] : 'N/A';
+                
                 $data[] = [
                     $contract['contract_id'] ?? 'N/A',
                     $contract['land_plot_number'] ?? 'N/A',
+                    $seller1,
+                    $seller2,
                     '$' . number_format($contract['total_amount'] ?? 0, 2),
                     '$' . number_format($contract['paid_amount'] ?? 0, 2),
                     '$' . number_format($contract['unpaid_amount'] ?? 0, 2),
@@ -68,9 +74,11 @@ class PaymentStatusReportExport implements FromArray, WithTitle, WithStyles, Sho
         return [
             'A' => 15,  // Contract ID
             'B' => 15,  // Plot Number
-            'C' => 18,  // Total Amount
-            'D' => 18,  // Paid Amount
-            'E' => 18,  // Unpaid Amount
+            'C' => 18,  // Seller 1
+            'D' => 18,  // Seller 2
+            'E' => 18,  // Total Amount
+            'F' => 18,  // Paid Amount
+            'G' => 18,  // Unpaid Amount
         ];
     }
 

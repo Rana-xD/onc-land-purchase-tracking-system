@@ -20,27 +20,23 @@ class PaymentStatusReportService
         try {
             // Get all sale contracts with eager loading for all related data
             // Include soft-deleted related records
-            $contracts = SaleContract::with([
-                'documentCreation' => function($query) {
-                    $query->withTrashed()->with([
-                        'lands.land' => function($subQuery) {
-                            $subQuery->withTrashed();
-                        }
-                    ]);
-                },
-                'paymentSteps'
-            ])
-            ->get();
+            $saleContracts = SaleContract::with([
+                'documentCreation.lands.land',
+                'documentCreation.sellers.seller', // Load sellers through pivot table
+                'paymentSteps' => function ($query) {
+                    $query->orderBy('due_date', 'asc');
+                }
+            ])->get();
             
             // Debug: Log the number of contracts found
-            Log::info('Payment Status Report - Contracts found: ' . $contracts->count());
+            Log::info('Payment Status Report - Contracts found: ' . $saleContracts->count());
             
             // Debug: Log contract IDs
-            $contractIds = $contracts->pluck('id')->toArray();
+            $contractIds = $saleContracts->pluck('id')->toArray();
             Log::info('Payment Status Report - Contract IDs: ' . implode(', ', $contractIds));
             
             // Debug: Log each contract's payment steps
-            foreach ($contracts as $contract) {
+            foreach ($saleContracts as $contract) {
                 Log::info('Contract ID: ' . $contract->id . ', Contract Number: ' . $contract->contract_id, [
                     'has_document_creation' => $contract->documentCreation ? 'yes' : 'no',
                     'payment_steps_count' => $contract->paymentSteps->count(),
@@ -49,15 +45,15 @@ class PaymentStatusReportService
             }
             
             // Format contracts for the report
-            $formattedContracts = $this->formatContracts($contracts);
+            $formattedContracts = $this->formatContracts($saleContracts);
             Log::info('Formatted contracts count: ' . count($formattedContracts));
             
             // Calculate summary data
-            $totalAmount = $contracts->sum(function ($contract) {
+            $totalAmount = $saleContracts->sum(function ($contract) {
                 return $contract->paymentSteps->sum('amount');
             });
             
-            $totalPaid = $contracts->sum(function ($contract) {
+            $totalPaid = $saleContracts->sum(function ($contract) {
                 return $contract->paymentSteps->where('status', 'paid')->sum('amount');
             });
             
@@ -69,7 +65,7 @@ class PaymentStatusReportService
                     'total_amount' => $totalAmount,
                     'total_paid' => $totalPaid,
                     'total_unpaid' => $totalUnpaid,
-                    'contracts_count' => $contracts->count(),
+                    'contracts_count' => $saleContracts->count(),
                 ],
             ];
         } catch (\Exception $e) {
@@ -115,6 +111,18 @@ class PaymentStatusReportService
                 $landPlotNumber = $lands[0]['plot_number'];
             }
             
+            // Get sellers data (max 2 sellers)
+            $sellers = [];
+            if ($documentCreation && $documentCreation->sellers->isNotEmpty()) {
+                $sellers = $documentCreation->sellers->take(2)->map(function ($documentSeller) {
+                    $seller = $documentSeller->seller;
+                    return [
+                        'id' => $seller->id,
+                        'name' => $seller->name ?? 'N/A'
+                    ];
+                })->toArray();
+            }
+            
             // Calculate payment amounts
             $totalAmount = $contract->paymentSteps->sum('amount');
             $paidAmount = $contract->paymentSteps->where('status', 'paid')->sum('amount');
@@ -125,6 +133,7 @@ class PaymentStatusReportService
                 'contract_id' => $contract->contract_id ?? 'N/A',
                 'land_plot_number' => $landPlotNumber,
                 'lands' => $lands,
+                'sellers' => $sellers,
                 'total_amount' => $totalAmount,
                 'paid_amount' => $paidAmount,
                 'unpaid_amount' => $unpaidAmount,

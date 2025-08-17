@@ -24,11 +24,12 @@ class YearlyReportService
         // Get all sale contracts with their payment steps
         $saleContracts = SaleContract::with([
             'documentCreation',
-            'documentCreation.lands.land', // Include the actual Land model through the DocumentLand relationship
-            'documentCreation.buyers',
+            'documentCreation.lands.land',
+            'documentCreation.buyers.buyer',
+            'documentCreation.sellers.seller', // Load sellers through pivot table
             'paymentSteps' => function ($query) use ($year) {
                 $query->whereYear('due_date', $year)
-                    ->orderBy('due_date', 'asc');
+                      ->orderBy('due_date', 'asc');
             }
         ])->get();
 
@@ -80,6 +81,7 @@ class YearlyReportService
         $documentCreation = $contract->documentCreation;
         $lands = $documentCreation->lands;
         $buyers = $documentCreation->buyers;
+        $sellers = $documentCreation->sellers;
         
         if ($lands->isEmpty()) {
             return [];
@@ -126,10 +128,20 @@ class YearlyReportService
         });
 
         // Format buyers data
-        $buyersData = $buyers->map(function ($buyer) {
+        $buyersData = $buyers->map(function ($documentBuyer) {
+            $buyer = $documentBuyer->buyer;
             return [
                 'id' => $buyer->id,
                 'name' => $buyer->name
+            ];
+        });
+
+        // Format sellers data (max 2 sellers)
+        $sellersData = $sellers->take(2)->map(function ($documentSeller) {
+            $seller = $documentSeller->seller;
+            return [
+                'id' => $seller->id,
+                'name' => $seller->name
             ];
         });
 
@@ -137,6 +149,7 @@ class YearlyReportService
             'contract_id' => $contract->contract_id,
             'lands' => $landsData,
             'buyers' => $buyersData,
+            'sellers' => $sellersData,
             'monthly_data' => $monthlyData,
             'total_amount' => $totalAmount,
             'paid_amount' => $paidAmount,

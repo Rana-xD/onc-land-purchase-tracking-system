@@ -94,7 +94,7 @@ export default function PostPurchaseCommission() {
     };
 
     const handleViewSteps = (commission) => {
-        router.visit(`/commissions/post-purchase/${commission.id}/steps`);
+        router.visit(`/commissions/post-purchase/${commission.id}/payment-steps`);
     };
 
 
@@ -163,7 +163,7 @@ export default function PostPurchaseCommission() {
                             size="small"
                         />
                     </Tooltip>
-                    <Tooltip title="កែប្រែកម៉ីសិន">
+                    <Tooltip title="កែប្រែកុំស្យុង">
                         <Button
                             type="link"
                             icon={<EditOutlined />}
@@ -177,7 +177,7 @@ export default function PostPurchaseCommission() {
                         okText="យល់ព្រម"
                         cancelText="បោះបង់"
                     >
-                        <Tooltip title="លុបកម៉ីសិន">
+                        <Tooltip title="លុបកុំស្យុង">
                             <Button
                                 type="link"
                                 danger
@@ -195,13 +195,13 @@ export default function PostPurchaseCommission() {
 
     return (
         <AdminLayout>
-            <Head title="កម៉ីសិនក្រោយទិញ" />
+            <Head title="កុំស្យុងក្រោយទិញ" />
             
             <div style={{ padding: '24px' }}>
                 {/* Header */}
                 <div style={{ marginBottom: '24px', textAlign: 'center' }}>
                     <Title level={2} style={{ margin: 0 }}>
-                        កម៉ីសិនក្រោយទិញ
+                        កុំស្យុងក្រោយទិញ
                     </Title>
                 </div>
 
@@ -218,7 +218,7 @@ export default function PostPurchaseCommission() {
                             />
                         </Col>
                         <Col>
-                            <Tooltip title="បន្ថែមកម៉ីសិនក្រោយទិញថ្មី">
+                            <Tooltip title="បន្ថែមកុំស្យុងក្រោយទិញថ្មី">
                                 <Button
                                     type="primary"
                                     icon={<PlusOutlined />}

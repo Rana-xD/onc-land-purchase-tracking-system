@@ -453,7 +453,7 @@ const MonthlyReport = ({ auth }) => {
                             <Col xs={24} sm={6} md={4}>
                                 <Space>
                                     <HomeOutlined />
-                                    <Text>លេខដី</Text>
+                                    <Text>លេខក្បាលដី</Text>
                                 </Space>
                             </Col>
                             <Col xs={24} sm={12} md={6}>

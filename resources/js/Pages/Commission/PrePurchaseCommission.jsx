@@ -156,18 +156,6 @@ export default function PrePurchaseCommission() {
         }
     };
 
-    const handleMarkAsPaid = async (id) => {
-        try {
-            const response = await axios.patch(`/commissions/api/pre-purchase/${id}/mark-paid`);
-            
-            if (response.data.success) {
-                message.success(response.data.message);
-                fetchCommissions(pagination.current, searchText);
-            }
-        } catch (error) {
-            message.error(error.response?.data?.message || 'មានបញ្ហាក្នុងការបញ្ជាក់ការទូទាត់');
-        }
-    };
 
     const columns = [
         {
@@ -207,7 +195,7 @@ export default function PrePurchaseCommission() {
             align: 'center',
             render: (_, record) => (
                 <Space>
-                    <Tooltip title="កែប្រែកម៉ីសិន">
+                    <Tooltip title="កែប្រែកុំស្យុង">
                         <Button
                             type="link"
                             icon={<EditOutlined />}
@@ -221,7 +209,7 @@ export default function PrePurchaseCommission() {
                         okText="យល់ព្រម"
                         cancelText="បោះបង់"
                     >
-                        <Tooltip title="លុបកម៉ីសិន">
+                        <Tooltip title="លុបកុំស្យុង">
                             <Button
                                 type="link"
                                 danger
@@ -230,23 +218,6 @@ export default function PrePurchaseCommission() {
                             />
                         </Tooltip>
                     </Popconfirm>
-                    {record.status === 'pending' && (
-                        <Popconfirm
-                            title="តើអ្នកពិតជាចង់បញ្ជាក់ការទូទាត់មែនទេ?"
-                            onConfirm={() => handleMarkAsPaid(record.id)}
-                            okText="យល់ព្រម"
-                            cancelText="បោះបង់"
-                        >
-                            <Tooltip title="បញ្ជាក់ការទូទាត់">
-                                <Button
-                                    type="link"
-                                    icon={<CheckCircleOutlined />}
-                                    size="small"
-                                    style={{ color: '#52c41a' }}
-                                />
-                            </Tooltip>
-                        </Popconfirm>
-                    )}
                 </Space>
             ),
         },
@@ -254,13 +225,13 @@ export default function PrePurchaseCommission() {
 
     return (
         <AdminLayout>
-            <Head title="កម៉ីសិនមុនទិញ" />
+            <Head title="កុំស្យុងមុនទិញ" />
             
             <div style={{ padding: '24px' }}>
                 {/* Header */}
                 <div style={{ marginBottom: '24px', textAlign: 'center' }}>
                     <Title level={2} style={{ margin: 0 }}>
-                        កម៉ីសិនមុនទិញ
+                        កុំស្យុងមុនទិញ
                     </Title>
                 </div>
 
@@ -277,7 +248,7 @@ export default function PrePurchaseCommission() {
                             />
                         </Col>
                         <Col>
-                            <Tooltip title="បន្ថែមកម៉ីសិនមុនទិញថ្មី">
+                            <Tooltip title="បន្ថែមកុំស្យុងមុនទិញថ្មី">
                                 <Button
                                     type="primary"
                                     icon={<PlusOutlined />}
@@ -311,7 +282,7 @@ export default function PrePurchaseCommission() {
 
                 {/* Create/Edit Modal */}
                 <Modal
-                    title={editingCommission ? 'កែប្រែកម៉ីសិនមុនទិញ' : 'បន្ថែមកម៉ីសិនមុនទិញ'}
+                    title={editingCommission ? 'កែប្រែកុំស្យុងមុនទិញ' : 'បន្ថែមកុំស្យុងមុនទិញ'}
                     open={modalVisible}
                     onCancel={handleModalCancel}
                     footer={null}

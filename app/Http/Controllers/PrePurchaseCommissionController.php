@@ -81,13 +81,13 @@ class PrePurchaseCommissionController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'បានបន្ថែមកម៉ីសិនដោយជោគជ័យ',
+                'message' => 'បានបន្ថែមកុំស្យុងដោយជោគជ័យ',
                 'commission' => $commission->load('creator'),
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'មានបញ្ហាក្នុងការបន្ថែមកម៉ីសិន',
+                'message' => 'មានបញ្ហាក្នុងការបន្ថែមកុំស្យុង',
             ], 500);
         }
     }
@@ -144,13 +144,13 @@ class PrePurchaseCommissionController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'បានកែប្រែកម៉ីសិនដោយជោគជ័យ',
+                'message' => 'បានកែប្រែកុំស្យុងដោយជោគជ័យ',
                 'commission' => $commission->load('creator'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'មានបញ្ហាក្នុងការកែប្រែកម៉ីសិន',
+                'message' => 'មានបញ្ហាក្នុងការកែប្រែកុំស្យុង',
             ], 500);
         }
     }
@@ -172,12 +172,12 @@ class PrePurchaseCommissionController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'បានលុបកម៉ីសិនដោយជោគជ័យ',
+                'message' => 'បានលុបកុំស្យុងដោយជោគជ័យ',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'មានបញ្ហាក្នុងការលុបកម៉ីសិន',
+                'message' => 'មានបញ្ហាក្នុងការលុបកុំស្យុង',
             ], 500);
         }
     }
