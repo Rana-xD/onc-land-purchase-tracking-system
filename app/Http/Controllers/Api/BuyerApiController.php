@@ -250,7 +250,7 @@ class BuyerApiController extends Controller
     }
 
     /**
-     * Remove the specified buyer from storage.
+     * Remove the specified buyer from storage (soft delete).
      *
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
@@ -267,20 +267,19 @@ class BuyerApiController extends Controller
 
             $buyer = Buyer::findOrFail($id);
             
-            // Delete associated documents first
-            foreach ($buyer->documents as $document) {
-                $this->fileUploadService->deleteFile($document->file_path);
-                $document->delete();
-            }
+            // Set who deleted this record
+            $buyer->deleted_by = Auth::id();
+            $buyer->save();
             
+            // Soft delete the buyer (documents remain intact for archive)
             $buyer->delete();
 
             DB::commit();
 
-            return response()->json(['message' => 'Buyer deleted successfully']);
+            return response()->json(['message' => 'Buyer archived successfully']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => 'Failed to delete buyer: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Failed to archive buyer: ' . $e->getMessage()], 500);
         }
     }
 

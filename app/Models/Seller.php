@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Seller extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -31,6 +32,19 @@ class Seller extends Model
     protected $casts = [
         'date_of_birth' => 'date',
     ];
+
+    /**
+     * Get the lands for the seller.
+     */
+    public function lands()
+    {
+        return $this->hasMany(Land::class);
+    }
+
+    public function deletedBy()
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
+    }
 
     /**
      * Get the documents for the seller.

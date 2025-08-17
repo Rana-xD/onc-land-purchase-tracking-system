@@ -243,8 +243,9 @@ class UserApiController extends Controller
 
         $userName = $user->name;
         
-        // Soft delete the user
-        $user->delete();
+        // Use archive service to properly track deletion
+        $archiveService = app(\App\Services\ArchiveService::class);
+        $archiveService->archive('users', $user->id);
 
         return response()->json([
             'message' => 'បានលុបអ្នកប្រើប្រាស់ដោយជោគជ័យ' // User deleted successfully

@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\LandController;
 use App\Http\Controllers\Api\SellerApiController;
 use App\Http\Controllers\Api\SellerController;
 use App\Http\Controllers\Api\UserApiController;
+use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\CommissionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DataEntryController;
@@ -324,6 +325,15 @@ Route::middleware('auth')->group(function () {
             Route::post('/{id}/generate', [DocumentCreationController::class, 'generate']);
         });
     });
+});
+
+// Archive routes - with web middleware for CSRF
+Route::middleware(['auth', 'web'])->prefix('archive')->group(function () {
+    Route::get('/', [ArchiveController::class, 'index'])->name('archive.index');
+    Route::get('/type/{type}', [ArchiveController::class, 'getByType'])->name('archive.type');
+    Route::post('/restore', [ArchiveController::class, 'restore'])->name('archive.restore');
+    Route::post('/permanent-delete', [ArchiveController::class, 'permanentDelete'])->name('archive.permanent-delete');
+    Route::get('/statistics', [ArchiveController::class, 'statistics'])->name('archive.statistics');
 });
 
 require __DIR__.'/auth.php';

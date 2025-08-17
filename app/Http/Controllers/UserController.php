@@ -119,7 +119,9 @@ class UserController extends Controller
 
         $userName = $user->name;
         
-        $user->delete();
+        // Use archive service to properly track deletion
+        $archiveService = app(\App\Services\ArchiveService::class);
+        $archiveService->archive('users', $user->id);
 
         return redirect()->route('users.index')
             ->with('message', 'អ្នកប្រើប្រាស់ត្រូវបានលុបដោយជោគជ័យ'); // User deleted successfully

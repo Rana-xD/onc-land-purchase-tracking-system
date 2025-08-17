@@ -19,8 +19,15 @@ class PaymentStatusReportService
     {
         try {
             // Get all sale contracts with eager loading for all related data
+            // Include soft-deleted related records
             $contracts = SaleContract::with([
-                'documentCreation.lands.land',
+                'documentCreation' => function($query) {
+                    $query->withTrashed()->with([
+                        'lands.land' => function($subQuery) {
+                            $subQuery->withTrashed();
+                        }
+                    ]);
+                },
                 'paymentSteps'
             ])
             ->get();

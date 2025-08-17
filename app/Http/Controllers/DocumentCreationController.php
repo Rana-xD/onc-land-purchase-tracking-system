@@ -302,14 +302,9 @@ class DocumentCreationController extends Controller
             abort(403, 'Unauthorized');
         }
         
-        // Delete related records first
-        $document->buyers()->delete();
-        $document->sellers()->delete();
-        $document->lands()->delete();
-        $document->paymentSteps()->delete();
-        
-        // Delete the document itself
-        $document->delete();
+        // Use archive service to properly soft delete with relationships
+        $archiveService = app(\App\Services\ArchiveService::class);
+        $archiveService->archive('document_creations', $document->id);
         
         // Redirect based on document type
         if ($document->document_type === 'deposit_contract') {

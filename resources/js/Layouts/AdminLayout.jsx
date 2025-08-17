@@ -42,7 +42,8 @@ import {
     WalletOutlined,
     MoneyCollectOutlined,
     CreditCardOutlined,
-    GiftOutlined
+    GiftOutlined,
+    InboxOutlined
 } from '@ant-design/icons';
 import khKH from 'antd/locale/km_KH';
 
@@ -62,12 +63,22 @@ function getItem(
     };
 }
 
-const items = [
-    getItem(
-        <Link href={route('dashboard')}>ផ្ទាំងគ្រប់គ្រង</Link>, 
-        'dashboard', 
-        <DashboardOutlined />
-    ),
+const AdminLayout = ({ children, title }) => {
+    const [collapsed, setCollapsed] = useState(false);
+    const [openKeys, setOpenKeys] = useState(['create-docs']);
+    const { defaultAlgorithm, darkAlgorithm } = theme;
+    const { user } = usePage().props.auth;
+    const { url } = usePage();
+    
+    // Check if user is admin
+    const isAdmin = user?.roles?.some(role => role.name === 'Administrator' || role.name === 'admin');
+    
+    const items = [
+        getItem(
+            <Link href={route('dashboard')}>ផ្ទាំងគ្រប់គ្រង</Link>, 
+            'dashboard', 
+            <DashboardOutlined />
+        ),
     getItem('ទិន្នន័យបញ្ចូល', 'data-entry', <DatabaseOutlined />, [
         getItem(
             <Link href={route('data-entry.buyers.index')}>ព័ត៌មានអ្នកទិញ</Link>,
@@ -131,30 +142,32 @@ const items = [
             <CreditCardOutlined />
         ),
     ]),
-    getItem('គ្រប់គ្រងអ្នកប្រើប្រាស់', 'user-management', <TeamOutlined />, [
+        getItem('គ្រប់គ្រងអ្នកប្រើប្រាស់', 'user-management', <TeamOutlined />, [
+            getItem(
+                <Link href={route('users.management')}>អ្នកប្រើប្រាស់</Link>,
+                'users',
+                <UserOutlined />
+            ),
+            getItem(
+                <Link href={route('roles.index')}>តួនាទី និង សិទ្ធិ</Link>,
+                'roles-permissions',
+                <SettingOutlined />
+            ),
+        ]),
+        // Archive menu item - only visible to administrators
+        
         getItem(
-            <Link href={route('users.management')}>អ្នកប្រើប្រាស់</Link>,
-            'users',
-            <UserOutlined />
-        ),
-        getItem(
-            <Link href={route('roles.index')}>តួនាទី និង សិទ្ធិ</Link>,
-            'roles-permissions',
-            <SettingOutlined />
-        ),
-    ]),
-];
+                <Link href={route('archive.index')}>ទិន្នន័យបានលុប</Link>,
+                'archive',
+                <InboxOutlined />
+            )
+    ];
 
-export default function AdminLayout({ children, title }) {
-    const [collapsed, setCollapsed] = useState(false);
-    const [openKeys, setOpenKeys] = useState(['create-docs']);
-    const { defaultAlgorithm, darkAlgorithm } = theme;
-    const { user } = usePage().props.auth;
-    const { url } = usePage();
     
     // Determine which menu item should be selected based on the current URL
     const getSelectedKeys = () => {
         if (url.startsWith('/dashboard')) return ['dashboard'];
+        if (url.startsWith('/archive')) return ['archive'];
         if (url.startsWith('/user-management')) return ['users'];
         if (url.startsWith('/roles')) return ['roles-permissions'];
         if (url.startsWith('/data-entry/buyers')) return ['buyer-info'];
@@ -325,4 +338,6 @@ export default function AdminLayout({ children, title }) {
             </Layout>
         </ConfigProvider>
     );
-}
+};
+
+export default AdminLayout;

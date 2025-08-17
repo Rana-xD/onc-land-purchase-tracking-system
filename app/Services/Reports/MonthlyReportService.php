@@ -25,17 +25,31 @@ class MonthlyReportService
             $endDate = Carbon::parse($endDate)->endOfDay();
 
             // Get payment steps within the date range with eager loading for all related data
+            // Include soft-deleted document creations and sale contracts
             $paymentSteps = PaymentStep::with([
-                'documentCreation.saleContract',
-                'documentCreation.lands.land',
-                'documentCreation.sellers.seller',
-                'documentCreation.buyers.buyer' // Add buyers eager loading
+                'documentCreation' => function($query) {
+                    $query->withTrashed()->with([
+                        'saleContract' => function($subQuery) {
+                            $subQuery->withTrashed();
+                        },
+                        'lands.land' => function($subQuery) {
+                            $subQuery->withTrashed();
+                        },
+                        'sellers.seller' => function($subQuery) {
+                            $subQuery->withTrashed();
+                        },
+                        'buyers.buyer' => function($subQuery) {
+                            $subQuery->withTrashed();
+                        }
+                    ]);
+                }
             ])
             ->whereBetween('due_date', [$startDate, $endDate])
             ->orderBy('due_date')
             ->get();
             
-            // Filter out payment steps that don't have a valid document creation
+            // Filter out payment steps that don't have a valid document creation or sale contract
+            // But only filter if they are actually null, not just soft-deleted
             $paymentSteps = $paymentSteps->filter(function ($step) {
                 return $step->documentCreation !== null && $step->documentCreation->saleContract !== null;
             });

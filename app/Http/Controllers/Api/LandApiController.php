@@ -248,20 +248,19 @@ class LandApiController extends Controller
 
             $land = Land::findOrFail($id);
             
-            // Delete associated documents first
-            foreach ($land->documents as $document) {
-                $this->fileUploadService->deleteFile($document->file_path);
-                $document->delete();
-            }
+            // Set who deleted this record
+            $land->deleted_by = Auth::id();
+            $land->save();
             
+            // Soft delete the land (documents remain intact for archive)
             $land->delete();
 
             DB::commit();
 
-            return response()->json(['message' => 'Land deleted successfully']);
+            return response()->json(['message' => 'Land archived successfully']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => 'Failed to delete land: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Failed to archive land: ' . $e->getMessage()], 500);
         }
     }
 

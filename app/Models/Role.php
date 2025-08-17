@@ -99,4 +99,9 @@ class Role extends Model
 
         return $this;
     }
+
+    public function deletedBy()
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
+    }
 }

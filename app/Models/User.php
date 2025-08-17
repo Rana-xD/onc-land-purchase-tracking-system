@@ -122,4 +122,9 @@ class User extends Authenticatable
     {
         return $this->hasRole('staff');
     }
+
+    public function deletedBy()
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
+    }
 }

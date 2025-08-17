@@ -235,20 +235,19 @@ class SellerApiController extends Controller
 
             $seller = Seller::findOrFail($id);
             
-            // Delete associated documents first
-            foreach ($seller->documents as $document) {
-                $this->fileUploadService->deleteFile($document->file_path);
-                $document->delete();
-            }
+            // Set who deleted this record
+            $seller->deleted_by = Auth::id();
+            $seller->save();
             
+            // Soft delete the seller (documents remain intact for archive)
             $seller->delete();
 
             DB::commit();
 
-            return response()->json(['message' => 'Seller deleted successfully']);
+            return response()->json(['message' => 'Seller archived successfully']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => 'Failed to delete seller: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Failed to archive seller: ' . $e->getMessage()], 500);
         }
     }
 
