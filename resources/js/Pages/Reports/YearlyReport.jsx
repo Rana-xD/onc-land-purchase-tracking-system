@@ -22,6 +22,7 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import moment from 'moment';
 import YearlyReportHTML from '@/Components/PDF/YearlyReportHTML';
 import useHTMLToPDF from '@/Hooks/useHTMLToPDF';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const { Title, Text } = Typography;
 
@@ -80,6 +81,7 @@ const YearlyReport = ({ auth }) => {
     const [reportData, setReportData] = useState(null);
     const [error, setError] = useState(null);
     const [selectedYear, setSelectedYear] = useState(moment().year());
+    const [isAllYears, setIsAllYears] = useState(false);
     
     // HTML-to-PDF hook
     const { generatePDFFromComponent } = useHTMLToPDF();
@@ -88,6 +90,77 @@ const YearlyReport = ({ auth }) => {
     const formatCurrency = (amount) => {
         if (amount === null || amount === undefined) return '$0.00';
         return '$' + new Intl.NumberFormat('en-US').format(amount);
+    };
+
+    // Prepare chart data
+    const prepareChartData = () => {
+        if (!reportData || !reportData.contracts || reportData.contracts.length === 0) {
+            return [];
+        }
+
+        const chartData = [];
+        
+        if (isAllYears) {
+            // Prepare yearly chart data
+            const currentYear = moment().year();
+            for (let year = currentYear - 6; year <= currentYear + 6; year++) {
+                let totalPaid = 0;
+                let totalUnpaid = 0;
+                
+                reportData.contracts.forEach(contract => {
+                    if (contract.time_data && contract.time_data[year]) {
+                        totalPaid += contract.time_data[year].paid || 0;
+                        totalUnpaid += contract.time_data[year].unpaid || 0;
+                    }
+                });
+                
+                chartData.push({
+                    period: year.toString(),
+                    paid: totalPaid,
+                    unpaid: totalUnpaid,
+                    total: totalPaid + totalUnpaid
+                });
+            }
+        } else {
+            // Prepare monthly chart data
+            for (let month = 1; month <= 12; month++) {
+                let totalPaid = 0;
+                let totalUnpaid = 0;
+                
+                reportData.contracts.forEach(contract => {
+                    if (contract.time_data && contract.time_data[month]) {
+                        totalPaid += contract.time_data[month].paid || 0;
+                        totalUnpaid += contract.time_data[month].unpaid || 0;
+                    }
+                });
+                
+                chartData.push({
+                    period: khmerMonths[month] || month.toString(),
+                    paid: totalPaid,
+                    unpaid: totalUnpaid,
+                    total: totalPaid + totalUnpaid
+                });
+            }
+        }
+        
+        return chartData;
+    };
+
+    // Custom tooltip formatter for chart
+    const CustomTooltip = ({ active, payload, label }) => {
+        if (active && payload && payload.length) {
+            return (
+                <div className="bg-white p-3 border border-gray-300 rounded shadow-lg">
+                    <p className="font-semibold">{`${isAllYears ? 'ឆ្នាំ' : 'ខែ'}: ${label}`}</p>
+                    {payload.map((entry, index) => (
+                        <p key={index} style={{ color: entry.color }}>
+                            {`${entry.name}: ${formatCurrency(entry.value)}`}
+                        </p>
+                    ))}
+                </div>
+            );
+        }
+        return null;
     };
 
     // Fetch report data
@@ -187,45 +260,81 @@ const YearlyReport = ({ auth }) => {
     // Handle year change
     const handleYearChange = (year) => {
         setSelectedYear(year);
+        setIsAllYears(year === 'all');
     };
     
-    // Generate year options for the select dropdown
+    // Generate year options for the select dropdown (12 years range + ALL option)
     const yearOptions = [];
     const currentYear = moment().year();
-    for (let i = currentYear - 5; i <= currentYear; i++) {
+    
+    // Add ALL option
+    yearOptions.push({ value: 'all', label: 'បង្ហាញទាំងអស់' });
+    
+    // Add 12 years range (6 behind + 6 ahead)
+    for (let i = currentYear - 6; i <= currentYear + 6; i++) {
         yearOptions.push({ value: i, label: i });
     }
 
-    // Generate table columns for months
-    const generateMonthColumns = () => {
-        const monthColumns = [];
+    // Generate table columns for months or years based on selection
+    const generateTimeColumns = () => {
+        const timeColumns = [];
         
-        for (let month = 1; month <= 12; month++) {
-            monthColumns.push({
-                title: `${month.toString().padStart(2, '0')}/${selectedYear.toString().slice(-2)}`,
-                align: 'center',
-                children: [
-                    {
-                        title: 'បានបង់',
-                        dataIndex: ['monthly_data', month, 'paid'],
-                        key: `month_${month}_paid`,
-                        width: 100,
-                        align: 'center', // Center the header text
-                        render: (text) => <Text style={{ color: '#52c41a', display: 'block', textAlign: 'right' }}>{formatCurrency(text || 0)}</Text>,
-                    },
-                    {
-                        title: 'មិនទាន់បង់',
-                        dataIndex: ['monthly_data', month, 'unpaid'],
-                        key: `month_${month}_unpaid`,
-                        width: 100,
-                        align: 'center', // Center the header text
-                        render: (text) => <Text style={{ color: '#f5222d', display: 'block', textAlign: 'right' }}>{formatCurrency(text || 0)}</Text>,
-                    }
-                ]
-            });
+        if (isAllYears) {
+            // Generate yearly columns
+            const currentYear = moment().year();
+            for (let year = currentYear - 6; year <= currentYear + 6; year++) {
+                timeColumns.push({
+                    title: year.toString(),
+                    align: 'center',
+                    children: [
+                        {
+                            title: 'បានបង់',
+                            dataIndex: ['time_data', year, 'paid'],
+                            key: `year_${year}_paid`,
+                            width: 100,
+                            align: 'center',
+                            render: (text) => <Text style={{ color: '#52c41a', display: 'block', textAlign: 'right' }}>{formatCurrency(text || 0)}</Text>,
+                        },
+                        {
+                            title: 'មិនទាន់បង់',
+                            dataIndex: ['time_data', year, 'unpaid'],
+                            key: `year_${year}_unpaid`,
+                            width: 100,
+                            align: 'center',
+                            render: (text) => <Text style={{ color: '#f5222d', display: 'block', textAlign: 'right' }}>{formatCurrency(text || 0)}</Text>,
+                        }
+                    ]
+                });
+            }
+        } else {
+            // Generate monthly columns
+            for (let month = 1; month <= 12; month++) {
+                timeColumns.push({
+                    title: `${month.toString().padStart(2, '0')}/${selectedYear.toString().slice(-2)}`,
+                    align: 'center',
+                    children: [
+                        {
+                            title: 'បានបង់',
+                            dataIndex: ['time_data', month, 'paid'],
+                            key: `month_${month}_paid`,
+                            width: 100,
+                            align: 'center',
+                            render: (text) => <Text style={{ color: '#52c41a', display: 'block', textAlign: 'right' }}>{formatCurrency(text || 0)}</Text>,
+                        },
+                        {
+                            title: 'មិនទាន់បង់',
+                            dataIndex: ['time_data', month, 'unpaid'],
+                            key: `month_${month}_unpaid`,
+                            width: 100,
+                            align: 'center',
+                            render: (text) => <Text style={{ color: '#f5222d', display: 'block', textAlign: 'right' }}>{formatCurrency(text || 0)}</Text>,
+                        }
+                    ]
+                });
+            }
         }
         
-        return monthColumns;
+        return timeColumns;
     };
     
     // Render function for lands column
@@ -282,7 +391,7 @@ const YearlyReport = ({ auth }) => {
                 return <Text>{sellerNames}</Text>;
             }
         },
-        ...generateMonthColumns(),
+        ...generateTimeColumns(),
         {
             title: 'ទឹកប្រាក់សរុប',
             align: 'center',
@@ -339,19 +448,44 @@ const YearlyReport = ({ auth }) => {
             monthly_data: {}
         };
 
-        // Initialize monthly summary data
-        for (let month = 1; month <= 12; month++) {
-            summaryRow.monthly_data[month] = {
-                paid: 0,
-                unpaid: 0
-            };
+        // Initialize time summary data based on selection
+        if (isAllYears) {
+            const currentYear = moment().year();
+            for (let year = currentYear - 6; year <= currentYear + 6; year++) {
+                summaryRow.monthly_data[year] = {
+                    paid: 0,
+                    unpaid: 0
+                };
+            }
+        } else {
+            for (let month = 1; month <= 12; month++) {
+                summaryRow.monthly_data[month] = {
+                    paid: 0,
+                    unpaid: 0
+                };
+            }
         }
 
-        // Aggregate monthly data across all contracts
+        // Aggregate time data across all contracts
         reportData.contracts.forEach(contract => {
-            for (let month = 1; month <= 12; month++) {
-                summaryRow.monthly_data[month].paid += contract.monthly_data[month].paid;
-                summaryRow.monthly_data[month].unpaid += contract.monthly_data[month].unpaid;
+            if (isAllYears) {
+                // Aggregate yearly data
+                const currentYear = moment().year();
+                for (let year = currentYear - 6; year <= currentYear + 6; year++) {
+                    if (contract.time_data && contract.time_data[year]) {
+                        summaryRow.monthly_data[year] = summaryRow.monthly_data[year] || { paid: 0, unpaid: 0 };
+                        summaryRow.monthly_data[year].paid += contract.time_data[year].paid;
+                        summaryRow.monthly_data[year].unpaid += contract.time_data[year].unpaid;
+                    }
+                }
+            } else {
+                // Aggregate monthly data
+                for (let month = 1; month <= 12; month++) {
+                    if (contract.time_data && contract.time_data[month]) {
+                        summaryRow.monthly_data[month].paid += contract.time_data[month].paid;
+                        summaryRow.monthly_data[month].unpaid += contract.time_data[month].unpaid;
+                    }
+                }
             }
         });
 
@@ -411,7 +545,61 @@ const YearlyReport = ({ auth }) => {
                 ) : (
                     <div className="yearly-report-container">
                         {reportData && reportData.contracts && reportData.contracts.length > 0 ? (
-                            <Table
+                            <>
+                                {/* Line Chart Section */}
+                                <Card className="mb-6" title={`📊 ${isAllYears ? 'ទិន្នន័យតាមឆ្នាំ' : `ទិន្នន័យប្រចាំខែឆ្នាំ ${selectedYear}`}`}>
+                                    <ResponsiveContainer width="100%" height={400}>
+                                        <LineChart
+                                            data={prepareChartData()}
+                                            margin={{
+                                                top: 20,
+                                                right: 30,
+                                                left: 20,
+                                                bottom: 20,
+                                            }}
+                                        >
+                                            <CartesianGrid strokeDasharray="3 3" />
+                                            <XAxis 
+                                                dataKey="period" 
+                                                tick={{ fontSize: 12 }}
+                                                angle={isAllYears ? 0 : -45}
+                                                textAnchor={isAllYears ? 'middle' : 'end'}
+                                                height={isAllYears ? 30 : 60}
+                                            />
+                                            <YAxis 
+                                                tick={{ fontSize: 12 }}
+                                                tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`}
+                                            />
+                                            <RechartsTooltip content={<CustomTooltip />} />
+                                            <Legend 
+                                                wrapperStyle={{ paddingTop: '20px' }}
+                                                iconType="line"
+                                            />
+                                            <Line 
+                                                type="monotone" 
+                                                dataKey="paid" 
+                                                stroke="#52c41a" 
+                                                strokeWidth={3}
+                                                name="បានបង់"
+                                                dot={{ fill: '#52c41a', strokeWidth: 2, r: 4 }}
+                                                activeDot={{ r: 6, stroke: '#52c41a', strokeWidth: 2 }}
+                                            />
+                                            <Line 
+                                                type="monotone" 
+                                                dataKey="unpaid" 
+                                                stroke="#f5222d" 
+                                                strokeWidth={3}
+                                                name="មិនទាន់បង់"
+                                                dot={{ fill: '#f5222d', strokeWidth: 2, r: 4 }}
+                                                activeDot={{ r: 6, stroke: '#f5222d', strokeWidth: 2 }}
+                                            />
+                                        </LineChart>
+                                    </ResponsiveContainer>
+                                </Card>
+
+                                {/* Table Section */}
+                                <Card title={`📋 ${isAllYears ? 'តារាងទិន្នន័យតាមឆ្នាំ' : `តារាងទិន្នន័យប្រចាំខែឆ្នាំ ${selectedYear}`}`}>
+                                    <Table
                                 dataSource={reportData.contracts}
                                 columns={columns}
                                 rowKey="contract_id"
@@ -441,13 +629,13 @@ const YearlyReport = ({ auth }) => {
                                                 <Table.Summary.Cell index={0} fixed="left">{summaryRow.contract_id}</Table.Summary.Cell>
                                                 <Table.Summary.Cell index={1} fixed="left">{summaryRow.lands}</Table.Summary.Cell>
                                                 <Table.Summary.Cell index={2} fixed="left">-</Table.Summary.Cell>
-                                                {Object.keys(summaryRow.monthly_data).map(month => (
-                                                    <React.Fragment key={`summary_${month}`}>
-                                                        <Table.Summary.Cell index={parseInt(month) * 2} align="right">
-                                                            <Text style={{ color: '#52c41a', fontWeight: 'bold' }}>{formatCurrency(summaryRow.monthly_data[month].paid)}</Text>
+                                                {Object.keys(summaryRow.monthly_data).map(timeKey => (
+                                                    <React.Fragment key={`summary_${timeKey}`}>
+                                                        <Table.Summary.Cell index={parseInt(timeKey) * 2} align="right">
+                                                            <Text style={{ color: '#52c41a', fontWeight: 'bold' }}>{formatCurrency(summaryRow.monthly_data[timeKey].paid)}</Text>
                                                         </Table.Summary.Cell>
-                                                        <Table.Summary.Cell index={parseInt(month) * 2 + 1} align="right">
-                                                            <Text style={{ color: '#f5222d', fontWeight: 'bold' }}>{formatCurrency(summaryRow.monthly_data[month].unpaid)}</Text>
+                                                        <Table.Summary.Cell index={parseInt(timeKey) * 2 + 1} align="right">
+                                                            <Text style={{ color: '#f5222d', fontWeight: 'bold' }}>{formatCurrency(summaryRow.monthly_data[timeKey].unpaid)}</Text>
                                                         </Table.Summary.Cell>
                                                     </React.Fragment>
                                                 ))}
@@ -464,7 +652,9 @@ const YearlyReport = ({ auth }) => {
                                         </Table.Summary>
                                     ) : null;
                                 }}
-                            />
+                                    />
+                                </Card>
+                            </>
                         ) : (
                             <Empty
                                 description={
