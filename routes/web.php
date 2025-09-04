@@ -86,6 +86,8 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Test/ContractDocumentUploadTest');
     });
     
+    Route::get('/test-khmer-pdf', [\App\Http\Controllers\DocumentPreviewController::class, 'testKhmerPDF']);
+    
     // Document Creation routes - Web UI routes (Inertia)
     Route::get('/documents', [\App\Http\Controllers\DocumentCreationController::class, 'index'])->name('documents.index');
     Route::get('/documents/{contract_id}', [ReportController::class, 'documentReportByContract'])->name('documents.show');
@@ -154,6 +156,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}/select-lands', [\App\Http\Controllers\DocumentCreationController::class, 'selectLands'])->defaults('type', 'deposit_contract')->name('select-lands');
         Route::get('/{id}/deposit-config', [\App\Http\Controllers\DocumentCreationController::class, 'depositConfig'])->name('deposit-config');
         Route::get('/{id}/success', [\App\Http\Controllers\DocumentCreationController::class, 'success'])->defaults('type', 'deposit_contract')->name('success');
+        Route::get('/{id}/document-edit', [\App\Http\Controllers\DocumentPreviewController::class, 'show'])->name('document-edit');
         Route::get('/{id}/download', [\App\Http\Controllers\DocumentCreationController::class, 'download'])->defaults('type', 'deposit_contract')->name('download');
         Route::delete('/{id}', [\App\Http\Controllers\DocumentCreationController::class, 'destroy'])->defaults('type', 'deposit_contract')->name('destroy');
         Route::get('/{id}', [\App\Http\Controllers\DocumentCreationController::class, 'show'])->defaults('type', 'deposit_contract')->name('show');
@@ -168,6 +171,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}/select-lands', [\App\Http\Controllers\DocumentCreationController::class, 'selectLands'])->defaults('type', 'sale_contract')->name('select-lands');
         Route::get('/{id}/payment-steps', [\App\Http\Controllers\DocumentCreationController::class, 'paymentSteps'])->name('payment-steps');
         Route::get('/{id}/success', [\App\Http\Controllers\DocumentCreationController::class, 'success'])->defaults('type', 'sale_contract')->name('success');
+        Route::get('/{id}/document-edit', [\App\Http\Controllers\DocumentPreviewController::class, 'show'])->name('document-edit');
         Route::get('/{id}/download', [\App\Http\Controllers\DocumentCreationController::class, 'download'])->defaults('type', 'sale_contract')->name('download');
         Route::delete('/{id}', [\App\Http\Controllers\DocumentCreationController::class, 'destroy'])->defaults('type', 'sale_contract')->name('destroy');
         Route::get('/{id}', [\App\Http\Controllers\DocumentCreationController::class, 'show'])->defaults('type', 'sale_contract')->name('show');
@@ -312,6 +316,8 @@ Route::middleware('auth')->group(function () {
             Route::post('/{id}/select-lands', [DocumentCreationController::class, 'selectLands']);
             Route::post('/{id}/deposit-config', [DocumentCreationController::class, 'depositConfig']);
             Route::post('/{id}/generate', [DocumentCreationController::class, 'generate']);
+            Route::post('/{id}/save-document', [\App\Http\Controllers\DocumentPreviewController::class, 'save']);
+            Route::match(['GET', 'POST'], '/{id}/generate-pdf', [\App\Http\Controllers\DocumentPreviewController::class, 'generatePDF']);
         });
         
         // Sale Contract API endpoints
@@ -323,6 +329,8 @@ Route::middleware('auth')->group(function () {
             Route::post('/{id}/select-lands', [DocumentCreationController::class, 'selectLands']);
             Route::post('/{id}/payment-steps', [DocumentCreationController::class, 'paymentSteps']);
             Route::post('/{id}/generate', [DocumentCreationController::class, 'generate']);
+            Route::post('/{id}/save-document', [\App\Http\Controllers\DocumentPreviewController::class, 'save']);
+            Route::match(['GET', 'POST'], '/{id}/generate-pdf', [\App\Http\Controllers\DocumentPreviewController::class, 'generatePDF']);
         });
     });
 });
@@ -335,5 +343,6 @@ Route::middleware(['auth', 'web'])->prefix('archive')->group(function () {
     Route::post('/permanent-delete', [ArchiveController::class, 'permanentDelete'])->name('archive.permanent-delete');
     Route::get('/statistics', [ArchiveController::class, 'statistics'])->name('archive.statistics');
 });
+
 
 require __DIR__.'/auth.php';

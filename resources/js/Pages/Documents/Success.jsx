@@ -32,13 +32,15 @@ export default function Success({ document }) {
             subTitle="កិច្ចសន្យារបស់អ្នកត្រូវបានបង្កើតដោយជោគជ័យ"
             extra={[
               <Button 
-                key="download" 
+                key="edit-document" 
                 type="primary" 
                 icon={<FilePdfOutlined />}
-                href={`/documents/${document.id}/download`}
-                target="_blank"
+                href={document.document_type === 'deposit_contract' 
+                  ? route('deposit-contracts.document-edit', { id: document.id })
+                  : route('sale-contracts.document-edit', { id: document.id })
+                }
               >
-                ទាញយកកិច្ចសន្យា PDF
+                បង្កើតកិច្ចសន្យា PDF
               </Button>,
               <Button 
                 key="create-new" 

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>កិច្ចសន្យាកក់ប្រាក់ទិញដី</title>
+    <style>
+        {{UNIFIED_STYLES}}
+    </style>
+</head>
+<body>
+    <div class="document-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="kingdom-title">ព្រះរាជាណាចក្រកម្ពុជា</div>
+            <div class="nation-religion-king">ជាតិ សាសនា ព្រះមហាក្សត្រ</div>
+            <div class="contract-title">កិច្ចសន្យាកក់ប្រាក់</div>
+        </div>
+
+        <!-- Introduction -->
+        <div class="section">
+            <p style="text-align: justify; margin-bottom: 20px;">
+                យើងខ្ញុំជាភាគីទាំងពីរ បានព្រមព្រៀងគ្នាធ្វើកិច្ចសន្យាកក់ប្រាក់ទិញដីនេះ ដោយមានលក្ខខណ្ឌ និងកតិកាសន្យាដូចខាងក្រោម៖
+            </p>
+        </div>
+
+        <!-- Seller Information -->
+        <div class="section">
+            <div class="section-title">🏢 ភាគីទី១ (អ្នកលក់)</div>
+            <div class="party-info">
+                <div class="party-title">ព័ត៌មានអ្នកលក់</div>
+                <div class="info-row">
+                    <span class="info-label">ឈ្មោះ:</span>
+                    <span class="info-value">{{seller_name}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">អាយុ:</span>
+                    <span class="info-value">{{seller_age}} ឆ្នាំ</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">លេខអត្តសញ្ញាណប័ណ្ណ:</span>
+                    <span class="info-value">{{seller_id_number}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">អាសយដ្ឋាន:</span>
+                    <span class="info-value">{{seller_address}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">លេខទូរស័ព្ទ:</span>
+                    <span class="info-value">{{seller_phone}}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buyer Information -->
+        <div class="section">
+            <div class="section-title">👤 ភាគីទី២ (អ្នកទិញ)</div>
+            <div class="party-info">
+                <div class="party-title">ព័ត៌មានអ្នកទិញ</div>
+                <div class="info-row">
+                    <span class="info-label">ឈ្មោះ:</span>
+                    <span class="info-value">{{buyer_name}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">អាយុ:</span>
+                    <span class="info-value">{{buyer_age}} ឆ្នាំ</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">លេខអត្តសញ្ញាណប័ណ្ណ:</span>
+                    <span class="info-value">{{buyer_id_number}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">អាសយដ្ឋាន:</span>
+                    <span class="info-value">{{buyer_address}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">លេខទូរស័ព្ទ:</span>
+                    <span class="info-value">{{buyer_phone}}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Land Information -->
+        <div class="section">
+            <div class="section-title">🏞️ ព័ត៌មានដី</div>
+            <div class="land-details">
+                <div class="info-row">
+                    <span class="info-label">ទីតាំងដី:</span>
+                    <span class="info-value">{{land_location}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">ទំហំដី:</span>
+                    <span class="info-value">{{land_size}} ម៉ែត្រការ៉េ</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">លេខក្បាលដី:</span>
+                    <span class="info-value">{{land_plot_number}}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">តម្លៃដីសរុប:</span>
+                    <span class="info-value highlight"><strong>${{total_amount}}</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Terms -->
+        <div class="section">
+            <div class="section-title">💰 លក្ខខណ្ឌបង់ប្រាក់</div>
+            <div class="info-row">
+                <span class="info-label">ចំនួនប្រាក់កក់:</span>
+                <span class="info-value highlight"><strong>${{deposit_amount}}</strong></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">រយៈពេលកក់ប្រាក់:</span>
+                <span class="info-value">{{deposit_months}} ខែ</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">ប្រាក់នៅសល់:</span>
+                <span class="info-value">${{remaining_amount}}</span>
+            </div>
+        </div>
+
+        <!-- Payment Schedule -->
+        <div class="section">
+            <div class="section-title">📊 កាលវិភាគបង់ប្រាក់</div>
+            {{payment_schedule_table}}
+        </div>
+
+        <!-- Terms and Conditions -->
+        <div class="section">
+            <div class="terms-section">
+                <div class="terms-title">📋 លក្ខខណ្ឌ និងកតិកាសន្យា</div>
+                
+                <div class="term-item">
+                    <strong>មាត្រា ១:</strong> អ្នកទិញត្រូវបង់ប្រាក់កក់ចំនួន ${{deposit_amount}} ក្នុងថ្ងៃចុះកិច្ចសន្យានេះ។
+                </div>
+                
+                <div class="term-item">
+                    <strong>មាត្រា ២:</strong> រយៈពេលកក់ប្រាក់គឺ {{deposit_months}} ខែ គិតចាប់ពីថ្ងៃចុះកិច្ចសន្យា។
+                </div>
+                
+                <div class="term-item">
+                    <strong>មាត្រា ៣:</strong> ប្រសិនបើអ្នកទិញមិនអាចបង់ប្រាក់នៅសល់បានទាន់ពេលកំណត់ អ្នកលក់មានសិទ្ធិរក្សាប្រាក់កក់ទាំងអស់។
+                </div>
+                
+                <div class="term-item">
+                    <strong>មាត្រា ៤:</strong> ប្រសិនបើអ្នកលក់មិនអាចផ្ទេរកម្មសិទ្ធិដីបានទាន់ពេលកំណត់ អ្នកលក់ត្រូវសងប្រាក់កក់ទ្វេដង។
+                </div>
+                
+                <div class="term-item">
+                    <strong>មាត្រា ៥:</strong> ដីនេះត្រូវតែមានឯកសារច្បាប់ត្រឹមត្រូវ និងគ្មានវិវាទណាមួយ។
+                </div>
+                
+                <div class="term-item">
+                    <strong>មាត្រា ៦:</strong> កិច្ចសន្យានេះចូលជាធរមានចាប់ពីថ្ងៃចុះហត្ថលេខារបស់ភាគីទាំងពីរ។
+                </div>
+                
+                <div class="term-item">
+                    <strong>មាត្រា ៧:</strong> ប្រសិនបើមានវិវាទ ភាគីទាំងពីរព្រមព្រៀងគ្នាដោះស្រាយតាមផ្លូវច្បាប់។
+                </div>
+            </div>
+        </div>
+
+        <!-- Witnesses -->
+        <div class="section">
+            <div class="section-title">👥 សាក្សី</div>
+            <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+                <div style="flex: 1; margin-right: 20px;">
+                    <div class="info-row">
+                        <span class="info-label">សាក្សីទី១:</span>
+                        <span class="info-value">{{witness_1}}</span>
+                    </div>
+                </div>
+                <div style="flex: 1;">
+                    <div class="info-row">
+                        <span class="info-label">សាក្សីទី២:</span>
+                        <span class="info-value">{{witness_2}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signatures -->
+        <div class="signatures">
+            <div class="signature-block">
+                <div class="signature-title">ហត្ថលេខាអ្នកលក់</div>
+                <div class="signature-line"></div>
+                <div>{{seller_name}}</div>
+            </div>
+            
+            <div class="signature-block">
+                <div class="signature-title">ហត្ថលេខាអ្នកទិញ</div>
+                <div class="signature-line"></div>
+                <div>{{buyer_name}}</div>
+            </div>
+            
+            <div class="signature-block">
+                <div class="signature-title">ហត្ថលេខាសាក្សីទី១</div>
+                <div class="signature-line"></div>
+                <div>{{witness_1}}</div>
+            </div>
+            
+            <div class="signature-block">
+                <div class="signature-title">ហត្ថលេខាសាក្សីទី២</div>
+                <div class="signature-line"></div>
+                <div>{{witness_2}}</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

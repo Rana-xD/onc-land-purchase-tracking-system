@@ -25,6 +25,7 @@ class DocumentCreation extends Model
         'deposit_amount',
         'deposit_months',
         'document_code',
+        'document_content',
     ];
 
     /**

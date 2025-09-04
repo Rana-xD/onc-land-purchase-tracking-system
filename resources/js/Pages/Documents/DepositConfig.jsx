@@ -36,9 +36,6 @@ export default function DepositConfig({ document }) {
         deposit_months: depositMonths
       });
       
-      // Then generate the document
-      await axios.post(`/api/${apiPrefix}/${document.id}/generate`);
-      
       // Redirect to success page
       window.location.href = route('deposit-contracts.success', { id: document.id });
     } catch (error) {
