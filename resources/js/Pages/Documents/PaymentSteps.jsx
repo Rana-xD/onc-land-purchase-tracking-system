@@ -5,6 +5,7 @@ import { UserOutlined, TeamOutlined, EnvironmentOutlined, DollarOutlined, FileOu
 import AdminLayout from '@/Layouts/AdminLayout';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { formatKhmerDate } from '../../Utils/khmerDate';
 
 const { Title, Text } = Typography;
 
@@ -13,7 +14,7 @@ export default function PaymentSteps({ document, paymentSteps }) {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const [steps, setSteps] = useState(paymentSteps || [
-    { step_number: 1, amount: '', due_date: null, payment_time_description: '' }
+    { step_number: 1, amount: '', due_date: null, payment_time_description: '', percentage: '' }
   ]);
   const [totalPayment, setTotalPayment] = useState(0);
   const [hasEmptyFields, setHasEmptyFields] = useState(true);
@@ -40,7 +41,7 @@ export default function PaymentSteps({ document, paymentSteps }) {
   
   const addStep = () => {
     const newStepNumber = steps.length + 1;
-    setSteps([...steps, { step_number: newStepNumber, amount: '', due_date: null, payment_time_description: '' }]);
+    setSteps([...steps, { step_number: newStepNumber, amount: '', due_date: null, payment_time_description: '', percentage: '' }]);
   };
   
   const removeStep = (index) => {
@@ -63,6 +64,23 @@ export default function PaymentSteps({ document, paymentSteps }) {
   const updateStepAmount = (index, value) => {
     const newSteps = [...steps];
     newSteps[index].amount = value;
+    // Clear percentage when amount is manually entered
+    newSteps[index].percentage = '';
+    setSteps(newSteps);
+  };
+
+  const updateStepPercentage = (index, value) => {
+    const newSteps = [...steps];
+    newSteps[index].percentage = value;
+    
+    // Calculate amount based on percentage of total land price
+    if (value && document.total_land_price) {
+      const calculatedAmount = (parseFloat(value) / 100) * parseFloat(document.total_land_price);
+      newSteps[index].amount = calculatedAmount.toFixed(2);
+    } else {
+      newSteps[index].amount = '';
+    }
+    
     setSteps(newSteps);
   };
   
@@ -200,7 +218,22 @@ export default function PaymentSteps({ document, paymentSteps }) {
                     />
                   </Form.Item>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Form.Item
+                      label="ភាគរយ (Percentage %)"
+                    >
+                      <InputNumber
+                        style={{ width: '100%' }}
+                        min={0}
+                        max={100}
+                        precision={2}
+                        suffix="%"
+                        value={step.percentage}
+                        onChange={(value) => updateStepPercentage(index, value)}
+                        placeholder="បញ្ចូលភាគរយ"
+                      />
+                    </Form.Item>
+                    
                     <Form.Item
                       label="ចំនួនទឹកប្រាក់ (Amount)"
                       required
@@ -225,10 +258,16 @@ export default function PaymentSteps({ document, paymentSteps }) {
                         value={step.due_date ? dayjs(step.due_date) : null}
                         onChange={(date) => updateStepDate(index, date)}
                         placeholder="ជ្រើសរើសកាលបរិច្ឆេទ"
-                        format="DD/MM/YYYY"
+                        format={(value) => formatKhmerDate(value)}
                       />
                     </Form.Item>
                   </div>
+                  
+                  {step.percentage && (
+                    <div className="text-sm text-gray-600 bg-blue-50 p-2 rounded">
+                      គណនា: {step.percentage}% × ${parseFloat(document.total_land_price).toLocaleString()} = ${parseFloat(step.amount || 0).toLocaleString()}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

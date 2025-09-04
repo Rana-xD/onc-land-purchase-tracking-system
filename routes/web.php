@@ -16,6 +16,9 @@ use App\Http\Controllers\DataEntryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Reports\ContractDocumentController;
+use App\Http\Controllers\ContractReportController;
+use App\Http\Controllers\MonthlyReportController;
+use App\Http\Controllers\PaymentStatusReportController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
@@ -64,6 +67,13 @@ Route::middleware('auth')->group(function () {
     Route::middleware('auth')->get('/user-management', function () {
         return Inertia::render('Users/UserManagement');
     })->name('users.management');
+    
+    // Reports Routes
+    Route::middleware(['auth', 'role:admin,manager'])->prefix('reports')->name('reports.')->group(function () {
+        Route::get('/monthly', [MonthlyReportController::class, 'index'])->name('monthly');
+        Route::get('/payment-status', [PaymentStatusReportController::class, 'index'])->name('payment-status');
+        Route::get('/contracts', [ContractReportController::class, 'index'])->name('contracts');
+    });
     
     // Role and Permission Management routes
     Route::middleware('auth')->prefix('roles')->name('roles.')->group(function () {

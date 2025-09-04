@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Head } from '@inertiajs/react';
-import { Card, Button, Typography, Steps, InputNumber, Select, message, Divider } from 'antd';
+import { Card, Button, Typography, Steps, InputNumber, Select, message, Divider, Input } from 'antd';
 import { UserOutlined, TeamOutlined, EnvironmentOutlined, DollarOutlined, FileOutlined } from '@ant-design/icons';
 import AdminLayout from '@/Layouts/AdminLayout';
 import axios from 'axios';
@@ -12,6 +12,8 @@ export default function DepositConfig({ document }) {
   const [loading, setLoading] = useState(false);
   const [depositAmount, setDepositAmount] = useState(document.deposit_amount || 0);
   const [depositMonths, setDepositMonths] = useState(document.deposit_months || 3);
+  const [periodType, setPeriodType] = useState('preset'); // 'preset' or 'custom'
+  const [customDays, setCustomDays] = useState('');
   
   const handleGenerate = async () => {
     if (!depositAmount) {
@@ -19,7 +21,17 @@ export default function DepositConfig({ document }) {
       return;
     }
 
-    if (!depositMonths) {
+    let finalDepositMonths = depositMonths;
+    
+    // Handle custom days input
+    if (periodType === 'custom') {
+      if (!customDays || customDays <= 0) {
+        message.error('សូមបញ្ចូលចំនួនថ្ងៃ');
+        return;
+      }
+      // Convert days to months (approximate)
+      finalDepositMonths = Math.ceil(customDays / 30);
+    } else if (!depositMonths) {
       message.error('សូមជ្រើសរើសរយៈពេលកក់ប្រាក់');
       return;
     }
@@ -33,7 +45,8 @@ export default function DepositConfig({ document }) {
       // First save deposit config
       await axios.post(`/api/${apiPrefix}/${document.id}/deposit-config`, {
         deposit_amount: depositAmount,
-        deposit_months: depositMonths
+        deposit_months: finalDepositMonths,
+        custom_days: periodType === 'custom' ? customDays : null
       });
       
       // Redirect to success page
@@ -122,19 +135,60 @@ export default function DepositConfig({ document }) {
               <div className="mb-2">
                 <Text strong>រយៈពេលកក់ប្រាក់ (Deposit Period) <span style={{ color: 'red' }}>*</span></Text>
               </div>
-              <Select
-                style={{ width: '100%' }}
-                value={depositMonths}
-                onChange={setDepositMonths}
-                placeholder="ជ្រើសរើសរយៈពេល"
-              >
-                <Option value={1}>1 ខែ (1 month)</Option>
-                <Option value={2}>2 ខែ (2 months)</Option>
-                <Option value={3}>3 ខែ (3 months)</Option>
-                <Option value={4}>4 ខែ (4 months)</Option>
-                <Option value={5}>5 ខែ (5 months)</Option>
-                <Option value={6}>6 ខែ (6 months)</Option>
-              </Select>
+              <div className="mb-3">
+                <Select
+                  style={{ width: '100%' }}
+                  value={periodType}
+                  onChange={(value) => {
+                    setPeriodType(value);
+                    if (value === 'preset') {
+                      setCustomDays('');
+                    } else {
+                      setDepositMonths(null);
+                    }
+                  }}
+                  placeholder="ជ្រើសរើសប្រភេទរយៈពេល"
+                >
+                  <Option value="preset">ជ្រើសរើសពីជម្រើសដែលមាន</Option>
+                  <Option value="custom">បញ្ចូលដោយខ្លួនឯង</Option>
+                </Select>
+              </div>
+              
+              {periodType === 'preset' && (
+                <Select
+                  style={{ width: '100%' }}
+                  value={depositMonths}
+                  onChange={setDepositMonths}
+                  placeholder="ជ្រើសរើសរយៈពេល"
+                >
+                  <Option value={0.25}>1 សប្តាហ៍ (1 week)</Option>
+                  <Option value={0.5}>2 សប្តាហ៍ (2 weeks)</Option>
+                  <Option value={0.75}>3 សប្តាហ៍ (3 weeks)</Option>
+                  <Option value={1}>4 សប្តាហ៍ (4 weeks / 1 month)</Option>
+                  <Option value={2}>2 ខែ (2 months)</Option>
+                  <Option value={3}>3 ខែ (3 months)</Option>
+                  <Option value={4}>4 ខែ (4 months)</Option>
+                  <Option value={5}>5 ខែ (5 months)</Option>
+                  <Option value={6}>6 ខែ (6 months)</Option>
+                </Select>
+              )}
+              
+              {periodType === 'custom' && (
+                <div>
+                  <InputNumber
+                    style={{ width: '100%' }}
+                    min={1}
+                    max={365}
+                    value={customDays}
+                    onChange={setCustomDays}
+                    placeholder="បញ្ចូលចំនួនថ្ងៃ (ឧ. 20, 45)"
+                    suffix="ថ្ងៃ"
+                  />
+                  <Text type="secondary" style={{ fontSize: '12px', display: 'block', marginTop: '4px' }}>
+                    ឧទាហរណ៍: 20 ថ្ងៃ, 45 ថ្ងៃ
+                  </Text>
+                </div>
+              )}
             </div>
           </div>
           
@@ -148,7 +202,7 @@ export default function DepositConfig({ document }) {
               type="primary" 
               onClick={handleGenerate}
               loading={loading}
-              disabled={!depositAmount || !depositMonths}
+              disabled={!depositAmount || (periodType === 'preset' && !depositMonths) || (periodType === 'custom' && !customDays)}
             >
               បង្កើតកិច្ចសន្យា
             </Button>

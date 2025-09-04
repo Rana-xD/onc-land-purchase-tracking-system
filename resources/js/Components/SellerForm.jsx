@@ -1,17 +1,53 @@
-import React from 'react';
-import { Form, Input, Select, DatePicker, Card, Image, Typography } from 'antd';
-import { FileImageOutlined, FilePdfOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Form, Input, Select, DatePicker, Card, Image, Button, message } from 'antd';
+import { SaveOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import { formatKhmerDate } from "@/Utils/khmerDate";
 
 const { Option } = Select;
-const { Title, Text } = Typography;
 
-export default function SellerForm({ formData, setFormData, displayImage }) {
-    const handleChange = (name, value) => {
-        setFormData({
-            ...formData,
-            [name]: value
-        });
+export default function SellerForm({ onSubmit, files, frontImage }) {
+    const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (values) => {
+        try {
+            setLoading(true);
+            
+            // Format date_of_birth to standard format for API
+            const formattedData = {
+                ...values,
+                date_of_birth: values.date_of_birth ? values.date_of_birth.format('YYYY-MM-DD') : null,
+            };
+            
+            await onSubmit(formattedData);
+        } catch (error) {
+            message.error('មានបញ្ហាក្នុងការរក្សាទុកព័ត៌មាន');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Render front image preview
+    const renderFrontImagePreview = () => {
+        if (!frontImage || !frontImage.base64) return null;
+        
+        return (
+            <Card 
+                title="រូបភាពបង្ហាញ" 
+                className="mb-6"
+                styles={{ body: { padding: '16px', textAlign: 'center' } }}
+            >
+                <div style={{ maxWidth: '500px', margin: '0 auto' }}>
+                    <Image
+                        src={frontImage.base64}
+                        alt={frontImage.name || 'Front Image'}
+                        style={{ maxHeight: '350px', objectFit: 'contain' }}
+                        preview={{ mask: <div>Click to view full size</div> }}
+                    />
+                </div>
+            </Card>
+        );
     };
 
     // Helper function to get preview URL for display image
@@ -114,81 +150,87 @@ export default function SellerForm({ formData, setFormData, displayImage }) {
 
     return (
         <>
-            {displayImage && renderDisplayImage()}
+            {renderFrontImagePreview()}
             
             <Card title="ព័ត៌មានអ្នកលក់" className="mb-6">
-                <Form layout="vertical">
-                <Form.Item 
-                    label="ឈ្មោះ" 
-                    required 
-                    rules={[{ required: true, message: 'សូមបញ្ចូលឈ្មោះ' }]}
+                <Form 
+                    form={form}
+                    layout="vertical"
+                    onFinish={handleSubmit}
+                    initialValues={{
+                        sex: 'male'
+                    }}
                 >
-                    <Input 
-                        placeholder="បញ្ចូលឈ្មោះ" 
-                        value={formData.name} 
-                        onChange={(e) => handleChange('name', e.target.value)} 
-                    />
-                </Form.Item>
-                
-                <Form.Item 
-                    label="ភេទ" 
-                    required
-                >
-                    <Select 
-                        value={formData.sex} 
-                        onChange={(value) => handleChange('sex', value)}
+                    <Form.Item 
+                        label="ឈ្មោះ" 
+                        name="name"
+                        rules={[{ required: true, message: 'សូមបញ្ចូលឈ្មោះ' }]}
                     >
-                        <Option value="male">ប្រុស</Option>
-                        <Option value="female">ស្រី</Option>
-                    </Select>
-                </Form.Item>
-                
-                <Form.Item 
-                    label="ថ្ងៃខែឆ្នាំកំណើត" 
-                    required
-                >
-                    <DatePicker 
-                        style={{ width: '100%' }} 
-                        format="DD/MM/YYYY"
-                        value={formData.date_of_birth ? dayjs(formData.date_of_birth) : null}
-                        onChange={(date, dateString) => handleChange('date_of_birth', date ? date.format('YYYY-MM-DD') : null)}
-                    />
-                </Form.Item>
-                
-                <Form.Item 
-                    label="លេខអត្តសញ្ញាណប័ណ្ណ" 
-                    required
-                >
-                    <Input 
-                        placeholder="បញ្ចូលលេខអត្តសញ្ញាណប័ណ្ណ" 
-                        value={formData.identity_number} 
-                        onChange={(e) => handleChange('identity_number', e.target.value)} 
-                    />
-                </Form.Item>
-                
-                <Form.Item 
-                    label="អាសយដ្ឋាន" 
-                    required
-                >
-                    <Input.TextArea 
-                        placeholder="បញ្ចូលអាសយដ្ឋាន" 
-                        rows={3} 
-                        value={formData.address} 
-                        onChange={(e) => handleChange('address', e.target.value)} 
-                    />
-                </Form.Item>
-                
-                <Form.Item 
-                    label="លេខទូរស័ព្ទ"
-                >
-                    <Input 
-                        placeholder="បញ្ចូលលេខទូរស័ព្ទ" 
-                        value={formData.phone_number} 
-                        onChange={(e) => handleChange('phone_number', e.target.value)} 
-                    />
-                </Form.Item>
-            </Form>
-        </Card>
+                        <Input placeholder="បញ្ចូលឈ្មោះ" />
+                    </Form.Item>
+                    
+                    <Form.Item 
+                        label="ភេទ" 
+                        name="sex"
+                        rules={[{ required: true, message: 'សូមជ្រើសរើសភេទ' }]}
+                    >
+                        <Select>
+                            <Option value="male">ប្រុស</Option>
+                            <Option value="female">ស្រី</Option>
+                        </Select>
+                    </Form.Item>
+                    
+                    <Form.Item 
+                        label="ថ្ងៃខែឆ្នាំកំណើត" 
+                        name="date_of_birth"
+                        rules={[{ required: true, message: 'សូមជ្រើសរើសថ្ងៃខែឆ្នាំកំណើត' }]}
+                    >
+                        <DatePicker 
+                            style={{ width: '100%' }} 
+                            format="DD/MM/YYYY"
+                        />
+                    </Form.Item>
+                    
+                    <Form.Item 
+                        label="លេខអត្តសញ្ញាណប័ណ្ណ" 
+                        name="identity_number"
+                        rules={[{ required: true, message: 'សូមបញ្ចូលលេខអត្តសញ្ញាណប័ណ្ណ' }]}
+                    >
+                        <Input placeholder="បញ្ចូលលេខអត្តសញ្ញាណប័ណ្ណ" />
+                    </Form.Item>
+                    
+                    <Form.Item 
+                        label="អាសយដ្ឋាន" 
+                        name="address"
+                        rules={[{ required: true, message: 'សូមបញ្ចូលអាសយដ្ឋាន' }]}
+                    >
+                        <Input.TextArea 
+                            placeholder="បញ្ចូលអាសយដ្ឋាន" 
+                            rows={3}
+                        />
+                    </Form.Item>
+                    
+                    <Form.Item 
+                        label="លេខទូរស័ព្ទ"
+                        name="phone_number"
+                    >
+                        <Input placeholder="បញ្ចូលលេខទូរស័ព្ទ" />
+                    </Form.Item>
+                    
+                    <Form.Item>
+                        <Button 
+                            type="primary" 
+                            htmlType="submit"
+                            loading={loading}
+                            icon={<SaveOutlined />}
+                            size="large"
+                            block
+                        >
+                            រក្សាទុកអ្នកលក់
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Card>
         </>
     );
 }

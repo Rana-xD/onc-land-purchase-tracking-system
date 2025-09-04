@@ -43,6 +43,17 @@ Route::prefix('reports')->group(function () {
         Route::post('/export', [PaymentStatusReportController::class, 'exportPaymentStatusReport']);
     });
     
+    // Commission routes
+    Route::prefix('commission')->group(function () {
+        Route::get('/payment-steps/{document}', [CommissionController::class, 'getPaymentSteps']);
+        Route::post('/payment-steps/{document}', [CommissionController::class, 'savePaymentSteps']);
+        Route::patch('/payment-steps/{step}/mark-paid', [CommissionController::class, 'markAsPaid']);
+        Route::patch('/payment-steps/{step}/mark-unpaid', [CommissionController::class, 'markAsUnpaid']);
+    });
+
+    // Contract report routes
+    Route::get('/contracts/report-list', [ContractReportController::class, 'apiList']);
+
     // Payment Steps
     Route::prefix('payment-steps')->group(function () {
         Route::post('/{stepId}/create-contract', [PaymentStepController::class, 'createContract']);

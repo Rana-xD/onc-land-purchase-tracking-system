@@ -1,11 +1,52 @@
 import React, { useState } from 'react';
-import { Form, Input, InputNumber, Card, Row, Col, Image, Typography, DatePicker } from 'antd';
-import { FileImageOutlined, FilePdfOutlined } from '@ant-design/icons';
+import { Form, Input, InputNumber, Card, Image, Button, message, DatePicker } from 'antd';
+import { SaveOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import { formatKhmerDate } from '@/Utils/khmerDate';
 
-const { Title, Text } = Typography;
+export default function LandForm({ onSubmit, files, frontImage }) {
+    const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
 
-export default function LandForm({ formData, setFormData, displayImage }) {
+    const handleSubmit = async (values) => {
+        try {
+            setLoading(true);
+            
+            // Format date_of_registration to standard format for API
+            const formattedData = {
+                ...values,
+                date_of_registration: values.date_of_registration ? values.date_of_registration.format('YYYY-MM-DD') : null,
+            };
+            
+            await onSubmit(formattedData);
+        } catch (error) {
+            message.error('មានបញ្ហាក្នុងការរក្សាទុកព័ត៌មាន');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Render front image preview
+    const renderFrontImagePreview = () => {
+        if (!frontImage || !frontImage.base64) return null;
+        
+        return (
+            <Card 
+                title="រូបភាពបង្ហាញ" 
+                className="mb-6"
+                styles={{ body: { padding: '16px', textAlign: 'center' } }}
+            >
+                <div style={{ maxWidth: '500px', margin: '0 auto' }}>
+                    <Image
+                        src={frontImage.base64}
+                        alt={frontImage.name || 'Front Image'}
+                        style={{ maxHeight: '350px', objectFit: 'contain' }}
+                        preview={{ mask: <div>Click to view full size</div> }}
+                    />
+                </div>
+            </Card>
+        );
+    };
     const [formTouched, setFormTouched] = useState({
         plot_number: false,
         location: false,
@@ -134,75 +175,71 @@ export default function LandForm({ formData, setFormData, displayImage }) {
 
     return (
         <>
-            {displayImage && renderDisplayImage()}
+            {renderFrontImagePreview()}
             
             <Card title="ព័ត៌មានដី" className="mb-6">
-                <Form layout="vertical" className="mt-6">
-                <Form.Item 
-                    label="លេខប្លង់" 
-                    required
-                    validateStatus={(formTouched.plot_number && !formData.plot_number) ? 'error' : ''}
-                    help={(formTouched.plot_number && !formData.plot_number) ? 'សូមបញ្ចូលលេខប្លង់' : ''}
+                <Form 
+                    form={form}
+                    layout="vertical"
+                    onFinish={handleSubmit}
                 >
-                    <Input 
-                        placeholder="បញ្ចូលលេខប្លង់" 
-                        value={formData.plot_number} 
-                        onChange={(e) => handleChange('plot_number', e.target.value)} 
-                    />
-                </Form.Item>
-                
-                <Form.Item 
-                    label="ទីតាំង" 
-                    required
-                    validateStatus={(formTouched.location && !formData.location) ? 'error' : ''}
-                    help={(formTouched.location && !formData.location) ? 'សូមបញ្ចូលទីតាំង' : ''}
-                >
-                    <Input 
-                        placeholder="បញ្ចូលទីតាំង" 
-                        value={formData.location} 
-                        onChange={(e) => handleChange('location', e.target.value)} 
-                    />
-                </Form.Item>
-                
-                <Form.Item 
-                    label="កាលបរិច្ឆេទចុះបញ្ជី" 
-                    required
-                    validateStatus={(formTouched.date_of_registration && !formData.date_of_registration) ? 'error' : ''}
-                    help={(formTouched.date_of_registration && !formData.date_of_registration) ? 'សូមបញ្ចូលកាលបរិច្ឆេទចុះបញ្ជី' : ''}
-                >
-                    <DatePicker 
-                        style={{ width: '100%' }}
-                        placeholder="ជ្រើសរើសកាលបរិច្ឆេទ" 
-                        value={formData.date_of_registration ? dayjs(formData.date_of_registration) : null}
-                        onChange={handleDateChange}
-                        format="YYYY-MM-DD"
-                    />
-                </Form.Item>
-                
-                <Row gutter={16}>
-                    <Col xs={24}>
-                        <Form.Item 
-                            label="ទំហំ (ម៉ែត្រការ៉េ)" 
-                            required
-                            validateStatus={(formTouched.size && !formData.size) ? 'error' : ''}
-                            help={(formTouched.size && !formData.size) ? 'សូមបញ្ចូលទំហំ' : ''}
+                    <Form.Item 
+                        label="លេខប្លង់" 
+                        name="plot_number"
+                        rules={[{ required: true, message: 'សូមបញ្ចូលលេខប្លង់' }]}
+                    >
+                        <Input placeholder="បញ្ចូលលេខប្លង់" />
+                    </Form.Item>
+                    
+                    <Form.Item 
+                        label="ទីតាំង" 
+                        name="location"
+                        rules={[{ required: true, message: 'សូមបញ្ចូលទីតាំង' }]}
+                    >
+                        <Input placeholder="បញ្ចូលទីតាំង" />
+                    </Form.Item>
+                    
+                    <Form.Item 
+                        label="កាលបរិច្ឆេទចុះបញ្ជី" 
+                        name="date_of_registration"
+                        rules={[{ required: true, message: 'សូមជ្រើសរើសកាលបរិច្ឆេទចុះបញ្ជី' }]}
+                    >
+                        <DatePicker 
+                            style={{ width: '100%' }}
+                            placeholder="ជ្រើសរើសកាលបរិច្ឆេទ" 
+                            format="DD/MM/YYYY"
+                        />
+                    </Form.Item>
+                    
+                    <Form.Item 
+                        label="ទំហំ (ម៉ែត្រការ៉េ)" 
+                        name="size"
+                        rules={[{ required: true, message: 'សូមបញ្ចូលទំហំ' }]}
+                    >
+                        <InputNumber 
+                            style={{ width: '100%' }}
+                            placeholder="បញ្ចូលទំហំ" 
+                            min={0}
+                            step={0.01}
+                            precision={2}
+                            addonAfter="ម²"
+                        />
+                    </Form.Item>
+                    
+                    <Form.Item>
+                        <Button 
+                            type="primary" 
+                            htmlType="submit"
+                            loading={loading}
+                            icon={<SaveOutlined />}
+                            size="large"
+                            block
                         >
-                            <InputNumber 
-                                style={{ width: '100%' }}
-                                placeholder="បញ្ចូលទំហំ" 
-                                value={formData.size !== '' ? formData.size : null} 
-                                onChange={(value) => handleChange('size', value)}
-                                stringMode={false}
-                                min={0}
-                                step={0.01}
-                                precision={2}
-                                addonAfter="ម²"
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
-            </Form>
-        </Card>
+                            រក្សាទុកដី
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Card>
         </>
     );
 }

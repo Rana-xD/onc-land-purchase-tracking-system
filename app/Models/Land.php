@@ -20,6 +20,8 @@ class Land extends Model
         'date_of_registration',
         'size',
         'location',
+        'front_image_path',
+        'back_image_path',
     ];
 
     /**

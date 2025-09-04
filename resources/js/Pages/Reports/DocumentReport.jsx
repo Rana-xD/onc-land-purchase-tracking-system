@@ -154,6 +154,23 @@ export default function DocumentReport({ auth }) {
         }
     };
 
+    // Handle marking payment step as unpaid
+    const handleMarkAsUnpaidAction = async (paymentStepId) => {
+        try {
+            setLoading(true);
+            const response = await axios.post(`/api/reports/payment-steps/${paymentStepId}/mark-as-unpaid`);
+            message.success('បានកំណត់ថាមិនទាន់បង់ប្រាក់');
+            
+            // Refresh search results
+            handleSearch();
+        } catch (error) {
+            console.error('បញ្ហាក្នុងការកំណត់ថាមិនទាន់បង់ប្រាក់:', error);
+            message.error(error.response?.data?.error || 'មិនអាចកំណត់ថាមិនទាន់បង់ប្រាក់');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // Handle document export
     const handleExport = async (format) => {
         if (!searchResult) {
@@ -294,7 +311,7 @@ export default function DocumentReport({ auth }) {
             key: 'actions',
             render: (_, record) => (
                 <Space size="small">
-                    {record.status !== 'paid' && (
+                    {record.status !== 'paid' ? (
                         <Popconfirm
                             title="តើអ្នកប្រាកដថាចង់កំណត់ថាបានបង់ប្រាក់នេះមែនទេ?"
                             description="ការសកម្មភាពនេះអាចត្រូវបានប្រព្រឹត្តទៅ"
@@ -309,7 +326,25 @@ export default function DocumentReport({ auth }) {
                                 icon={<CheckCircleOutlined />} 
                                 size="small"
                                 style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
-                                disabled={record.status === 'paid'}
+                                title="កំណត់ថាបានបង់ប្រាក់"
+                            />
+                        </Popconfirm>
+                    ) : (
+                        <Popconfirm
+                            title="តើអ្នកប្រាកដថាចង់កំណត់ថាមិនទាន់បង់ប្រាក់នេះមែនទេ?"
+                            description="ការសកម្មភាពនេះនឹងប្តូរស្ថានភាពទៅជាមិនទាន់បង់ប្រាក់"
+                            icon={<ExclamationCircleOutlined style={{ color: '#faad14' }} />}
+                            okText="បាទ/ចាស"
+                            cancelText="ទេ"
+                            okButtonProps={{ style: { backgroundColor: '#ff4d4f', borderColor: '#ff4d4f' } }}
+                            onConfirm={() => handleMarkAsUnpaidAction(record.id)}
+                        >
+                            <Button 
+                                type="primary" 
+                                icon={<ClockCircleOutlined />} 
+                                size="small"
+                                style={{ backgroundColor: '#ff4d4f', borderColor: '#ff4d4f' }}
+                                title="កំណត់ថាមិនទាន់បង់ប្រាក់"
                             />
                         </Popconfirm>
                     )}

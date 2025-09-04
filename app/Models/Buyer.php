@@ -22,6 +22,8 @@ class Buyer extends Model
         'identity_number',
         'address',
         'phone_number',
+        'front_image_path',
+        'back_image_path',
     ];
 
     /**

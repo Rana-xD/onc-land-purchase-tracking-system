@@ -17,7 +17,7 @@ import {
     Alert,
     Tooltip
 } from 'antd';
-import { DownloadOutlined, FileExcelOutlined, FilePdfOutlined, DollarOutlined, FileOutlined, FolderOutlined } from '@ant-design/icons';
+import { DownloadOutlined, FileExcelOutlined, FilePdfOutlined, DollarOutlined, FileOutlined, FolderOutlined, CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import AdminLayout from '@/Layouts/AdminLayout';
 import PaymentStatusReportHTML from '@/Components/PDF/PaymentStatusReportHTML';
 import useHTMLToPDF from '@/Hooks/useHTMLToPDF';
@@ -272,37 +272,43 @@ const PaymentStatusReport = ({ auth }) => {
                     <div style={{ backgroundColor: '#fff', marginBottom: '24px' }}>
                         {/* Header Row */}
                         <Row gutter={16} style={{ backgroundColor: '#fafafa', padding: '12px 16px', borderBottom: '1px solid #f0f0f0', marginBottom: '8px', fontWeight: 'bold' }}>
-                            <Col xs={24} sm={5} md={3} style={{ display: 'flex', alignItems: 'center' }}>
+                            <Col xs={24} sm={4} md={2} style={{ display: 'flex', alignItems: 'center' }}>
                                 <Space>
                                     <FileOutlined />
                                     <Text>លេខកុងត្រា</Text>
                                 </Space>
                             </Col>
-                            <Col xs={24} sm={5} md={3} style={{ display: 'flex', alignItems: 'center' }}>
+                            <Col xs={24} sm={4} md={2} style={{ display: 'flex', alignItems: 'center' }}>
                                 <Space>
                                     <FileOutlined />
                                     <Text>លេខក្បាលដី</Text>
                                 </Space>
                             </Col>
-                            <Col xs={24} sm={6} md={4} style={{ display: 'flex', alignItems: 'center' }}>
+                            <Col xs={24} sm={5} md={3} style={{ display: 'flex', alignItems: 'center' }}>
                                 <Space>
                                     <FileOutlined />
                                     <Text>អ្នកលក់</Text>
                                 </Space>
                             </Col>
-                            <Col xs={24} sm={3} md={3} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                            <Col xs={24} sm={3} md={2} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Space>
+                                    <CheckCircleOutlined />
+                                    <Text>ស្ថានភាព</Text>
+                                </Space>
+                            </Col>
+                            <Col xs={24} sm={3} md={2} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                                 <Space>
                                     <DollarOutlined />
                                     <Text>ចំនួនសរុប</Text>
                                 </Space>
                             </Col>
-                            <Col xs={24} sm={3} md={4} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                            <Col xs={24} sm={3} md={3} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                                 <Space>
                                     <DollarOutlined />
                                     <Text>ចំនួនបានបង់</Text>
                                 </Space>
                             </Col>
-                            <Col xs={24} sm={3} md={5} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                            <Col xs={24} sm={3} md={4} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                                 <Space>
                                     <DollarOutlined />
                                     <Text>ចំនួនមិនទាន់បង់</Text>
@@ -316,12 +322,12 @@ const PaymentStatusReport = ({ auth }) => {
                             renderItem={item => (
                                 <List.Item style={{ background: '#fff', padding: '16px', marginBottom: '8px', borderBottom: '1px solid #f0f0f0' }}>
                                     <Row gutter={16} style={{ width: '100%' }}>
-                                        <Col xs={24} sm={5} md={3} style={{ display: 'flex', alignItems: 'center' }}>
+                                        <Col xs={24} sm={4} md={2} style={{ display: 'flex', alignItems: 'center' }}>
                                             <Link href={`/reports/document?contract_id=${item.contract_id}`} className="text-blue-600 hover:text-blue-800 font-bold">
                                                 {item.contract_id}
                                             </Link>
                                         </Col>
-                                        <Col xs={24} sm={5} md={3} style={{ display: 'flex', alignItems: 'center' }}>
+                                        <Col xs={24} sm={4} md={2} style={{ display: 'flex', alignItems: 'center' }}>
                                             {/* Support for multiple lands */}
                                             {Array.isArray(item.lands) && item.lands.length > 0 ? (
                                                 <Space direction="vertical" size="small" style={{ width: '100%' }}>
@@ -335,7 +341,7 @@ const PaymentStatusReport = ({ auth }) => {
                                                 item.land_plot_number ? <span>{item.land_plot_number}</span> : <span>-</span>
                                             )}
                                         </Col>
-                                        <Col xs={24} sm={6} md={4} style={{ display: 'flex', alignItems: 'center' }}>
+                                        <Col xs={24} sm={5} md={3} style={{ display: 'flex', alignItems: 'center' }}>
                                             {/* Seller information */}
                                             {Array.isArray(item.sellers) && item.sellers.length > 0 ? (
                                                 <Text>{item.sellers.map(seller => seller.name || 'N/A').join(', ')}</Text>
@@ -343,13 +349,25 @@ const PaymentStatusReport = ({ auth }) => {
                                                 <Text>-</Text>
                                             )}
                                         </Col>
-                                        <Col xs={24} sm={3} md={3} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                                        <Col xs={24} sm={3} md={2} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            {/* Payment Status */}
+                                            {item.unpaid_amount > 0 ? (
+                                                <Tag color="red" icon={<ClockCircleOutlined />}>
+                                                    មិនទាន់បង់
+                                                </Tag>
+                                            ) : (
+                                                <Tag color="green" icon={<CheckCircleOutlined />}>
+                                                    បានបង់
+                                                </Tag>
+                                            )}
+                                        </Col>
+                                        <Col xs={24} sm={3} md={2} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                                             <Text>{formatCurrency(item.total_amount)}</Text>
                                         </Col>
-                                        <Col xs={24} sm={3} md={4} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                                        <Col xs={24} sm={3} md={3} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                                             <Text style={{ color: '#52c41a' }}>{formatCurrency(item.paid_amount)}</Text>
                                         </Col>
-                                        <Col xs={24} sm={3} md={5} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                                        <Col xs={24} sm={3} md={4} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
                                             <Text style={{ color: '#f5222d' }}>{formatCurrency(item.unpaid_amount)}</Text>
                                         </Col>
                                     </Row>

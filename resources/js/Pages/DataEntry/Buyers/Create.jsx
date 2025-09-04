@@ -1,33 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import { Head, router } from '@inertiajs/react';
+import React, { useState } from 'react';
+import { Head, router, usePage } from '@inertiajs/react';
+import { Steps, Button, Card, Row, Col, message, Breadcrumb, Space } from 'antd';
+import { ArrowLeftOutlined, ArrowRightOutlined, HomeOutlined } from '@ant-design/icons';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Card, Steps, Button, message, Breadcrumb, Row, Col, Space } from 'antd';
-import { UploadOutlined, FormOutlined, CheckCircleOutlined, HomeOutlined } from '@ant-design/icons';
-import FileUpload from '@/Components/FileUpload';
 import BuyerForm from '@/Components/BuyerForm';
-import axios from 'axios';
-import messageUtil from '@/utils/message';
+import FrontImageUpload from '@/Components/FrontImageUpload';
+import BackImageUpload from '@/Components/BackImageUpload';
 
 export default function Create() {
+    const { props } = usePage();
     const [current, setCurrent] = useState(0);
-    const [fileList, setFileList] = useState([]);
-    const [formData, setFormData] = useState({
-        name: '',
-        sex: 'male',
-        date_of_birth: '',
-        identity_number: '',
-        address: '',
-        phone_number: '',
-    });
+    const [frontImage, setFrontImage] = useState(null);
+    const [backImage, setBackImage] = useState(null);
     const [loading, setLoading] = useState(false);
-    
-    // The display image is now derived directly from the fileList state.
-    // Make sure to preserve all properties including base64 data
-    const displayImage = fileList.find(file => file.isDisplay) || fileList[0] || null;
-    
-    // No debug logs needed
-    
+
+    const steps = [
+        {
+            title: 'រូបខាងមុខ',
+            content: 'front-image',
+        },
+        {
+            title: 'រូបខាងក្រោយ',
+            content: 'back-image',
+        },
+        {
+            title: 'បញ្ចូលព័ត៌មាន',
+            content: 'buyer-info',
+        },
+    ];
+
     const next = () => {
+        if (current === 0) {
+            // Validate that front image is uploaded
+            if (!frontImage) {
+                message.error('សូមផ្ទុកឡើងរូបខាងមុខ');
+                return;
+            }
+        } else if (current === 1) {
+            // Validate that back image is uploaded
+            if (!backImage) {
+                message.error('សូមផ្ទុកឡើងរូបខាងក្រោយ');
+                return;
+            }
+        }
         setCurrent(current + 1);
     };
 
@@ -35,83 +50,70 @@ export default function Create() {
         setCurrent(current - 1);
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (formData) => {
         setLoading(true);
-        
         try {
-            // Prepare documents data with base64
-            const documents = fileList.map(file => {
-                // Get base64 data from file
-                const base64Data = file.base64 || file.response?.file?.base64;
-                const fileName = file.name || file.fileName;
-                const mimeType = file.type || 'image/jpeg'; // Default to JPEG if type is not available
-                
-                // Ensure base64Data exists
-                
-                return {
-                    base64: base64Data,
-                    fileName: fileName,
-                    mimeType: mimeType,
-                    isDisplay: file.isDisplay || false
-                };
-            });
+            // Prepare files array with front and back images
+            const files = [];
+            if (frontImage) {
+                files.push({
+                    ...frontImage,
+                    isDisplay: true, // Front image is always the display image
+                    type: 'front'
+                });
+            }
+            if (backImage) {
+                files.push({
+                    ...backImage,
+                    isDisplay: false,
+                    type: 'back'
+                });
+            }
             
-
-
-
-
-            
-            // Submit data to API
-            const response = await axios.post('/api/buyers', {
+            const submitData = {
                 ...formData,
-                documents
+                files: files
+            };
+            
+            console.log('Submitting buyer data:', submitData);
+            
+            // Use axios for API call with automatic CSRF handling
+            const axios = window.axios;
+            const response = await axios.post('/api/buyers', submitData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
             });
-            
 
-            
-            // Check for success message or status
-            if (response.data.success || (response.data.buyer && response.data.buyer.id)) {
-                message.success('ព័ត៌មានអ្នកទិញត្រូវបានរក្សាទុកដោយជោគជ័យ!');
-                router.visit(route('data-entry.buyers.index'));
-            } else {
-                message.error('មានបញ្ហាក្នុងការរក្សាទុកព័ត៌មានអ្នកទិញ។');
+            // Axios response handling
+            if (response.status === 200 || response.status === 201) {
+                message.success('អ្នកទិញត្រូវបានបង្កើតដោយជោគជ័យ');
+                setLoading(false);
+                // Use window.location for redirect to avoid Inertia issues
+                window.location.href = '/data-entry/buyers';
             }
         } catch (error) {
-            message.error('មានបញ្ហាក្នុងការរក្សាទុកព័ត៌មានអ្នកទិញ។');
-        } finally {
             setLoading(false);
+            console.error('Error creating buyer:', error);
+            
+            if (error.response && error.response.data) {
+                const result = error.response.data;
+                if (result.errors) {
+                    Object.keys(result.errors).forEach(key => {
+                        const errorMessage = Array.isArray(result.errors[key]) ? result.errors[key][0] : result.errors[key];
+                        message.error(errorMessage);
+                    });
+                } else if (result.message) {
+                    message.error(result.message);
+                } else {
+                    message.error('មានបញ្ហាក្នុងការបង្កើតអ្នកទិញ');
+                }
+            } else {
+                message.error('មានបញ្ហាក្នុងការបង្កើតអ្នកទិញ');
+            }
         }
     };
-
-    const steps = [
-        {
-            title: 'បញ្ចូលកិច្ចសន្យា',
-            icon: <UploadOutlined />,
-            content: <FileUpload 
-                category="buyer"
-                fileList={fileList} // Pass fileList as a prop
-                onFilesChange={(files) => {
-                    setFileList(files); // Update the state in the parent
-                }} 
-                maxFiles={2}
-            />,
-        },
-        {
-            title: 'បញ្ចូលព័ត៌មាន',
-            icon: <FormOutlined />,
-            content: (
-                <>
-                    <BuyerForm 
-                        formData={formData} 
-                        setFormData={setFormData} 
-                        displayImage={displayImage}
-                    />
-                </>
-            ),
-        },
-    ];
-
-    
 
     return (
         <>
@@ -143,47 +145,57 @@ export default function Create() {
                     current={current}
                     items={steps.map(item => ({
                         title: item.title,
-                        icon: item.icon,
                     }))}
                     className="mb-8"
                 />
                 
                 <div className="steps-content mb-8">
-                    {steps[current].content}
+                    {steps[current].content === 'front-image' && (
+                        <FrontImageUpload
+                            category="buyer"
+                            frontImage={frontImage}
+                            onFrontImageChange={setFrontImage}
+                        />
+                    )}
+                    {steps[current].content === 'back-image' && (
+                        <BackImageUpload
+                            category="buyer"
+                            backImage={backImage}
+                            onBackImageChange={setBackImage}
+                        />
+                    )}
+                    {steps[current].content === 'buyer-info' && (
+                        <BuyerForm
+                            onSubmit={handleSubmit}
+                            files={[frontImage, backImage].filter(Boolean)}
+                            frontImage={frontImage}
+                        />
+                    )}
                 </div>
                 
                 <div className="steps-action">
                     <Row justify="space-between">
                         <Col>
                             {current > 0 && (
-                                <Button onClick={prev}>
+                                <Button 
+                                    icon={<ArrowLeftOutlined />}
+                                    onClick={prev}
+                                >
                                     ត្រឡប់ក្រោយ
                                 </Button>
                             )}
                         </Col>
                         <Col>
-                            <Space>
-                                {current < steps.length - 1 && (
-                                    <Button 
-                                        type="primary" 
-                                        onClick={next}
-                                        disabled={current === 0 && fileList.length < 2}
-                                    >
-                                        បន្ទាប់
-                                    </Button>
-                                )}
-                                
-                                {current === steps.length - 1 && (
-                                    <Button 
-                                        type="primary" 
-                                        onClick={handleSubmit}
-                                        loading={loading}
-                                        disabled={!formData.name || !formData.identity_number || fileList.length < 2}
-                                    >
-                                        រក្សាទុក
-                                    </Button>
-                                )}
-                            </Space>
+                            {current < steps.length - 1 && (
+                                <Button 
+                                    type="primary" 
+                                    onClick={next}
+                                    icon={<ArrowRightOutlined />}
+                                    iconPosition="end"
+                                >
+                                    {current === 0 ? 'បន្តទៅរូបខាងក្រោយ' : 'បន្ទាប់'}
+                                </Button>
+                            )}
                         </Col>
                     </Row>
                 </div>
