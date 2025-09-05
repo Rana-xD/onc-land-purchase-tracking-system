@@ -83,7 +83,7 @@ export default function Success({ document }) {
                     ${parseFloat(document.deposit_amount).toLocaleString()}
                   </Descriptions.Item>
                   <Descriptions.Item label="រយៈពេលកក់ប្រាក់">
-                    {document.deposit_months} ខែ
+                    {document.deposit_months}
                   </Descriptions.Item>
                 </>
               )}

@@ -36,7 +36,6 @@ class DocumentCreation extends Model
     protected $casts = [
         'total_land_price' => 'decimal:2',
         'deposit_amount' => 'decimal:2',
-        'deposit_months' => 'integer',
     ];
 
     /**

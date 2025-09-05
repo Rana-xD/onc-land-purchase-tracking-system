@@ -229,7 +229,7 @@ class DocumentCreationController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'deposit_amount' => 'required|numeric|min:0',
-            'deposit_months' => 'required|integer|min:2|max:4',
+            'deposit_months' => 'required|string|max:255',
         ]);
 
         if ($validator->fails()) {
