@@ -11,7 +11,7 @@ import {
   message,
   Tooltip
 } from 'antd';
-import { PlusOutlined, SearchOutlined, FilePdfOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, SearchOutlined, FilePdfOutlined, EyeOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import AdminLayout from '@/Layouts/AdminLayout';
 import axios from 'axios';
 
@@ -149,6 +149,11 @@ export default function DepositContractsList({ initialDocuments }) {
           <Tooltip title="មើលលិខិតកក់ប្រាក់">
             <Link href={route('deposit-contracts.success', { id: record.id })}>
               <Button type="text" icon={<EyeOutlined />} />
+            </Link>
+          </Tooltip>
+          <Tooltip title="កែសម្រួលលិខិតកក់ប្រាក់">
+            <Link href={route('deposit-contracts.edit', { id: record.id })}>
+              <Button type="text" icon={<EditOutlined />} />
             </Link>
           </Tooltip>
           <Tooltip title="ទាញយក PDF">

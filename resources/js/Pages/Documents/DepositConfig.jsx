@@ -24,7 +24,7 @@ import axios from "axios";
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-export default function DepositConfig({ document }) {
+export default function DepositConfig({ document, editMode }) {
     const [loading, setLoading] = useState(false);
     const [depositAmount, setDepositAmount] = useState(
         document.deposit_amount || 0,
@@ -149,7 +149,7 @@ export default function DepositConfig({ document }) {
 
                 <Card>
                     <Title level={3} className="mb-6">
-                        កំណត់ការកក់ប្រាក់
+                        {editMode ? 'កែសម្រួលការកក់ប្រាក់' : 'កំណត់ការកក់ប្រាក់'}
                     </Title>
 
                     <div className="mb-6">

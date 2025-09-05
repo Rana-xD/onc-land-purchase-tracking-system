@@ -343,15 +343,17 @@ class DocumentCreationController extends Controller
         // Mark document as completed
         $document->update(['status' => 'completed']);
 
-        // If this is a sale contract, create a SaleContract record
+        // If this is a sale contract, create or update a SaleContract record
         if ($document->isSaleContract()) {
             // Get the first buyer, seller, and land for the contract details
             $firstBuyer = $document->buyers()->with('buyer')->first();
             $firstSeller = $document->sellers()->with('seller')->first();
             $firstLand = $document->lands()->with('land')->first();
             
-            // Create the sale contract record
-            $saleContract = new \App\Models\SaleContract([
+            // Check if a SaleContract already exists for this document
+            $saleContract = \App\Models\SaleContract::where('document_creation_id', $document->id)->first();
+            
+            $contractData = [
                 'contract_id' => $document->document_code,
                 'document_creation_id' => $document->id,
                 'land_id' => $firstLand ? $firstLand->land_id : null,
@@ -364,9 +366,16 @@ class DocumentCreationController extends Controller
                 'total_amount' => $document->total_land_price,
                 'contract_date' => now(),
                 'status' => 'active',
-            ]);
+            ];
             
-            $saleContract->save();
+            if ($saleContract) {
+                // Update existing sale contract
+                $saleContract->update($contractData);
+            } else {
+                // Create new sale contract
+                $saleContract = new \App\Models\SaleContract($contractData);
+                $saleContract->save();
+            }
         }
 
         // In a real implementation, you would generate the actual document here

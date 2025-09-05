@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { Card, Table, Button, Typography, Space, Input, Popconfirm, message, Tooltip } from 'antd';
-import { PlusOutlined, SearchOutlined, FilePdfOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons';
+import { PlusOutlined, SearchOutlined, FilePdfOutlined, EyeOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import AdminLayout from '@/Layouts/AdminLayout';
 import axios from 'axios';
 
@@ -50,6 +50,20 @@ export default function SaleContractsList({ initialDocuments }) {
         message.error('មានបញ្ហាក្នុងការលុបកិច្ចសន្យា');
       }
     });
+  };
+
+  // Check if contract has paid payment steps
+  const hasPaidPaymentSteps = (record) => {
+    return record.payment_steps && record.payment_steps.some(step => step.status === 'paid');
+  };
+
+  // Handle edit button click with validation
+  const handleEdit = (record) => {
+    if (hasPaidPaymentSteps(record)) {
+      message.error('មិនអាចកែសម្រួលកិច្ចសន្យាទិញលក់បានទេ ពីព្រោះមានដំណាក់កាលបង់ប្រាក់ដែលបានបង់រួចរាល់ហើយ។');
+      return;
+    }
+    router.visit(route('sale-contracts.edit', { id: record.id }));
   };
 
   // Filter documents based on search text
@@ -140,6 +154,14 @@ export default function SaleContractsList({ initialDocuments }) {
             <Link href={route('sale-contracts.success', { id: record.id })}>
               <Button type="text" icon={<EyeOutlined />} />
             </Link>
+          </Tooltip>
+          <Tooltip title={hasPaidPaymentSteps(record) ? "មិនអាចកែសម្រួលបានទេ - មានការបង់ប្រាក់រួចរាល់" : "កែសម្រួលលិខិតទិញលក់"}>
+            <Button 
+              type="text" 
+              icon={<EditOutlined />} 
+              disabled={hasPaidPaymentSteps(record)}
+              onClick={() => handleEdit(record)}
+            />
           </Tooltip>
           <Tooltip title="ទាញយក PDF">
             <Link href={route('sale-contracts.download', { id: record.id })} target="_blank">

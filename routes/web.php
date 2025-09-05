@@ -162,6 +162,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [\App\Http\Controllers\DocumentCreationController::class, 'depositContractsIndex'])->name('index');
         Route::get('/create', [\App\Http\Controllers\DocumentCreationController::class, 'createDepositContract'])->name('create');
         Route::get('/select-buyers', [\App\Http\Controllers\DocumentCreationController::class, 'selectBuyers'])->defaults('type', 'deposit_contract')->name('select-buyers');
+        Route::get('/{id}/edit', [\App\Http\Controllers\DocumentCreationController::class, 'editDepositContract'])->name('edit');
+        Route::put('/{id}', [\App\Http\Controllers\DocumentCreationController::class, 'updateDepositContract'])->name('update');
         Route::get('/{id}/select-sellers', [\App\Http\Controllers\DocumentCreationController::class, 'selectSellers'])->defaults('type', 'deposit_contract')->name('select-sellers');
         Route::get('/{id}/select-lands', [\App\Http\Controllers\DocumentCreationController::class, 'selectLands'])->defaults('type', 'deposit_contract')->name('select-lands');
         Route::get('/{id}/deposit-config', [\App\Http\Controllers\DocumentCreationController::class, 'depositConfig'])->name('deposit-config');
@@ -177,6 +179,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [\App\Http\Controllers\DocumentCreationController::class, 'saleContractsIndex'])->name('index');
         Route::get('/create', [\App\Http\Controllers\DocumentCreationController::class, 'createSaleContract'])->name('create');
         Route::get('/select-buyers', [\App\Http\Controllers\DocumentCreationController::class, 'selectBuyers'])->defaults('type', 'sale_contract')->name('select-buyers');
+        Route::get('/{id}/edit', [\App\Http\Controllers\DocumentCreationController::class, 'editSaleContract'])->name('edit');
+        Route::put('/{id}', [\App\Http\Controllers\DocumentCreationController::class, 'updateSaleContract'])->name('update');
         Route::get('/{id}/select-sellers', [\App\Http\Controllers\DocumentCreationController::class, 'selectSellers'])->defaults('type', 'sale_contract')->name('select-sellers');
         Route::get('/{id}/select-lands', [\App\Http\Controllers\DocumentCreationController::class, 'selectLands'])->defaults('type', 'sale_contract')->name('select-lands');
         Route::get('/{id}/payment-steps', [\App\Http\Controllers\DocumentCreationController::class, 'paymentSteps'])->name('payment-steps');

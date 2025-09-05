@@ -9,7 +9,7 @@ import axios from 'axios';
 
 const { Title, Text } = Typography;
 
-export default function SelectSellers({ document, sellers, selectedSellers }) {
+export default function SelectSellers({ document, sellers, selectedSellers, editMode }) {
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(selectedSellers || []);
   const [searchText, setSearchText] = useState('');
@@ -152,7 +152,7 @@ export default function SelectSellers({ document, sellers, selectedSellers }) {
         
         <Card>
           <div className="flex justify-between items-center mb-6">
-            <Title level={3}>ជ្រើសរើសអ្នកលក់</Title>
+            <Title level={3}>{editMode ? 'កែសម្រួលអ្នកលក់' : 'ជ្រើសរើសអ្នកលក់'}</Title>
             <div className="flex items-center">
               <Text className="mr-2">បានជ្រើសរើស</Text>
               <Badge count={selected.length} showZero style={{ marginTop: '0' }} />

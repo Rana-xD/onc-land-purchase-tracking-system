@@ -9,7 +9,7 @@ import { formatKhmerDate } from '../../Utils/khmerDate';
 
 const { Title, Text } = Typography;
 
-export default function PaymentSteps({ document, paymentSteps }) {
+export default function PaymentSteps({ document, paymentSteps, editMode }) {
   const { csrf_token } = usePage().props;
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
@@ -185,7 +185,7 @@ export default function PaymentSteps({ document, paymentSteps }) {
         </Card>
         
         <Card>
-          <Title level={3} className="mb-6">ដំណាក់កាលបង់ប្រាក់</Title>
+          <Title level={3} className="mb-6">{editMode ? 'កែសម្រួលដំណាក់កាលបង់ប្រាក់' : 'ដំណាក់កាលបង់ប្រាក់'}</Title>
           
           <div className="mb-6">
             <Text strong>តម្លៃដីសរុប: ${parseFloat(document.total_land_price).toLocaleString()}</Text>

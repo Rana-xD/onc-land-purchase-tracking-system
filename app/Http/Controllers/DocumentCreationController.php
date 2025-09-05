@@ -145,6 +145,7 @@ class DocumentCreationController extends Controller
             'document' => $document,
             'sellers' => $sellers,
             'selectedSellers' => $selectedSellers,
+            'editMode' => session('edit_mode', false),
         ]);
     }
 
@@ -158,18 +159,21 @@ class DocumentCreationController extends Controller
     {
         $document = DocumentCreation::findOrFail($id);
         $lands = Land::all();
-        $selectedLands = $document->lands()->with('land')->get()->map(function ($documentLand) {
+        $selectedLands = $document->lands()->with('land')->get()->mapWithKeys(function ($documentLand) {
             return [
-                'land_id' => $documentLand->land_id,
-                'price_per_m2' => $documentLand->price_per_m2,
-                'total_price' => $documentLand->total_price,
+                $documentLand->land_id => [
+                    'land_id' => $documentLand->land_id,
+                    'price_per_m2' => $documentLand->price_per_m2,
+                    'total_price' => $documentLand->total_price,
+                ]
             ];
-        })->keyBy('land_id')->toArray();
+        })->toArray();
 
         return Inertia::render('Documents/SelectLands', [
             'document' => $document,
             'lands' => $lands,
             'selectedLands' => $selectedLands,
+            'editMode' => session('edit_mode', false),
         ]);
     }
 
@@ -189,6 +193,7 @@ class DocumentCreationController extends Controller
 
         return Inertia::render('Documents/DepositConfig', [
             'document' => $document,
+            'editMode' => session('edit_mode', false),
         ]);
     }
 
@@ -211,6 +216,7 @@ class DocumentCreationController extends Controller
         return Inertia::render('Documents/PaymentSteps', [
             'document' => $document,
             'paymentSteps' => $paymentSteps,
+            'editMode' => session('edit_mode', false),
         ]);
     }
 
@@ -353,5 +359,206 @@ class DocumentCreationController extends Controller
         return Inertia::render('Documents/Show', [
             'document' => $document,
         ]);
+    }
+
+    /**
+     * Show the form for editing a deposit contract.
+     *
+     * @param  int  $id
+     * @return \Inertia\Response
+     */
+    public function editDepositContract($id)
+    {
+        // Check if user has permission to edit deposit contracts
+        if (!Auth::user()->hasPermission('deposit_contracts.edit')) {
+            abort(403, 'Unauthorized');
+        }
+
+        $document = DocumentCreation::with(['buyers.buyer', 'sellers.seller', 'lands.land'])
+            ->where('document_type', 'deposit_contract')
+            ->findOrFail($id);
+
+        // Store edit mode and document ID in session
+        session(['edit_mode' => true, 'edit_document_id' => $id]);
+
+        // Start the edit flow with pre-selected buyers
+        $selectedBuyers = $document->buyers->pluck('buyer_id')->toArray();
+        
+        return Inertia::render('Documents/SelectBuyers', [
+            'buyers' => Buyer::all(),
+            'selectedBuyers' => $selectedBuyers,
+            'documentType' => 'deposit_contract',
+            'editMode' => true,
+            'documentId' => $id,
+        ]);
+    }
+
+    /**
+     * Update a deposit contract.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateDepositContract(Request $request, $id)
+    {
+        // Check if user has permission to edit deposit contracts
+        if (!Auth::user()->hasPermission('deposit_contracts.edit')) {
+            abort(403, 'Unauthorized');
+        }
+
+        $document = DocumentCreation::where('document_type', 'deposit_contract')
+            ->findOrFail($id);
+
+        $request->validate([
+            'total_land_price' => 'required|numeric|min:0',
+            'deposit_amount' => 'required|numeric|min:0',
+            'deposit_months' => 'required|string',
+            'buyers' => 'required|array|min:1',
+            'sellers' => 'required|array|min:1',
+            'lands' => 'required|array|min:1',
+        ]);
+
+        // Update document fields
+        $document->update([
+            'total_land_price' => $request->total_land_price,
+            'deposit_amount' => $request->deposit_amount,
+            'deposit_months' => $request->deposit_months,
+        ]);
+
+        // Update relationships
+        // Delete existing relationships
+        $document->buyers()->delete();
+        $document->sellers()->delete();
+        $document->lands()->delete();
+        
+        // Create new relationships
+        foreach ($request->buyers as $buyerId) {
+            $document->buyers()->create(['buyer_id' => $buyerId]);
+        }
+        
+        foreach ($request->sellers as $sellerId) {
+            $document->sellers()->create(['seller_id' => $sellerId]);
+        }
+        
+        foreach ($request->lands as $landId) {
+            $document->lands()->create([
+                'land_id' => $landId,
+                'total_price' => 0,
+                'price_per_m2' => null
+            ]);
+        }
+
+        return redirect()->route('deposit-contracts.index')
+            ->with('success', 'លិខិតកក់ប្រាក់ត្រូវបានកែសម្រួលដោយជោគជ័យ');
+    }
+
+    /**
+     * Show the form for editing a sale contract.
+     *
+     * @param  int  $id
+     * @return \Inertia\Response
+     */
+    public function editSaleContract($id)
+    {
+        // Check if user has permission to edit sale contracts
+        if (!Auth::user()->hasPermission('sale_contracts.edit')) {
+            abort(403, 'Unauthorized');
+        }
+
+        $document = DocumentCreation::with(['buyers.buyer', 'sellers.seller', 'lands.land', 'paymentSteps'])
+            ->where('document_type', 'sale_contract')
+            ->findOrFail($id);
+
+        // Check if any payment step has been paid - prevent editing if so
+        $hasPaidSteps = $document->paymentSteps()->where('status', 'paid')->exists();
+        if ($hasPaidSteps) {
+            return redirect()->back()->with('error', 'មិនអាចកែសម្រួលកិច្ចសន្យាទិញលក់បានទេ ពីព្រោះមានដំណាក់កាលបង់ប្រាក់ដែលបានបង់រួចរាល់ហើយ។');
+        }
+
+        // Store edit mode and document ID in session
+        session(['edit_mode' => true, 'edit_document_id' => $id]);
+
+        // Start the edit flow with pre-selected buyers
+        $selectedBuyers = $document->buyers->pluck('buyer_id')->toArray();
+        
+        return Inertia::render('Documents/SelectBuyers', [
+            'buyers' => Buyer::all(),
+            'selectedBuyers' => $selectedBuyers,
+            'documentType' => 'sale_contract',
+            'editMode' => true,
+            'documentId' => $id,
+        ]);
+    }
+
+    /**
+     * Update a sale contract.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateSaleContract(Request $request, $id)
+    {
+        // Check if user has permission to edit sale contracts
+        if (!Auth::user()->hasPermission('sale_contracts.edit')) {
+            abort(403, 'Unauthorized');
+        }
+
+        $document = DocumentCreation::where('document_type', 'sale_contract')
+            ->findOrFail($id);
+
+        $request->validate([
+            'total_land_price' => 'required|numeric|min:0',
+            'buyers' => 'required|array|min:1',
+            'sellers' => 'required|array|min:1',
+            'lands' => 'required|array|min:1',
+            'payment_steps' => 'required|array|min:1',
+            'payment_steps.*.amount' => 'required|numeric|min:0',
+            'payment_steps.*.due_date' => 'required|date',
+            'payment_steps.*.description' => 'nullable|string',
+        ]);
+
+        // Update document fields
+        $document->update([
+            'total_land_price' => $request->total_land_price,
+        ]);
+
+        // Update relationships
+        // Delete existing relationships
+        $document->buyers()->delete();
+        $document->sellers()->delete();
+        $document->lands()->delete();
+        
+        // Create new relationships
+        foreach ($request->buyers as $buyerId) {
+            $document->buyers()->create(['buyer_id' => $buyerId]);
+        }
+        
+        foreach ($request->sellers as $sellerId) {
+            $document->sellers()->create(['seller_id' => $sellerId]);
+        }
+        
+        foreach ($request->lands as $landId) {
+            $document->lands()->create([
+                'land_id' => $landId,
+                'total_price' => 0,
+                'price_per_m2' => null
+            ]);
+        }
+
+        // Update payment steps
+        $document->paymentSteps()->delete(); // Remove existing payment steps
+        foreach ($request->payment_steps as $step) {
+            $document->paymentSteps()->create([
+                'amount' => $step['amount'],
+                'due_date' => $step['due_date'],
+                'description' => $step['description'] ?? null,
+                'status' => 'unpaid',
+            ]);
+        }
+
+        return redirect()->route('sale-contracts.index')
+            ->with('success', 'លិខិតទិញលក់ត្រូវបានកែសម្រួលដោយជោគជ័យ');
     }
 }

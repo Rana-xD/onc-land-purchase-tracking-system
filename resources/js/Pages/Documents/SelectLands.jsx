@@ -9,7 +9,7 @@ import axios from 'axios';
 
 const { Title, Text } = Typography;
 
-export default function SelectLands({ document, lands, selectedLands }) {
+export default function SelectLands({ document, lands, selectedLands, editMode }) {
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState([]);
   const [landPrices, setLandPrices] = useState({});
@@ -18,7 +18,9 @@ export default function SelectLands({ document, lands, selectedLands }) {
   
   // Initialize selected lands and prices from props
   useEffect(() => {
-    if (selectedLands) {
+    if (selectedLands && Object.keys(selectedLands).length > 0) {
+      console.log('Initializing selectedLands:', selectedLands); // Debug log
+      
       const selectedIds = Object.keys(selectedLands).map(id => parseInt(id));
       setSelected(selectedIds);
       
@@ -27,11 +29,13 @@ export default function SelectLands({ document, lands, selectedLands }) {
       
       selectedIds.forEach(id => {
         const landData = selectedLands[id];
-        prices[id] = {
-          price_per_m2: landData.price_per_m2,
-          total_price: landData.total_price
-        };
-        total += parseFloat(landData.total_price);
+        if (landData) {
+          prices[id] = {
+            price_per_m2: landData.price_per_m2,
+            total_price: parseFloat(landData.total_price) || 0
+          };
+          total += parseFloat(landData.total_price) || 0;
+        }
       });
       
       setLandPrices(prices);
@@ -243,7 +247,7 @@ export default function SelectLands({ document, lands, selectedLands }) {
         
         <Card>
           <div className="flex justify-between items-center mb-6">
-            <Title level={3}>ជ្រើសរើសដី និងកំណត់តម្លៃ</Title>
+            <Title level={3}>{editMode ? 'កែសម្រួលដី និងកំណត់តម្លៃ' : 'ជ្រើសរើសដី និងកំណត់តម្លៃ'}</Title>
             <div className="flex items-center">
               <Text className="mr-2">បានជ្រើសរើស</Text>
               <Badge count={selected.length} showZero style={{ marginTop: '0' }} />
