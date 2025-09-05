@@ -62,6 +62,7 @@ const MonthlyReport = ({ auth }) => {
     const [exportFormat, setExportFormat] = useState(null);
     const [reportData, setReportData] = useState(null);
     const [error, setError] = useState(null);
+    const [paymentStatusFilter, setPaymentStatusFilter] = useState('all');
     
     // React PDF export hook
     const { generatePDF } = usePDFExport();
@@ -110,7 +111,8 @@ const MonthlyReport = ({ auth }) => {
         try {
             const response = await axios.post('/api/reports/monthly/data', {
                 start_date: dateRange[0].format('YYYY-MM-DD'),
-                end_date: dateRange[1].format('YYYY-MM-DD')
+                end_date: dateRange[1].format('YYYY-MM-DD'),
+                payment_status: paymentStatusFilter
             });
 
             setReportData(response.data);
@@ -120,7 +122,7 @@ const MonthlyReport = ({ auth }) => {
         } finally {
             setLoading(false);
         }
-    }, [startMonth, endMonth]);
+    }, [startMonth, endMonth, paymentStatusFilter]);
 
     // Handle backend export (Excel and legacy PDF)
     const handleExport = useCallback(async (format) => {
@@ -137,7 +139,8 @@ const MonthlyReport = ({ auth }) => {
             const response = await axios.post('/api/reports/monthly/export', {
                 start_date: dateRange[0].format('YYYY-MM-DD'),
                 end_date: dateRange[1].format('YYYY-MM-DD'),
-                format: format
+                format: format,
+                payment_status: paymentStatusFilter
             }, {
                 responseType: 'blob'
             });
@@ -201,7 +204,7 @@ const MonthlyReport = ({ auth }) => {
             setExporting(false);
             setExportFormat(null);
         }
-    }, [startMonth, endMonth, reportData, auth.user.name, generatePDFFromComponent]);
+    }, [startMonth, endMonth, reportData, auth.user.name, generatePDFFromComponent, paymentStatusFilter]);
 
     // Handle month/year changes
     const handleStartMonthChange = (month) => {
@@ -344,11 +347,30 @@ const MonthlyReport = ({ auth }) => {
                                 </Col>
                             </Row>
                             <div style={{ marginTop: 16 }}>
-                                <Space>
-                                    <Button size="small" onClick={setCurrentMonth}>ខែបច្ចុប្បន្ន</Button>
-                                    <Button size="small" onClick={setPreviousMonth}>ខែមុន</Button>
-                                    <Button size="small" onClick={setCurrentYear}>ឆ្នាំនេះ</Button>
-                                </Space>
+                                <Row gutter={16}>
+                                    <Col xs={24} md={12}>
+                                        <Space>
+                                            <Button size="small" onClick={setCurrentMonth}>ខែបច្ចុប្បន្ន</Button>
+                                            <Button size="small" onClick={setPreviousMonth}>ខែមុន</Button>
+                                            <Button size="small" onClick={setCurrentYear}>ឆ្នាំនេះ</Button>
+                                        </Space>
+                                    </Col>
+                                    <Col xs={24} md={12}>
+                                        <div className="mb-2">
+                                            <Text type="secondary">ស្ថានភាពការបង់ប្រាក់</Text>
+                                        </div>
+                                        <Select
+                                            style={{ width: '100%' }}
+                                            value={paymentStatusFilter}
+                                            onChange={setPaymentStatusFilter}
+                                            options={[
+                                                { value: 'all', label: 'ទាំងអស់' },
+                                                { value: 'paid', label: 'បានបង់ប្រាក់' },
+                                                { value: 'unpaid', label: 'មិនទាន់បង់ប្រាក់' }
+                                            ]}
+                                        />
+                                    </Col>
+                                </Row>
                             </div>
                         </Col>
                         <Col xs={24} sm={8} style={{ textAlign: 'right', marginTop: { xs: 16, sm: 0 } }}>
@@ -468,7 +490,13 @@ const MonthlyReport = ({ auth }) => {
                                     <Text>ដំណាក់កាល</Text>
                                 </Space>
                             </Col>
-                            <Col xs={24} sm={12} md={5} style={{ textAlign: 'right', paddingRight: '24px' }}>
+                            <Col xs={24} sm={6} md={3}>
+                                <Space>
+                                    <StarOutlined />
+                                    <Text>ស្ថានភាព</Text>
+                                </Space>
+                            </Col>
+                            <Col xs={24} sm={6} md={2} style={{ textAlign: 'right', paddingRight: '24px' }}>
                                 <Space>
                                     <DollarOutlined />
                                     <Text>ចំនួនទឹកប្រាក់</Text>
@@ -551,7 +579,12 @@ const MonthlyReport = ({ auth }) => {
                                         <Col xs={24} sm={12} md={5}>
                                             {formatStepNumber(item.step_number)}
                                         </Col>
-                                        <Col xs={24} sm={12} md={5} style={{ textAlign: 'right', paddingRight: '24px' }}>
+                                        <Col xs={24} sm={6} md={3}>
+                                            <Tag color={item.status === 'paid' ? 'green' : item.status === 'unpaid' ? 'orange' : 'red'}>
+                                                {item.status === 'paid' ? 'បានបង់ប្រាក់' : item.status === 'unpaid' ? 'មិនទាន់បង់ប្រាក់' : 'ហួសកំណត់'}
+                                            </Tag>
+                                        </Col>
+                                        <Col xs={24} sm={6} md={2} style={{ textAlign: 'right', paddingRight: '24px' }}>
                                             <Text strong>{formatCurrency(item.amount)}</Text>
                                         </Col>
                                     </Row>
@@ -560,9 +593,8 @@ const MonthlyReport = ({ auth }) => {
                         />
 
                         {/* Total Section */}
-                        <Row>
-                            <Col xs={0} sm={0} md={19}></Col>
-                            <Col xs={24} sm={12} md={5} style={{ textAlign: 'right', marginTop: 16, paddingRight: '24px' }}>
+                        <Row justify="end" style={{ marginTop: 16, paddingRight: '24px' }}>
+                            <Col>
                                 <Space>
                                     <Text type="secondary" style={{ fontSize: '16px' }}>ចំនួនសរុប:</Text>
                                     <Text strong style={{ fontSize: '18px' }}>{formatCurrency(reportData.summary.total_amount)}</Text>

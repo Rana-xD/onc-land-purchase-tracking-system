@@ -15,9 +15,10 @@ class MonthlyReportService
      *
      * @param string $startDate
      * @param string $endDate
+     * @param string $paymentStatus
      * @return array
      */
-    public function getMonthlyReportData(string $startDate, string $endDate): array
+    public function getMonthlyReportData(string $startDate, string $endDate, string $paymentStatus = 'all'): array
     {
         try {
             // Convert dates to Carbon instances
@@ -44,9 +45,14 @@ class MonthlyReportService
                     ]);
                 }
             ])
-            ->whereBetween('due_date', [$startDate, $endDate])
-            ->orderBy('due_date')
-            ->get();
+            ->whereBetween('due_date', [$startDate, $endDate]);
+            
+            // Apply payment status filter
+            if ($paymentStatus !== 'all') {
+                $paymentSteps = $paymentSteps->where('status', $paymentStatus);
+            }
+            
+            $paymentSteps = $paymentSteps->orderBy('due_date')->get();
             
             // Filter out payment steps that don't have a valid document creation or sale contract
             // But only filter if they are actually null, not just soft-deleted

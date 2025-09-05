@@ -33,6 +33,7 @@ class MonthlyReportController extends Controller
         $validator = Validator::make($request->all(), [
             'start_date' => 'required|date_format:Y-m-d',
             'end_date' => 'required|date_format:Y-m-d|after_or_equal:start_date',
+            'payment_status' => 'nullable|in:all,paid,unpaid',
         ]);
 
         if ($validator->fails()) {
@@ -41,9 +42,10 @@ class MonthlyReportController extends Controller
 
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
+        $paymentStatus = $request->input('payment_status', 'all');
 
         try {
-            $data = $this->monthlyReportService->getMonthlyReportData($startDate, $endDate);
+            $data = $this->monthlyReportService->getMonthlyReportData($startDate, $endDate, $paymentStatus);
             return response()->json($data);
         } catch (\Exception $e) {
             return response()->json([
@@ -64,6 +66,7 @@ class MonthlyReportController extends Controller
             'start_date' => 'required|date_format:Y-m-d',
             'end_date' => 'required|date_format:Y-m-d|after_or_equal:start_date',
             'format' => 'required|in:pdf,excel',
+            'payment_status' => 'nullable|in:all,paid,unpaid',
         ]);
 
         if ($validator->fails()) {
@@ -73,10 +76,11 @@ class MonthlyReportController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
         $format = $request->input('format');
+        $paymentStatus = $request->input('payment_status', 'all');
         $user = Auth::user();
 
         try {
-            $data = $this->monthlyReportService->getMonthlyReportData($startDate, $endDate);
+            $data = $this->monthlyReportService->getMonthlyReportData($startDate, $endDate, $paymentStatus);
             return $this->monthlyExportService->exportMonthlyReport($data, $format, $startDate, $endDate, $user);
         } catch (\Exception $e) {
             return response()->json([
