@@ -1,0 +1,480 @@
+import React, { useState, useEffect } from 'react';
+import { Head, Link } from '@inertiajs/react';
+import AdminLayout from '@/Layouts/AdminLayout';
+import { 
+    Card, Collapse, Space, 
+    Typography, Tag, message, Spin, Tooltip, Popconfirm, 
+    Button, Breadcrumb, Table
+} from 'antd';
+import { 
+    DownloadOutlined, FileTextOutlined, 
+    UploadOutlined, ExpandOutlined, FileExcelOutlined, 
+    FilePdfOutlined, CheckCircleOutlined, ClockCircleOutlined,
+    ExclamationCircleOutlined, ArrowLeftOutlined
+} from '@ant-design/icons';
+import axios from 'axios';
+import DocumentUploadModal from './Components/DocumentUploadModal';
+import DocumentListModal from './Components/DocumentListModal';
+import DocumentReportHTML from '@/Components/PDF/DocumentReportHTML';
+import useHTMLToPDF from '@/Hooks/useHTMLToPDF';
+
+const { Title, Text } = Typography;
+const { Panel } = Collapse;
+
+export default function ContractDetail({ auth, contract_id }) {
+    const [loading, setLoading] = useState(false);
+    const [searchResult, setSearchResult] = useState(null);
+    const [uploadModalVisible, setUploadModalVisible] = useState(false);
+    const [listModalVisible, setListModalVisible] = useState(false);
+    const [selectedPaymentStep, setSelectedPaymentStep] = useState(null);
+    const [saleContract, setSaleContract] = useState(null);
+    const [exporting, setExporting] = useState(false);
+    
+    // HTML-to-PDF hook
+    const { generatePDFFromComponent } = useHTMLToPDF();
+    
+    // Load contract details on component mount
+    useEffect(() => {
+        if (contract_id) {
+            handleSearchWithId(contract_id);
+        }
+    }, [contract_id]);
+
+    // Handle search with specific contract ID
+    const handleSearchWithId = async (id) => {
+        if (!id.trim()) {
+            message.error('សូមបញ្ចូលលេខកិច្ចសន្យា');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const response = await axios.post('/api/reports/document/search', {
+                contract_id: id.trim()
+            });
+            
+            setSearchResult(response.data);
+            
+            // Set the sale contract from the search result
+            if (response.data && response.data.contract) {
+                setSaleContract(response.data.contract);
+            } else {
+                setSaleContract(null);
+            }
+            
+            message.success('រកឃើញកិច្ចសន្យា');
+        } catch (error) {
+            console.error('បញ្ហាក្នុងការស្វែងរក:', error);
+            message.error(error.response?.data?.error || 'មិនរកឃើញកិច្ចសន្យា');
+            setSearchResult(null);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Handle payment contract creation
+    const handleCreateContract = async (paymentStepId) => {
+        try {
+            setLoading(true);
+            const response = await axios.post(`/api/reports/payment-steps/${paymentStepId}/create-contract`);
+            message.success('បង្កើតកិច្ចសន្យាបង់ប្រាក់ជោគជ័យ');
+            
+            // Refresh search results
+            handleSearchWithId(contract_id);
+        } catch (error) {
+            console.error('បញ្ហាក្នុងការបង្កើតកិច្ចសន្យា:', error);
+            message.error(error.response?.data?.error || 'មិនអាចបង្កើតកិច្ចសន្យាបង់ប្រាក់');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Handle marking payment step as paid
+    const handleMarkAsPaidAction = async (paymentStepId) => {
+        try {
+            setLoading(true);
+            const response = await axios.post(`/api/reports/payment-steps/${paymentStepId}/mark-as-paid`);
+            message.success('បានកំណត់ថាបានបង់ប្រាក់ហើយ');
+            
+            // Refresh search results
+            handleSearchWithId(contract_id);
+        } catch (error) {
+            console.error('បញ្ហាក្នុងការកំណត់ថាបានបង់ប្រាក់:', error);
+            message.error(error.response?.data?.error || 'មិនអាចកំណត់ថាបានបង់ប្រាក់');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Handle marking payment step as unpaid
+    const handleMarkAsUnpaidAction = async (paymentStepId) => {
+        try {
+            setLoading(true);
+            const response = await axios.post(`/api/reports/payment-steps/${paymentStepId}/mark-as-unpaid`);
+            message.success('បានកំណត់ថាមិនទាន់បង់ប្រាក់');
+            
+            // Refresh search results
+            handleSearchWithId(contract_id);
+        } catch (error) {
+            console.error('បញ្ហាក្នុងការកំណត់ថាមិនទាន់បង់ប្រាក់:', error);
+            message.error(error.response?.data?.error || 'មិនអាចកំណត់ថាមិនទាន់បង់ប្រាក់');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Handle document export
+    const handleExport = async (format) => {
+        if (!searchResult) {
+            message.error('សូមស្វែងរកកិច្ចសន្យាជាមុនសិន');
+            return;
+        }
+
+        setExporting(true);
+        
+        try {
+            if (format === 'pdf') {
+                const filename = `document_report_${searchResult.contract.contract_id}_${new Date().toISOString().split('T')[0]}.pdf`;
+                
+                const htmlComponent = (
+                    <DocumentReportHTML 
+                        data={searchResult}
+                        exportedBy={auth.user.name}
+                    />
+                );
+
+                const result = await generatePDFFromComponent(htmlComponent, filename);
+                
+                if (!result.success) {
+                    throw new Error(result.error);
+                }
+                
+                message.success('នាំចេញ PDF បានជោគជ័យ');
+            } else if (format === 'excel') {
+                const response = await axios.post('/api/reports/document/export', {
+                    contract_id: searchResult.contract.contract_id,
+                    format: 'excel'
+                }, {
+                    responseType: 'blob'
+                });
+                
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `document_report_${searchResult.contract.contract_id}.xlsx`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                message.success('នាំចេញ Excel បានជោគជ័យ');
+            }
+        } catch (error) {
+            console.error('Export error:', error);
+            message.error(`មានបញ្ហាក្នុងការនាំចេញ: ${error.message}`);
+        } finally {
+            setExporting(false);
+        }
+    };
+
+    // Show upload document modal
+    const showUploadModal = () => {
+        if (!saleContract) {
+            if (searchResult && searchResult.contract) {
+                setSaleContract(searchResult.contract);
+                setUploadModalVisible(true);
+                return;
+            }
+            
+            message.error('សូមស្វែងរកកិច្ចសន្យាមុននឹងផ្ទុកកិច្ចសន្យា');
+            return;
+        }
+        
+        setUploadModalVisible(true);
+    };
+
+    // Show document list modal
+    const showListModal = (paymentStep) => {
+        setSelectedPaymentStep(paymentStep);
+        setListModalVisible(true);
+    };
+
+    // Payment step status tag
+    const getStatusTag = (status) => {
+        switch (status) {
+            case 'paid':
+                return <Tag color="green"><CheckCircleOutlined /> បានបង់ប្រាក់រួចរាល់</Tag>;
+            case 'unpaid':
+            default:
+                return <Tag color="red"><ClockCircleOutlined /> មិនទាន់បង់ប្រាក់</Tag>;
+        }
+    };
+
+    // Payment steps table columns
+    const columns = [
+        {
+            title: 'ដំណាក់កាល',
+            dataIndex: 'step_number',
+            key: 'step_number',
+            width: 120,
+            render: (step_number) => `ទី${step_number}`,
+        },
+        {
+            title: 'ចំនួនទឹកប្រាក់',
+            dataIndex: 'amount',
+            key: 'amount',
+            render: (amount) => `$${parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+            width: 150,
+        },
+        {
+            title: 'កាលបរិច្ឆេទត្រូវបង់ប្រាក់',
+            dataIndex: 'due_date',
+            key: 'due_date',
+            render: (dueDate, record) => {
+                const dueDateObj = new Date(dueDate);
+                const currentDate = new Date();
+                const isOverdue = dueDateObj < currentDate && record.status === 'unpaid';
+                
+                return isOverdue ? 
+                    <Text strong style={{ color: 'red' }}>{dueDate}</Text> : 
+                    <Text>{dueDate}</Text>;
+            },
+        },
+        {
+            title: 'ស្ថានភាព',
+            dataIndex: 'status',
+            key: 'status',
+            render: (status) => getStatusTag(status),
+        },
+        {
+            title: 'សកម្មភាព',
+            key: 'actions',
+            render: (_, record) => (
+                <Space size="small">
+                    {record.status !== 'paid' ? (
+                        <Popconfirm
+                            title="តើអ្នកប្រាកដថាចង់កំណត់ថាបានបង់ប្រាក់នេះមែនទេ?"
+                            description="ការសកម្មភាពនេះអាចត្រូវបានប្រព្រឹត្តទៅ"
+                            icon={<ExclamationCircleOutlined style={{ color: '#faad14' }} />}
+                            okText="បាទ/ចាស"
+                            cancelText="ទេ"
+                            okButtonProps={{ style: { backgroundColor: '#1890ff', borderColor: '#1890ff' } }}
+                            onConfirm={() => handleMarkAsPaidAction(record.id)}
+                        >
+                            <Button 
+                                type="primary" 
+                                icon={<CheckCircleOutlined />} 
+                                size="small"
+                                style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+                                title="កំណត់ថាបានបង់ប្រាក់"
+                            />
+                        </Popconfirm>
+                    ) : (
+                        <Popconfirm
+                            title="តើអ្នកប្រាកដថាចង់កំណត់ថាមិនទាន់បង់ប្រាក់នេះមែនទេ?"
+                            description="ការសកម្មភាពនេះនឹងប្តូរស្ថានភាពទៅជាមិនទាន់បង់ប្រាក់"
+                            icon={<ExclamationCircleOutlined style={{ color: '#faad14' }} />}
+                            okText="បាទ/ចាស"
+                            cancelText="ទេ"
+                            okButtonProps={{ style: { backgroundColor: '#ff4d4f', borderColor: '#ff4d4f' } }}
+                            onConfirm={() => handleMarkAsUnpaidAction(record.id)}
+                        >
+                            <Button 
+                                type="primary" 
+                                icon={<ClockCircleOutlined />} 
+                                size="small"
+                                style={{ backgroundColor: '#ff4d4f', borderColor: '#ff4d4f' }}
+                                title="កំណត់ថាមិនទាន់បង់ប្រាក់"
+                            />
+                        </Popconfirm>
+                    )}
+                </Space>
+            ),
+        },
+    ];
+
+    return (
+        <AdminLayout
+            user={auth.user}
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">ព័ត៌មានលម្អិតកិច្ចសន្យា</h2>}
+        >
+            <Head title={`ព័ត៌មានលម្អិតកិច្ចសន្យា - ${contract_id}`} />
+
+            <div className="py-12">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <Breadcrumb className="mb-6">
+                        <Breadcrumb.Item>
+                            <Link href="/reports/document">របាយការណ៍កិច្ចសន្យា</Link>
+                        </Breadcrumb.Item>
+                        <Breadcrumb.Item>ព័ត៌មានលម្អិត</Breadcrumb.Item>
+                        <Breadcrumb.Item>{contract_id}</Breadcrumb.Item>
+                    </Breadcrumb>
+
+                    <div className="mb-6">
+                        <Button 
+                            icon={<ArrowLeftOutlined />}
+                            onClick={() => window.history.back()}
+                        >
+                            ត្រឡប់ក្រោយ
+                        </Button>
+                    </div>
+
+                    {loading && (
+                        <div className="text-center my-8">
+                            <Spin size="large" />
+                        </div>
+                    )}
+
+                    {searchResult && (
+                        <>
+                            <Card 
+                                title={`កិច្ចសន្យា: ${searchResult.contract.contract_id}`}
+                                className="mb-6"
+                                extra={
+                                    <Space>
+                                        <Button 
+                                            type="primary"
+                                            danger
+                                            icon={<FilePdfOutlined />} 
+                                            onClick={() => handleExport('pdf')}
+                                            loading={exporting}
+                                        >
+                                            នាំចេញជា PDF
+                                        </Button>
+                                        <Button 
+                                            type="primary"
+                                            style={{ backgroundColor: '#52c41a' }}
+                                            icon={<FileExcelOutlined />} 
+                                            onClick={() => handleExport('excel')}
+                                        >
+                                            នាំចេញជា Excel
+                                        </Button>
+                                        <Button 
+                                            icon={<UploadOutlined />}
+                                            onClick={() => showUploadModal()}
+                                        >
+                                            ផ្ទុកកិច្ចសន្យា
+                                        </Button>
+                                        <Button 
+                                            icon={<ExpandOutlined />}
+                                            onClick={() => showListModal(null)}
+                                        >
+                                            មើលកិច្ចសន្យាទាំងអស់
+                                        </Button>
+                                    </Space>
+                                }
+                            >
+                                <Collapse defaultActiveKey={['1', '2', '3']}>
+                                    <Panel header="ព័ត៌មានអ្នកទិញ" key="1">
+                                        {searchResult.contract.buyers && searchResult.contract.buyers.length > 0 ? (
+                                            <>
+                                                {searchResult.contract.buyers.map((buyer, index) => (
+                                                    <div key={buyer.id} className={index > 0 ? 'mt-4 pt-4 border-t' : ''}>
+                                                        {searchResult.contract.buyers.length > 1 && (
+                                                            <h4 className="font-bold mb-2">អ្នកទិញទី {index + 1}</h4>
+                                                        )}
+                                                        <p><strong>ឈ្មោះ:</strong> {buyer.name}</p>
+                                                        <p><strong>ទូរស័ព្ទ:</strong> {buyer.phone || 'N/A'}</p>
+                                                        <p><strong>អាសយដ្ឋាន:</strong> {buyer.address || 'N/A'}</p>
+                                                    </div>
+                                                ))}
+                                            </>
+                                        ) : (
+                                            <>
+                                                <p><strong>ឈ្មោះ:</strong> {searchResult.contract.buyer_info.name}</p>
+                                                <p><strong>ទូរស័ព្ទ:</strong> {searchResult.contract.buyer_info.phone || 'N/A'}</p>
+                                                <p><strong>អាសយដ្ឋាន:</strong> {searchResult.contract.buyer_info.address || 'N/A'}</p>
+                                            </>
+                                        )}
+                                    </Panel>
+                                    <Panel header="ព័ត៌មានអ្នកលក់" key="2">
+                                        {searchResult.contract.sellers && searchResult.contract.sellers.length > 0 ? (
+                                            <>
+                                                {searchResult.contract.sellers.map((seller, index) => (
+                                                    <div key={seller.id} className={index > 0 ? 'mt-4 pt-4 border-t' : ''}>
+                                                        {searchResult.contract.sellers.length > 1 && (
+                                                            <h4 className="font-bold mb-2">អ្នកលក់ទី {index + 1}</h4>
+                                                        )}
+                                                        <p><strong>ឈ្មោះ:</strong> {seller.name}</p>
+                                                        <p><strong>ទូរស័ព្ទ:</strong> {seller.phone || 'N/A'}</p>
+                                                        <p><strong>អាសយដ្ឋាន:</strong> {seller.address || 'N/A'}</p>
+                                                    </div>
+                                                ))}
+                                            </>
+                                        ) : (
+                                            <>
+                                                <p><strong>ឈ្មោះ:</strong> {searchResult.contract.seller_info.name}</p>
+                                                <p><strong>ទូរស័ព្ទ:</strong> {searchResult.contract.seller_info.phone || 'N/A'}</p>
+                                                <p><strong>អាសយដ្ឋាន:</strong> {searchResult.contract.seller_info.address || 'N/A'}</p>
+                                            </>
+                                        )}
+                                    </Panel>
+                                    <Panel header="ព័ត៌មានដី" key="3">
+                                        {searchResult.contract.lands && searchResult.contract.lands.length > 0 ? (
+                                            <>
+                                                {searchResult.contract.lands.map((land, index) => (
+                                                    <div key={land.id} className={index > 0 ? 'mt-4 pt-4 border-t' : ''}>
+                                                        {searchResult.contract.lands.length > 1 && (
+                                                            <h4 className="font-bold mb-2">ដីទី {index + 1}</h4>
+                                                        )}
+                                                        <p><strong>លេខក្បែងដី:</strong> {land.plot_number}</p>
+                                                        <p><strong>ទំហំ:</strong> {land.size}</p>
+                                                        <p><strong>ទីតាំង:</strong> {land.location}</p>
+                                                        <p><strong>តម្លៃក្នុងម៉ែត្រការ៉េ:</strong> {land.price_per_meter}</p>
+                                                        <p><strong>តម្លៃសរុប:</strong> {land.total_price}</p>
+                                                    </div>
+                                                ))}
+                                            </>
+                                        ) : (
+                                            <>
+                                                <p><strong>លេខក្បែងដី:</strong> {searchResult.contract.land_info.plot_number}</p>
+                                                <p><strong>ទំហំ:</strong> {searchResult.contract.land_info.size}</p>
+                                                <p><strong>ទីតាំង:</strong> {searchResult.contract.land_info.location}</p>
+                                            </>
+                                        )}
+                                    </Panel>
+                                </Collapse>
+                                
+                                <div className="mt-6">
+                                    <Table 
+                                        columns={columns} 
+                                        dataSource={searchResult.payment_steps} 
+                                        rowKey="id"
+                                        pagination={false}
+                                        size="middle"
+                                    />
+                                </div>
+                            </Card>
+                        </>
+                    )}
+
+                    {!loading && !searchResult && (
+                        <Card>
+                            <div className="text-center py-8">
+                                <FileTextOutlined style={{ fontSize: '48px', color: '#ccc' }} />
+                                <p className="mt-4 text-gray-500">មិនរកឃើញកិច្ចសន្យា</p>
+                            </div>
+                        </Card>
+                    )}
+                </div>
+            </div>
+
+            {/* Document Upload Modal */}
+            <DocumentUploadModal
+                visible={uploadModalVisible}
+                onCancel={() => setUploadModalVisible(false)}
+                saleContract={saleContract}
+                onSuccess={() => {
+                    setUploadModalVisible(false);
+                    handleSearchWithId(contract_id);
+                }}
+            />
+
+            {/* Document List Modal */}
+            <DocumentListModal
+                visible={listModalVisible}
+                onCancel={() => setListModalVisible(false)}
+                paymentStep={selectedPaymentStep}
+            />
+        </AdminLayout>
+    );
+}

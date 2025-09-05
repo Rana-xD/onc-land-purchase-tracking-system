@@ -24,7 +24,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // Reports API Routes
-Route::prefix('reports')->group(function () {
+Route::prefix('reports')->middleware('auth:sanctum')->group(function () {
     // Document Report
     Route::prefix('document')->group(function () {
         Route::post('/search', [DocumentReportController::class, 'search']);
@@ -54,12 +54,7 @@ Route::prefix('reports')->group(function () {
     // Contract report routes
     Route::get('/contracts/report-list', [ContractReportController::class, 'apiList']);
 
-    // Payment Steps
-    Route::prefix('payment-steps')->group(function () {
-        Route::post('/{stepId}/create-contract', [PaymentStepController::class, 'createContract']);
-        Route::get('/{stepId}/documents', [PaymentStepController::class, 'getDocuments']);
-        Route::post('/{stepId}/mark-as-paid', [PaymentStepController::class, 'markAsPaid']);
-    });
+    // Payment Steps (moved to web.php)
     
     // Contract Documents
     Route::prefix('contract-documents')->group(function () {

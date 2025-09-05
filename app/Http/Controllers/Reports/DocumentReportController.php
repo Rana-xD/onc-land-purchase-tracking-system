@@ -24,6 +24,46 @@ class DocumentReportController extends Controller
     }
 
     /**
+     * Get all contracts with pagination
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index(Request $request)
+    {
+        try {
+            $contracts = SaleContract::with(['land', 'documentCreation.buyers', 'documentCreation.sellers'])
+                ->whereHas('documentCreation', function ($query) {
+                    $query->where('document_type', 'sale_contract');
+                })
+                ->orderBy('created_at', 'desc')
+                ->paginate(15);
+
+            $formattedContracts = $contracts->getCollection()->map(function ($contract) {
+                return [
+                    'id' => $contract->id,
+                    'contract_id' => $contract->contract_id,
+                    'seller_name' => $contract->seller_name,
+                    'land_plot_number' => $contract->land ? $contract->land->plot_number : 'N/A',
+                    'total_amount' => $contract->total_amount,
+                    'contract_date' => $contract->contract_date,
+                    'status' => $contract->status,
+                ];
+            });
+
+            return response()->json([
+                'data' => $formattedContracts,
+                'current_page' => $contracts->currentPage(),
+                'last_page' => $contracts->lastPage(),
+                'per_page' => $contracts->perPage(),
+                'total' => $contracts->total(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while fetching contracts: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
      * Search for contracts by contract ID
      *
      * @param  \Illuminate\Http\Request  $request

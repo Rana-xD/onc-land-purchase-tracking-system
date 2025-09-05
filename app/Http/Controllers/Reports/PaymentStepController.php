@@ -99,4 +99,32 @@ class PaymentStepController extends Controller
         
         return response()->json(['message' => 'ដំណាក់កាលបានកំណត់ថាបានបង់ប្រាក់ហើយ', 'payment_step' => $paymentStep]);
     }
+    
+    /**
+     * Mark a payment step as unpaid.
+     *
+     * @param int $stepId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function markAsUnpaid($stepId)
+    {
+        $paymentStep = PaymentStep::findOrFail($stepId);
+        
+        // Check if user is admin or created the payment step
+        $user = Auth::user();
+        if (!$user->is_admin && $paymentStep->documentCreation->created_by !== $user->id) {
+            return response()->json(['error' => 'អ្នកមិនមានសិទ្ធិកំណត់ដំណាក់កាលនេះថាមិនទាន់បង់ប្រាក់ទេ'], 403);
+        }
+        
+        // Check if already unpaid
+        if ($paymentStep->status === 'unpaid') {
+            return response()->json(['message' => 'ដំណាក់កាលនេះមិនទាន់បង់ប្រាក់រួចហើយ', 'payment_step' => $paymentStep]);
+        }
+        
+        // Update payment step status
+        $paymentStep->status = 'unpaid';
+        $paymentStep->save();
+        
+        return response()->json(['message' => 'ដំណាក់កាលបានកំណត់ថាមិនទាន់បង់ប្រាក់', 'payment_step' => $paymentStep]);
+    }
 }

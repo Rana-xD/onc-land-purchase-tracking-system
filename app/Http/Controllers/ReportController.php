@@ -82,12 +82,8 @@ class ReportController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        // Find the contract by document_code (which is displayed as contract_id in the UI)
-        $contract = DocumentCreation::where('document_code', $contract_id)->first();
-        
-        // Pass the contract data to the view, or null if not found
-        return Inertia::render('Reports/ContractDocumentReport', [
-            'contract' => $contract,
+        // Pass the contract_id to the detail view
+        return Inertia::render('Reports/ContractDetail', [
             'contract_id' => $contract_id
         ]);
     }

@@ -257,6 +257,7 @@ Route::middleware('auth')->group(function () {
         Route::prefix('reports')->group(function () {
             // Document Report
             Route::prefix('document')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Reports\DocumentReportController::class, 'index']);
                 Route::post('/search', [\App\Http\Controllers\Reports\DocumentReportController::class, 'search']);
                 Route::get('/export/{contractId}', [\App\Http\Controllers\Reports\DocumentReportController::class, 'export']);
             });
@@ -274,6 +275,7 @@ Route::middleware('auth')->group(function () {
                 Route::post('/{stepId}/create-contract', [\App\Http\Controllers\Reports\PaymentStepController::class, 'createContract']);
                 Route::get('/{stepId}/documents', [\App\Http\Controllers\Reports\PaymentStepController::class, 'getDocuments']);
                 Route::post('/{stepId}/mark-as-paid', [\App\Http\Controllers\Reports\PaymentStepController::class, 'markAsPaid']);
+                Route::post('/{stepId}/mark-as-unpaid', [\App\Http\Controllers\Reports\PaymentStepController::class, 'markAsUnpaid']);
             });
             
             // Contract Documents
