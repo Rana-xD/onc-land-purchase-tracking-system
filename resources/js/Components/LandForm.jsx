@@ -4,7 +4,7 @@ import { SaveOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { formatKhmerDate } from '@/Utils/khmerDate';
 
-export default function LandForm({ onSubmit, files, frontImage }) {
+export default function LandForm({ onSubmit, files, frontImage, initialValues }) {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
 
@@ -182,6 +182,7 @@ export default function LandForm({ onSubmit, files, frontImage }) {
                     form={form}
                     layout="vertical"
                     onFinish={handleSubmit}
+                    initialValues={initialValues}
                 >
                     <Form.Item 
                         label="លេខប្លង់" 
@@ -206,8 +207,8 @@ export default function LandForm({ onSubmit, files, frontImage }) {
                     >
                         <DatePicker 
                             style={{ width: '100%' }}
-                            placeholder="ជ្រើសរើសកាលបរិច្ឆេទ" 
-                            format="DD/MM/YYYY"
+                            format={(value) => formatKhmerDate(value)}
+                            placeholder="ជ្រើសរើសកាលបរិច្ឆេទចុះបញ្ជី"
                         />
                     </Form.Item>
                     

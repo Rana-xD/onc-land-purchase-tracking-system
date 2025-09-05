@@ -10,7 +10,9 @@ import {
     SaveOutlined, ArrowLeftOutlined, ArrowRightOutlined, 
     CheckCircleOutlined, FileAddOutlined, EnvironmentOutlined
 } from '@ant-design/icons';
-import FileUpload from '@/Components/FileUpload';
+import LandForm from '@/Components/LandForm';
+import FrontImageUpload from '@/Components/FrontImageUpload';
+import BackImageUpload from '@/Components/BackImageUpload';
 import axios from 'axios';
 
 const { Title, Text } = Typography;
@@ -18,239 +20,99 @@ const { Step } = Steps;
 const { Option } = Select;
 
 export default function LandEdit({ land, documents }) {
-    const [form] = Form.useForm();
     const [currentStep, setCurrentStep] = useState(0);
-    const [fileList, setFileList] = useState([]);
+    const [frontImage, setFrontImage] = useState(null);
+    const [backImage, setBackImage] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [formValues, setFormValues] = useState({
-        title_deed_number: land.title_deed_number,
-        location: land.location,
-        province: land.province,
-        district: land.district,
-        commune: land.commune,
-        village: land.village,
-        size: land.size,
-        size_unit: land.size_unit,
-        price_per_unit: land.price_per_unit,
-        total_price: land.total_price
-    });
 
-    // Initialize fileList from existing documents
+    // Initialize images from existing documents
     useEffect(() => {
         if (documents && documents.length > 0) {
-            const files = documents.map(doc => ({
-                uid: doc.id,
-                name: doc.file_name,
-                status: 'done',
-                url: `/storage/${doc.file_path}`,
-                isExisting: true,
-                id: doc.id,
-                isDisplay: doc.is_display
-            }));
-            setFileList(files);
+            documents.forEach(doc => {
+                const imageData = {
+                    uid: doc.id,
+                    name: doc.file_name,
+                    fileName: doc.file_name,
+                    url: `/storage/${doc.file_path}`,
+                    base64: `/storage/${doc.file_path}`,
+                    isExisting: true,
+                    id: doc.id,
+                    isDisplay: doc.is_display,
+                    mimeType: 'image/jpeg'
+                };
+                
+                if (doc.is_display) {
+                    setFrontImage(imageData);
+                } else {
+                    setBackImage(imageData);
+                }
+            });
         }
     }, [documents]);
 
-    // Recalculate total price when size or price_per_unit changes
-    useEffect(() => {
-        if (formValues.size && formValues.price_per_unit) {
-            const totalPrice = formValues.size * formValues.price_per_unit;
-            setFormValues(prev => ({
-                ...prev,
-                total_price: totalPrice
-            }));
-            form.setFieldsValue({ total_price: totalPrice });
-        }
-    }, [formValues.size, formValues.price_per_unit]);
-
     const steps = [
         {
-            title: 'កិច្ចសន្យា',
-            icon: <FileAddOutlined />,
-            content: (
-                <Card title="បញ្ចូលកិច្ចសន្យា" className="mb-6">
-                    <FileUpload
-                        fileList={fileList}
-                        setFileList={setFileList}
-                        maxFiles={2}
-                    />
-                </Card>
-            ),
+            title: 'រូបខាងមុខ',
+            content: 'front-image',
         },
         {
-            title: 'ព័ត៌មានដី',
-            icon: <EnvironmentOutlined />,
-            content: (
-                <Card title="បញ្ចូលព័ត៌មានដី" className="mb-6">
-                    <Form
-                        form={form}
-                        layout="vertical"
-                        initialValues={{
-                            title_deed_number: land.title_deed_number,
-                            location: land.location,
-                            province: land.province,
-                            district: land.district,
-                            commune: land.commune,
-                            village: land.village,
-                            size: land.size,
-                            size_unit: land.size_unit,
-                            price_per_unit: land.price_per_unit,
-                            total_price: land.total_price
-                        }}
-                        onValuesChange={(changedValues, allValues) => {
-                            setFormValues({...formValues, ...changedValues});
-                        }}
-                    >
-                        <Row gutter={16}>
-                            <Col xs={24} md={12}>
-                                <Form.Item
-                                    label="លេខប្លង់"
-                                    name="title_deed_number"
-                                    rules={[{ required: true, message: 'សូមបញ្ចូលលេខប្លង់' }]}
-                                >
-                                    <Input placeholder="បញ្ចូលលេខប្លង់" />
-                                </Form.Item>
-                            </Col>
-                            <Col xs={24} md={12}>
-                                <Form.Item
-                                    label="ទីតាំង"
-                                    name="location"
-                                    rules={[{ required: true, message: 'សូមបញ្ចូលទីតាំង' }]}
-                                >
-                                    <Input placeholder="បញ្ចូលទីតាំង" />
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <Row gutter={16}>
-                            <Col xs={24} md={12}>
-                                <Form.Item
-                                    label="ខេត្ត/ក្រុង"
-                                    name="province"
-                                    rules={[{ required: true, message: 'សូមបញ្ចូលខេត្ត/ក្រុង' }]}
-                                >
-                                    <Input placeholder="បញ្ចូលខេត្ត/ក្រុង" />
-                                </Form.Item>
-                            </Col>
-                            <Col xs={24} md={12}>
-                                <Form.Item
-                                    label="ស្រុក/ខណ្ឌ"
-                                    name="district"
-                                    rules={[{ required: true, message: 'សូមបញ្ចូលស្រុក/ខណ្ឌ' }]}
-                                >
-                                    <Input placeholder="បញ្ចូលស្រុក/ខណ្ឌ" />
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <Row gutter={16}>
-                            <Col xs={24} md={12}>
-                                <Form.Item
-                                    label="ឃុំ/សង្កាត់"
-                                    name="commune"
-                                    rules={[{ required: true, message: 'សូមបញ្ចូលឃុំ/សង្កាត់' }]}
-                                >
-                                    <Input placeholder="បញ្ចូលឃុំ/សង្កាត់" />
-                                </Form.Item>
-                            </Col>
-                            <Col xs={24} md={12}>
-                                <Form.Item
-                                    label="ភូមិ"
-                                    name="village"
-                                    rules={[{ required: true, message: 'សូមបញ្ចូលភូមិ' }]}
-                                >
-                                    <Input placeholder="បញ្ចូលភូមិ" />
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <Row gutter={16}>
-                            <Col xs={24} md={8}>
-                                <Form.Item
-                                    label="ទំហំ"
-                                    name="size"
-                                    rules={[{ required: true, message: 'សូមបញ្ចូលទំហំ' }]}
-                                >
-                                    <InputNumber 
-                                        style={{ width: '100%' }} 
-                                        min={0} 
-                                        placeholder="បញ្ចូលទំហំ" 
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Col xs={24} md={4}>
-                                <Form.Item
-                                    label="ឯកតា"
-                                    name="size_unit"
-                                    rules={[{ required: true, message: 'សូមជ្រើសរើសឯកតា' }]}
-                                >
-                                    <Select placeholder="ជ្រើសរើសឯកតា">
-                                        <Option value="sqm">ម៉ែត្រការ៉េ</Option>
-                                        <Option value="hectare">ហិកតា</Option>
-                                        <Option value="acre">អាក្រ</Option>
-                                    </Select>
-                                </Form.Item>
-                            </Col>
-                            <Col xs={24} md={12}>
-                                <Form.Item
-                                    label="តម្លៃក្នុងមួយឯកតា"
-                                    name="price_per_unit"
-                                    rules={[{ required: true, message: 'សូមបញ្ចូលតម្លៃក្នុងមួយឯកតា' }]}
-                                >
-                                    <InputNumber 
-                                        style={{ width: '100%' }} 
-                                        min={0} 
-                                        formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                        parser={value => value.replace(/\$\s?|(,*)/g, '')}
-                                        placeholder="បញ្ចូលតម្លៃក្នុងមួយឯកតា" 
-                                    />
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <Form.Item
-                            label="តម្លៃសរុប"
-                            name="total_price"
-                        >
-                            <InputNumber 
-                                style={{ width: '100%' }} 
-                                min={0} 
-                                formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                                parser={value => value.replace(/\$\s?|(,*)/g, '')}
-                                placeholder="តម្លៃសរុប" 
-                                disabled
-                            />
-                        </Form.Item>
-                    </Form>
-                </Card>
-            ),
+            title: 'រូបខាងក្រោយ',
+            content: 'back-image',
+        },
+        {
+            title: 'បញ្ចូលព័ត៌មាន',
+            content: 'land-info',
         },
     ];
 
-    const next = async () => {
+    const next = () => {
         if (currentStep === 0) {
-            setCurrentStep(currentStep + 1);
+            // Validate that front image is uploaded
+            if (!frontImage) {
+                message.error('សូមផ្ទុកឡើងរូបខាងមុខ');
+                return;
+            }
+        } else if (currentStep === 1) {
+            // Validate that back image is uploaded
+            if (!backImage) {
+                message.error('សូមផ្ទុកឡើងរូបខាងក្រោយ');
+                return;
+            }
         }
+        setCurrentStep(currentStep + 1);
     };
 
     const prev = () => {
         setCurrentStep(currentStep - 1);
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (formData) => {
+        setLoading(true);
         try {
-            setLoading(true);
+            // Prepare files array with front and back images
+            const files = [];
+            if (frontImage) {
+                files.push({
+                    ...frontImage,
+                    isDisplay: true, // Front image is always the display image
+                    type: 'front'
+                });
+            }
+            if (backImage) {
+                files.push({
+                    ...backImage,
+                    isDisplay: false,
+                    type: 'back'
+                });
+            }
             
-            // Prepare form data
-            const formData = {
-                ...formValues,
-                documents: fileList.map(file => ({
-                    id: file.id,
-                    isExisting: file.isExisting || false,
-                    tempPath: file.tempPath,
-                    fileName: file.name,
-                    isDisplay: file.isDisplay || false
-                }))
+            const submitData = {
+                ...formData,
+                files: files
             };
             
             // Submit data
-            await axios.put(`/api/lands/${land.id}`, formData);
+            await axios.put(`/api/lands/${land.id}`, submitData);
             
             message.success('ដីត្រូវបានកែប្រែដោយជោគជ័យ');
             router.visit(route('data-entry.lands.index'));
@@ -286,7 +148,33 @@ export default function LandEdit({ land, documents }) {
                     </Steps>
                     
                     <div className="steps-content mb-6">
-                        {steps[currentStep].content}
+                        {steps[currentStep].content === 'front-image' && (
+                            <FrontImageUpload
+                                category="land"
+                                frontImage={frontImage}
+                                onFrontImageChange={setFrontImage}
+                            />
+                        )}
+                        {steps[currentStep].content === 'back-image' && (
+                            <BackImageUpload
+                                category="land"
+                                backImage={backImage}
+                                onBackImageChange={setBackImage}
+                            />
+                        )}
+                        {steps[currentStep].content === 'land-info' && (
+                            <LandForm
+                                onSubmit={handleSubmit}
+                                files={[frontImage, backImage].filter(Boolean)}
+                                frontImage={frontImage}
+                                initialValues={{
+                                    plot_number: land.title_deed_number,
+                                    location: land.location,
+                                    date_of_registration: land.date_of_registration ? dayjs(land.date_of_registration) : null,
+                                    size: land.size
+                                }}
+                            />
+                        )}
                     </div>
                     
                     <div className="steps-action">
@@ -314,19 +202,9 @@ export default function LandEdit({ land, documents }) {
                                             type="primary" 
                                             onClick={next}
                                             icon={<ArrowRightOutlined />}
+                                            iconPosition="end"
                                         >
-                                            បន្ទាប់
-                                        </Button>
-                                    )}
-                                    
-                                    {currentStep === steps.length - 1 && (
-                                        <Button 
-                                            type="primary" 
-                                            onClick={handleSubmit}
-                                            loading={loading}
-                                            icon={<SaveOutlined />}
-                                        >
-                                            រក្សាទុក
+                                            {currentStep === 0 ? 'បន្តទៅរូបខាងក្រោយ' : 'បន្ទាប់'}
                                         </Button>
                                     )}
                                 </Space>

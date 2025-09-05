@@ -6,7 +6,7 @@ import { formatKhmerDate } from "@/Utils/khmerDate";
 
 const { Option } = Select;
 
-export default function SellerForm({ onSubmit, files, frontImage }) {
+export default function SellerForm({ onSubmit, files, frontImage, initialValues }) {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
 
@@ -157,7 +157,7 @@ export default function SellerForm({ onSubmit, files, frontImage }) {
                     form={form}
                     layout="vertical"
                     onFinish={handleSubmit}
-                    initialValues={{
+                    initialValues={initialValues || {
                         sex: 'male'
                     }}
                 >
@@ -187,7 +187,8 @@ export default function SellerForm({ onSubmit, files, frontImage }) {
                     >
                         <DatePicker 
                             style={{ width: '100%' }} 
-                            format="DD/MM/YYYY"
+                            format={(value) => formatKhmerDate(value)}
+                            placeholder="ជ្រើសរើសថ្ងៃខែឆ្នាំកំណើត"
                         />
                     </Form.Item>
                     

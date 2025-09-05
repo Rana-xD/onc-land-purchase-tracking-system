@@ -7,7 +7,7 @@ import { formatKhmerDate } from '../Utils/khmerDate';
 const { Option } = Select;
 const { Title, Text } = Typography;
 
-export default function BuyerForm({ onSubmit, files, frontImage }) {
+export default function BuyerForm({ onSubmit, files, frontImage, initialValues }) {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
 
@@ -194,7 +194,7 @@ export default function BuyerForm({ onSubmit, files, frontImage }) {
                     form={form}
                     layout="vertical"
                     onFinish={handleSubmit}
-                    initialValues={{
+                    initialValues={initialValues || {
                         sex: 'male'
                     }}
                 >

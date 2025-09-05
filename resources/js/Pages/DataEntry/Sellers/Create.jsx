@@ -85,10 +85,13 @@ export default function Create() {
 
             // Axios response handling
             if (response.status === 200 || response.status === 201) {
-                message.success('អ្នកលក់ត្រូវបានបង្កើតដោយជោគជ័យ');
                 setLoading(false);
-                // Use window.location for redirect to avoid Inertia issues
-                window.location.href = '/data-entry/sellers';
+                // Use Inertia router with success message
+                router.visit(route('data-entry.sellers.index'), {
+                    onSuccess: () => {
+                        message.success('អ្នកលក់ត្រូវបានបង្កើតដោយជោគជ័យ');
+                    }
+                });
             }
         } catch (error) {
             setLoading(false);
