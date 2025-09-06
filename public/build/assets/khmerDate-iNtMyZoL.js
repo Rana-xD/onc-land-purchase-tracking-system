@@ -1,0 +1,1 @@
+const a={1:"មករា",2:"កុម្ភៈ",3:"មីនា",4:"មេសា",5:"ឧសភា",6:"មិថុនា",7:"កក្កដា",8:"សីហា",9:"កញ្ញា",10:"តុលា",11:"វិច្ឆិកា",12:"ធ្នូ"},s=e=>{if(!e)return"";const t=new Date(e),n=t.getDate().toString().padStart(2,"0"),o=t.getMonth()+1,r=t.getFullYear();return`${n}-${a[o]}-${r}`};export{s as f};
