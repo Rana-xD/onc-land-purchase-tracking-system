@@ -23,50 +23,57 @@ export default function DepositContractPreview({ document, populatedTemplate }) 
 
     body {
       font-family: 'Koh Santepheap', 'Khmer OS', 'Hanuman', serif !important;
-      line-height: 2.2;
+      line-height: 1.6;
       margin: 0;
       padding: 40px 60px;
       background: white;
       color: #000;
-      font-size: 13pt;
-      max-width: 210mm;
-      margin: 0 auto;
+      font-size: 14pt;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
     }
 
-    h1, h2, h3 {
+    .header {
       text-align: center;
-      font-family: 'Koh Santepheap', serif !important;
+      margin-bottom: 30px;
     }
 
-    h1 {
+    .kingdom-title {
       font-size: 18pt;
       font-weight: 700;
-      margin: 15px 0 10px 0;
-      letter-spacing: 0.5px;
+      margin-bottom: 5px;
+      text-align: center;
     }
 
-    h2 {
+    .nation-religion-king {
       font-size: 14pt;
-      font-weight: 400;
-      margin: 8px 0;
+      margin-bottom: 5px;
+      text-align: center;
     }
 
-    h3 {
+    .contract-title {
       font-size: 16pt;
       font-weight: 700;
+      margin: 15px 0;
       text-decoration: underline;
-      margin: 20px 0 15px 0;
       text-underline-offset: 3px;
+      text-align: center;
     }
 
-    p {
-      margin: 12px 0;
+    .party-info {
+      margin: 15px 0;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+
+    .party-info p {
+      margin: 0;
       text-align: justify;
-      text-indent: 40px;
-      line-height: 2.2;
+      line-height: 1.6;
+      text-indent: 50px;
+      word-wrap: break-word;
     }
 
     .contract-intro {
@@ -75,62 +82,75 @@ export default function DepositContractPreview({ document, populatedTemplate }) 
       font-weight: 600;
     }
 
-    .content-section {
+    .contract-intro p {
+      text-indent: 0;
+      margin: 0;
+    }
+
+    .land-section {
       margin: 20px 0;
       text-align: justify;
     }
 
-    .party-info {
+    .land-section p {
+      text-indent: 40px;
       margin: 15px 0;
-      line-height: 2.2;
-      background: none;
-      border: none;
-      padding: 0;
+      line-height: 1.6;
     }
 
-    .fill-text {
-      display: inline-block;
-      border-bottom: 1px dotted #333;
-      padding: 0 5px;
-      min-width: 80px;
+    .land-details, .conditions {
+      list-style: none;
+      padding-left: 0;
+      margin: 15px 0;
+    }
+
+    .land-details li, .conditions li {
+      margin: 10px 0;
+      padding-left: 50px;
+      text-indent: -30px;
+      line-height: 1.6;
+      text-align: justify;
+    }
+
+    .land-details li:before, .conditions li:before {
+      content: "- ";
+      font-weight: bold;
+      margin-right: 10px;
     }
 
     strong {
       font-weight: 700;
     }
 
-    .section-title {
-      font-weight: 700;
-      margin: 30px 0 15px 0;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-      font-size: 14pt;
-    }
-
-    .contract-item {
-      margin: 15px 0;
-      padding-left: 50px;
-      text-indent: -30px;
+    .date-location {
       text-align: justify;
-      line-height: 2.2;
+      margin: 20px 0;
     }
 
-    ul {
-      list-style: none;
-      padding-left: 0;
+    .date-location p {
+      text-indent: 40px;
+      line-height: 1.6;
     }
 
-    ul li {
-      margin: 12px 0;
-      padding-left: 50px;
-      text-indent: -30px;
-      line-height: 2.2;
+    .additional-terms {
+      margin: 20px 0;
+      text-align: justify;
     }
 
-    ul li:before {
-      content: "- ";
-      font-weight: bold;
-      margin-right: 10px;
+    .additional-terms p {
+      text-indent: 40px;
+      line-height: 1.6;
+    }
+
+    .contract-date {
+      margin: 30px 0;
+    }
+
+    .contract-date p {
+      text-align: center;
+      font-weight: 600;
+      text-indent: 0;
+      margin: 0;
     }
 
     table {
@@ -151,20 +171,42 @@ export default function DepositContractPreview({ document, populatedTemplate }) 
       background-color: #f5f5f5;
     }
 
-    .signature-section {
-      margin-top: 60px;
-      display: flex;
-      justify-content: space-between;
+    .fingerprint-section {
+      margin-top: 40px;
+      page-break-inside: avoid;
     }
 
-    .signature-block {
-      width: 45%;
+    .fingerprint-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 30px;
+    }
+
+    .fingerprint-group {
+      flex: 1;
       text-align: center;
+      margin: 0 10px;
+    }
+
+    .fingerprint-label {
+      font-size: 12pt;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .fingerprint-box {
+      width: 80px;
+      height: 120px;
+      margin: 10px auto;
     }
 
     .signature-line {
-      margin: 60px 0 10px 0;
-      border-bottom: 1px solid #000;
+      margin-top: 15px;
+      padding-top: 5px;
+      border-top: 1px dotted #333;
+      font-size: 11pt;
+      min-height: 20px;
     }
 
     .page-break {
@@ -199,12 +241,12 @@ export default function DepositContractPreview({ document, populatedTemplate }) 
     .kingdom-title {
       font-size: 18pt;
       font-weight: 700;
-      margin-bottom: 10px;
       text-align: center;
     }
 
     .nation-religion-king {
-      font-size: 14pt;
+      font-size: 20pt;
+      font-weight: 700;
       margin-bottom: 8px;
       text-align: center;
     }
@@ -257,13 +299,10 @@ export default function DepositContractPreview({ document, populatedTemplate }) 
       line-height: 2.2;
     }
 
-    .signatures {
-      margin-top: 60px;
-    }
-
-    .signature-title {
-      font-weight: 700;
-      margin-bottom: 10px;
+    p {
+      margin: 12px 0;
+      text-align: justify;
+      line-height: 1.6;
     }
 
     p, div, span, td, th, li, h1, h2, h3, h4, h5, h6 {
@@ -272,26 +311,201 @@ export default function DepositContractPreview({ document, populatedTemplate }) 
     }
 
     .document-container {
-      max-width: 100%;
+      max-width: 700px;
       margin: 0 auto;
       background: white;
       padding: 0;
       box-shadow: none;
     }
 
+    strong {
+      font-weight: 700;
+    }
+
     @media print {
+      * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+      
       body {
-        padding: 0;
-        margin: 0;
+        font-family: 'Koh Santepheap', 'Khmer OS', 'Hanuman', serif !important;
+        font-size: 14pt !important;
+        line-height: 1.6 !important;
+        padding: 20mm !important;
+        margin: 0 !important;
+        background: white !important;
+        color: #000 !important;
       }
       
       .document-container {
-        box-shadow: none;
-        max-width: none;
+        box-shadow: none !important;
+        max-width: 700px !important;
+        padding: 0 !important;
+        margin: 0 auto !important;
       }
       
-      .signatures {
-        page-break-inside: avoid;
+      .header {
+        text-align: center !important;
+        margin-bottom: 30px !important;
+      }
+      
+      .kingdom-title {
+        font-size: 18pt !important;
+        font-weight: 700 !important;
+        margin-bottom: 5px !important;
+        text-align: center !important;
+      }
+      
+      .nation-religion-king {
+        font-size: 14pt !important;
+        margin-bottom: 5px !important;
+        text-align: center !important;
+      }
+      
+      .contract-title {
+        font-size: 16pt !important;
+        font-weight: 700 !important;
+        margin: 15px 0 !important;
+        text-decoration: underline !important;
+        text-underline-offset: 3px !important;
+        text-align: center !important;
+      }
+      
+      .party-info {
+        margin: 15px 0 !important;
+        background: none !important;
+        border: none !important;
+        padding: 0 !important;
+      }
+      
+      .party-info p {
+        margin: 0 !important;
+        text-align: justify !important;
+        line-height: 1.6 !important;
+        text-indent: 50px !important;
+        word-wrap: break-word !important;
+      }
+      
+      .contract-intro {
+        text-align: center !important;
+        margin: 25px 0 !important;
+        font-weight: 600 !important;
+      }
+      
+      .contract-intro p {
+        text-indent: 0 !important;
+        margin: 0 !important;
+      }
+      
+      .land-section {
+        margin: 20px 0 !important;
+        text-align: justify !important;
+      }
+      
+      .land-section p {
+        text-indent: 40px !important;
+        margin: 15px 0 !important;
+        line-height: 1.6 !important;
+      }
+      
+      .land-details, .conditions {
+        list-style: none !important;
+        padding-left: 0 !important;
+        margin: 15px 0 !important;
+      }
+      
+      .land-details li, .conditions li {
+        margin: 10px 0 !important;
+        padding-left: 50px !important;
+        text-indent: -30px !important;
+        line-height: 1.6 !important;
+        text-align: justify !important;
+      }
+      
+      .land-details li:before, .conditions li:before {
+        content: "- " !important;
+        font-weight: bold !important;
+        margin-right: 10px !important;
+      }
+      
+      .date-location {
+        text-align: justify !important;
+        margin: 20px 0 !important;
+      }
+      
+      .date-location p {
+        text-indent: 40px !important;
+        line-height: 1.6 !important;
+      }
+      
+      .additional-terms {
+        margin: 20px 0 !important;
+        text-align: justify !important;
+      }
+      
+      .additional-terms p {
+        text-indent: 40px !important;
+        line-height: 1.6 !important;
+      }
+      
+      .contract-date {
+        margin: 30px 0 !important;
+      }
+      
+      .contract-date p {
+        text-align: center !important;
+        font-weight: 600 !important;
+        text-indent: 0 !important;
+        margin: 0 !important;
+      }
+      
+      .fingerprint-section {
+        margin-top: 40px !important;
+        page-break-inside: avoid !important;
+      }
+      
+      .fingerprint-row {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: flex-end !important;
+        margin-top: 30px !important;
+      }
+      
+      .fingerprint-group {
+        flex: 1 !important;
+        text-align: center !important;
+        margin: 0 10px !important;
+      }
+      
+      .fingerprint-label {
+        font-size: 12pt !important;
+        margin-bottom: 10px !important;
+        font-weight: 600 !important;
+      }
+      
+      .fingerprint-box {
+        width: 80px !important;
+        height: 120px !important;
+        margin: 10px auto !important;
+        border: 1px solid #000 !important;
+      }
+      
+      .signature-line {
+        margin-top: 15px !important;
+        padding-top: 5px !important;
+        border-top: 1px dotted #333 !important;
+        font-size: 11pt !important;
+        min-height: 20px !important;
+      }
+      
+      p, div, span, td, th, li, h1, h2, h3, h4, h5, h6 {
+        font-family: 'Koh Santepheap', 'Khmer OS', 'Hanuman', serif !important;
+        letter-spacing: 0.3px !important;
+      }
+      
+      strong {
+        font-weight: 700 !important;
       }
     }
   `;

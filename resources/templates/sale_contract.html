@@ -25,59 +25,13 @@
         </div>
 
         <!-- Seller Information -->
-        <div class="section">
-            <div class="section-title">🏢 ភាគីទី១ (អ្នកលក់)</div>
-            <div class="party-info">
-                <div class="party-title">ព័ត៌មានអ្នកលក់</div>
-                <div class="info-row">
-                    <span class="info-label">ឈ្មោះ:</span>
-                    <span class="info-value">{{seller_name}}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">អាយុ:</span>
-                    <span class="info-value">{{seller_age}} ឆ្នាំ</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">លេខអត្តសញ្ញាណប័ណ្ណ:</span>
-                    <span class="info-value">{{seller_id_number}}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">អាសយដ្ឋាន:</span>
-                    <span class="info-value">{{seller_address}}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">លេខទូរស័ព្ទ:</span>
-                    <span class="info-value">{{seller_phone}}</span>
-                </div>
-            </div>
+        <div class="party-info">
+            {{sellers_content}}
         </div>
 
         <!-- Buyer Information -->
-        <div class="section">
-            <div class="section-title">👤 ភាគីទី២ (អ្នកទិញ)</div>
-            <div class="party-info">
-                <div class="party-title">ព័ត៌មានអ្នកទិញ</div>
-                <div class="info-row">
-                    <span class="info-label">ឈ្មោះ:</span>
-                    <span class="info-value">{{buyer_name}}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">អាយុ:</span>
-                    <span class="info-value">{{buyer_age}} ឆ្នាំ</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">លេខអត្តសញ្ញាណប័ណ្ណ:</span>
-                    <span class="info-value">{{buyer_id_number}}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">អាសយដ្ឋាន:</span>
-                    <span class="info-value">{{buyer_address}}</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">លេខទូរស័ព្ទ:</span>
-                    <span class="info-value">{{buyer_phone}}</span>
-                </div>
-            </div>
+        <div class="party-info">
+            {{buyers_content}}
         </div>
 
         <!-- Land Information -->
@@ -183,27 +137,23 @@
         <!-- Signatures -->
         <div class="signatures">
             <div class="signature-block">
-                <div class="signature-title">ហត្ថលេខាអ្នកលក់</div>
+                <div class="signature-title">ភាគីអ្នកទិញ</div>
                 <div class="signature-line"></div>
-                <div>{{seller_name}}</div>
             </div>
             
             <div class="signature-block">
-                <div class="signature-title">ហត្ថលេខាអ្នកទិញ</div>
+                <div class="signature-title">សាក្សីភាគីអ្នកទិញ</div>
                 <div class="signature-line"></div>
-                <div>{{buyer_name}}</div>
             </div>
             
             <div class="signature-block">
-                <div class="signature-title">ហត្ថលេខាសាក្សីទី១</div>
+                <div class="signature-title">សាក្សីភាគីអ្នកលក់</div>
                 <div class="signature-line"></div>
-                <div>{{witness_1}}</div>
             </div>
             
             <div class="signature-block">
-                <div class="signature-title">ហត្ថលេខាសាក្សីទី២</div>
+                <div class="signature-title">ភាគីអ្នកលក់</div>
                 <div class="signature-line"></div>
-                <div>{{witness_2}}</div>
             </div>
         </div>
     </div>

@@ -23,7 +23,7 @@ class LandSeeder extends Seeder
 
         // Generate plot numbers (only 5)
         $plotNumbers = [];
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 1; $i++) {
             $plotNumbers[] = 'ក' . str_pad($i, 4, '0', STR_PAD_LEFT);
         }
 

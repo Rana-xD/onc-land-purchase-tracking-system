@@ -23,7 +23,7 @@ class BuyerSeeder extends Seeder
 
         // Khmer names for buyers (only 5)
         $khmerNames = [
-            'សុខ វាសនា', 'ចាន់ សុភា', 'ឡុង សុផល', 'ឈឿន សុខា', 'ហេង សុខុម'
+            'សុខ វាសនា'
         ];
 
         // Create 5 buyers

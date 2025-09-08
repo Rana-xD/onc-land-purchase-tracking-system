@@ -38,7 +38,12 @@ class DocumentPreviewController extends Controller
         // Load and populate the template
         $populatedTemplate = $this->prepareDocument($document);
 
-        return Inertia::render('Documents/DepositContractPreview', [
+        // Render appropriate component based on document type
+        $componentName = $document->document_type === 'sale_contract' 
+            ? 'Documents/SaleContractPreview' 
+            : 'Documents/DepositContractPreview';
+            
+        return Inertia::render($componentName, [
             'document' => $document,
             'populatedTemplate' => $populatedTemplate,
         ]);
@@ -79,7 +84,7 @@ class DocumentPreviewController extends Controller
      */
     private function prepareTemplateData(DocumentCreation $document)
     {
-        // Get first buyer and seller for main contract
+        // Get first buyer and seller for main contract (for backward compatibility)
         $buyer = $document->buyers->first()?->buyer;
         $seller = $document->sellers->first()?->seller;
         $land = $document->lands->first()?->land;
@@ -93,6 +98,7 @@ class DocumentPreviewController extends Controller
         return [
             'date' => now()->format('d/m/Y'),
             'location' => 'ភ្នំពេញ',
+            // Legacy individual fields (kept for backward compatibility)
             'seller_name' => $seller?->name ?? 'ធន់ វាសនា',
             'seller_age' => $seller?->age ?? '៤៥',
             'seller_id_number' => $seller?->identity_number ?? '០២០០៨៦០២៦',
@@ -103,6 +109,9 @@ class DocumentPreviewController extends Controller
             'buyer_id_number' => $buyer?->identity_number ?? '០២០០៧៥០១៥',
             'buyer_address' => $buyer?->address ?? 'ភូមិចុងថ្នល់ សង្កាត់ទួលសង្កែ ខណ្ឌឫស្សីកែវ រាជធានីភ្នំពេញ',
             'buyer_phone' => $buyer?->phone_number ?? '០៩៨៧៦៥៤៣២',
+            // New dynamic content generation
+            'buyers_content' => $this->generateBuyersContent($document),
+            'sellers_content' => $this->generateSellersContent($document),
             'land_location' => $land?->location ?? 'ភូមិចុងថ្នល់ សង្កាត់ទួលសង្កែ',
             'land_size' => number_format($land?->size ?? 1969),
             'land_plot_number' => $land?->plot_number ?? 'ក-១២៣៤',
@@ -120,9 +129,97 @@ class DocumentPreviewController extends Controller
     }
 
     /**
-     * Generate payment schedule table HTML.
+     * Calculate age from date of birth.
+     *
+     * @param  string|null  $dateOfBirth
+     * @return string
+     */
+    private function calculateAge($dateOfBirth)
+    {
+        if (!$dateOfBirth) {
+            return '';
+        }
+        
+        try {
+            $birthDate = new \DateTime($dateOfBirth);
+            $today = new \DateTime();
+            $age = $today->diff($birthDate)->y;
+            
+            // Convert to Khmer numerals
+            $khmerNumerals = [
+                '0' => '០', '1' => '១', '2' => '២', '3' => '៣', '4' => '៤',
+                '5' => '៥', '6' => '៦', '7' => '៧', '8' => '៨', '9' => '៩'
+            ];
+            
+            return strtr((string)$age, $khmerNumerals);
+        } catch (\Exception $e) {
+            return '';
+        }
+    }
+
+    /**
+     * Generate buyers content with multiple buyers support.
      *
      * @param  DocumentCreation  $document
+     * @return string
+     */
+    private function generateBuyersContent(DocumentCreation $document)
+    {
+        $buyers = $document->buyers;
+        
+        if ($buyers->isEmpty()) {
+            // Fallback content if no buyers
+            return '<p>យើងខ្ញុំ ឈ្មោះ អ៊ូច ង៉ុយ អាយុ ៣៥ ឆ្នាំ មានអាសយដ្ឋាន នៅ ភូមិចុងថ្នល់ សង្កាត់ទួលសង្កែ ខណ្ឌឫស្សីកែវ រាជធានីភ្នំពេញ កាន់អត្តសញ្ញាណប័ណ្ណសញ្ជាតិខ្មែរ ០២០០៧៥០១៥ ទូរស័ព្ទលេខ ០៩៨៧៦៥៤៣២ តទៅហៅថា ភាគី"ក" ។</p>';
+        }
+        
+        $buyerTexts = [];
+        foreach ($buyers as $buyerRelation) {
+            $buyer = $buyerRelation->buyer;
+            $age = $this->calculateAge($buyer->date_of_birth);
+            
+            $buyerTexts[] = 'យើងខ្ញុំ ឈ្មោះ ' . ($buyer->name ?? '') . 
+                           ' អាយុ ' . $age . 
+                           ' ឆ្នាំ មានអាសយដ្ឋាន នៅ ' . ($buyer->address ?? '') . 
+                           ' កាន់អត្តសញ្ញាណប័ណ្ណសញ្ជាតិខ្មែរ ' . ($buyer->identity_number ?? '') . 
+                           ' ទូរស័ព្ទលេខ ' . ($buyer->phone_number ?? '');
+        }
+        
+        return '<p>' . implode(' និង ', $buyerTexts) . ' តទៅហៅថា ភាគី"ក" ។</p>';
+    }
+
+    /**
+     * Generate sellers content with multiple sellers support.
+     *
+     * @return string
+     */
+    private function generateSellersContent(DocumentCreation $document)
+    {
+        $sellers = $document->sellers;
+        
+        if ($sellers->isEmpty()) {
+            // Fallback content if no sellers
+            return '<p>យើងខ្ញុំ ឈ្មោះ ធន់ វាសនា អាយុ ៤៥ ឆ្នាំ មានអាសយដ្ឋាន នៅ ភូមិចុងថ្នល់ សង្កាត់ទួលសង្កែ ខណ្ឌឫស្សីកែវ រាជធានីភ្នំពេញ កាន់អត្តសញ្ញាណប័ណ្ណសញ្ជាតិខ្មែរ ០២០០៨៦០២៦ ទូរស័ព្ទលេខ ០១២៣៤៥៦៧៨ តទៅហៅថា ភាគី"ខ" ។</p>';
+        }
+        
+        $sellerTexts = [];
+        foreach ($sellers as $sellerRelation) {
+            $seller = $sellerRelation->seller;
+            $age = $this->calculateAge($seller->date_of_birth);
+            
+            $sellerTexts[] = 'យើងខ្ញុំ ឈ្មោះ ' . ($seller->name ?? '') . 
+                           ' អាយុ ' . $age . 
+                           ' ឆ្នាំ មានអាសយដ្ឋាន នៅ ' . ($seller->address ?? '') . 
+                           ' កាន់អត្តសញ្ញាណប័ណ្ណសញ្ជាតិខ្មែរ ' . ($seller->identity_number ?? '') . 
+                           ' ទូរស័ព្ទលេខ ' . ($seller->phone_number ?? '');
+        }
+        
+        return '<p>' . implode(' និង ', $sellerTexts) . ' តទៅហៅថា ភាគី"ខ" ។</p>';
+    }
+
+    /**
+     * Generate payment schedule table HTML.
+     *
+{{ ... }}
      * @return string
      */
     private function generatePaymentScheduleTable(DocumentCreation $document)

@@ -44,14 +44,6 @@ class UserSeeder extends Seeder
             'role_id' => $adminRole?->id,
             'is_active' => true,
         ]);
-        
-        User::create([
-            'name' => 'ឈឿន សុវណ្ណារិទ្ធ',  // Chhoeun Sovannarithy
-            'username' => 'sovannarithy',
-            'password' => Hash::make('password'),
-            'role_id' => $adminRole?->id,
-            'is_active' => true,
-        ]);
 
         // Manager users
         User::create([
@@ -62,13 +54,6 @@ class UserSeeder extends Seeder
             'is_active' => true,
         ]);
         
-        User::create([
-            'name' => 'ឃុន ចាន់ថា',  // Khun Chantha
-            'username' => 'chantha',
-            'password' => Hash::make('password'),
-            'role_id' => $managerRole?->id,
-            'is_active' => true,
-        ]);
 
         // Staff users
         User::create([
@@ -79,25 +64,9 @@ class UserSeeder extends Seeder
             'is_active' => true,
         ]);
         
-        User::create([
-            'name' => 'ឃឹម សុគន្ធា',  // Khim Sokantha
-            'username' => 'sokantha',
-            'password' => Hash::make('password'),
-            'role_id' => $staffRole?->id,
-            'is_active' => true,
-        ]);
-        
-        User::create([
-            'name' => 'ឃាង សុវណ្ណដា',  // Kheang Sovannda
-            'username' => 'sovannda',
-            'password' => Hash::make('password'),
-            'role_id' => $staffRole?->id,
-            'is_active' => true,
-        ]);
-        
         $this->command->info('Users seeded successfully!');
-        $this->command->info('Administrator users: admin, sovannarithy');
-        $this->command->info('Manager users: sopha, chantha');
-        $this->command->info('Staff users: sokha, sokantha, sovannda');
+        $this->command->info('Administrator users: admin');
+        $this->command->info('Manager users: sopha');
+        $this->command->info('Staff users: sokha');
     }
 }
