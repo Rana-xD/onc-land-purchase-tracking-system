@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Spatie\Browsershot\Browsershot;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Exception;
 
 class KhmerPDFService
@@ -21,34 +22,74 @@ class KhmerPDFService
         try {
             // Increase PHP execution time for PDF generation
             set_time_limit(60);
-            
+
             // Wrap content with proper HTML template for Khmer fonts
             $wrappedHTML = $this->wrapWithTemplate($html, $contractType);
-            
-            // Ensure contracts directory exists
-            Storage::disk('local')->makeDirectory('contracts');
-            $pdfPath = storage_path('app/contracts/' . $filename);
-            
-            // Generate PDF using Browsershot with optimized settings for Khmer Unicode
-            $browsershot = Browsershot::html($wrappedHTML);
-            
-            // Set Node.js paths based on environment
-            if (PHP_OS_FAMILY === 'Darwin') {
-                // macOS paths
-                $browsershot->setNodeBinary('/opt/homebrew/bin/node')
-                           ->setNpmBinary('/opt/homebrew/bin/npm');
-            } else {
-                // Linux/Ubuntu paths - let Browsershot auto-detect or use system paths
-                $nodePath = exec('which node');
-                $npmPath = exec('which npm');
-                if ($nodePath) {
-                    $browsershot->setNodeBinary($nodePath);
-                }
-                if ($npmPath) {
-                    $browsershot->setNpmBinary($npmPath);
+
+            // Ensure contracts directory exists with proper permissions
+            $contractsDir = storage_path('app/contracts');
+
+            // Create directory if it doesn't exist (using native PHP for reliability)
+            if (!is_dir($contractsDir)) {
+                if (!mkdir($contractsDir, 0755, true)) {
+                    throw new Exception('Could not create contracts directory: ' . $contractsDir);
                 }
             }
-            
+
+            // Ensure directory is writable
+            if (!is_writable($contractsDir)) {
+                if (!chmod($contractsDir, 0755)) {
+                    throw new Exception('Could not set permissions for contracts directory: ' . $contractsDir);
+                }
+            }
+
+            $pdfPath = $contractsDir . '/' . $filename;
+
+            // Generate PDF using Browsershot with optimized settings for Khmer Unicode
+            $browsershot = Browsershot::html($wrappedHTML);
+
+            // Set Node.js paths dynamically for all environments
+            $nodePath = exec('which node 2>/dev/null');
+            $npmPath = exec('which npm 2>/dev/null');
+
+            if ($nodePath && file_exists($nodePath)) {
+                $browsershot->setNodeBinary($nodePath);
+            } else {
+                // Fallback paths for common installations
+                $commonNodePaths = [
+                    '/opt/homebrew/bin/node',    // Homebrew on Apple Silicon
+                    '/usr/local/bin/node',       // Homebrew on Intel Mac
+                    '/usr/bin/node',             // System installation
+                    '/home/ubuntu/.nvm/versions/node/latest/bin/node'  // NVM on Ubuntu
+                ];
+
+                foreach ($commonNodePaths as $path) {
+                    if (file_exists($path)) {
+                        $browsershot->setNodeBinary($path);
+                        break;
+                    }
+                }
+            }
+
+            if ($npmPath && file_exists($npmPath)) {
+                $browsershot->setNpmBinary($npmPath);
+            } else {
+                // Fallback paths for npm
+                $commonNpmPaths = [
+                    '/opt/homebrew/bin/npm',     // Homebrew on Apple Silicon  
+                    '/usr/local/bin/npm',        // Homebrew on Intel Mac
+                    '/usr/bin/npm',              // System installation
+                    '/home/ubuntu/.nvm/versions/node/latest/bin/npm'   // NVM on Ubuntu
+                ];
+
+                foreach ($commonNpmPaths as $path) {
+                    if (file_exists($path)) {
+                        $browsershot->setNpmBinary($path);
+                        break;
+                    }
+                }
+            }
+
             $browsershot->format('A4')
                 ->margins(20, 20, 20, 20)
                 ->showBackground()
@@ -69,11 +110,21 @@ class KhmerPDFService
                 ->setOption('viewport', ['width' => 794, 'height' => 1123])
                 ->waitUntilNetworkIdle()
                 ->save($pdfPath);
-            
+
             return $pdfPath;
-            
         } catch (Exception $e) {
-            throw new Exception('PDF generation failed: ' . $e->getMessage());
+            // Log detailed error information for debugging
+            Log::error('KhmerPDFService Error: ' . $e->getMessage(), [
+                'filename' => $filename,
+                'contract_type' => $contractType,
+                'node_path' => exec('which node 2>/dev/null'),
+                'npm_path' => exec('which npm 2>/dev/null'),
+                'puppeteer_check' => file_exists(base_path('node_modules/puppeteer')),
+                'storage_writable' => is_writable(storage_path('app')),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            throw new Exception('PDF generation failed: ' . $e->getMessage() . ' (Check logs for more details)');
         }
     }
 
@@ -90,19 +141,19 @@ class KhmerPDFService
         if (strpos($content, '<!DOCTYPE html>') !== false) {
             return $content;
         }
-        
+
         // Use template files for complete contract generation
         if (strpos($content, '{{') !== false) {
             return $this->getContractTemplate($contractType);
         }
-        
+
         // Ensure UTF-8 encoding for content
         if (!mb_check_encoding($content, 'UTF-8')) {
             $content = mb_convert_encoding($content, 'UTF-8', 'auto');
         }
-        
+
         $title = ($contractType === 'sale_contract' ? 'កិច្ចសន្យាលក់ដី' : 'កិច្ចសន្យាកក់ប្រាក់ទិញដី');
-        
+
         return '<!DOCTYPE html>
 <html lang="km">
 <head>
@@ -135,7 +186,7 @@ class KhmerPDFService
     {
         // Increase PHP execution time
         set_time_limit(90);
-        
+
         try {
             // Use only Browsershot for better Khmer Unicode support
             $pdfPath = $this->generateFromHTML($html, $filename, $contractType);
@@ -186,7 +237,7 @@ class KhmerPDFService
 
         // Use Laravel's built-in PDF generation
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($simplifiedHTML);
-        
+
         // Configure for faster generation
         $pdf->setPaper('A4', 'portrait');
         $pdf->setOptions([
@@ -196,7 +247,7 @@ class KhmerPDFService
             'isRemoteEnabled' => false,
             'debugKeepTemp' => false
         ]);
-        
+
         return $pdf->download($filename);
     }
 
@@ -211,22 +262,22 @@ class KhmerPDFService
     {
         $templateFile = $contractType === 'sale_contract' ? 'sale_contract.html' : 'deposit_contract.html';
         $templatePath = resource_path("templates/{$templateFile}");
-        
+
         if (!file_exists($templatePath)) {
             throw new \Exception("Template file not found: {$templatePath}");
         }
-        
+
         $template = file_get_contents($templatePath);
-        
+
         // Ensure UTF-8 encoding
         if (!mb_check_encoding($template, 'UTF-8')) {
             $template = mb_convert_encoding($template, 'UTF-8', 'auto');
         }
-        
+
         // Replace {{UNIFIED_STYLES}} with the CSS from the wrapWithTemplate method
         $css = $this->getUnifiedStylesForContract($contractType);
         $template = str_replace('{{UNIFIED_STYLES}}', $css, $template);
-        
+
         return $template;
     }
 
