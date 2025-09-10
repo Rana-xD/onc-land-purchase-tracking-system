@@ -1,0 +1,1 @@
+import{j as t}from"./app-mk9C7I_N.js";function n({children:e}){return t.jsx("div",{style:{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",backgroundColor:"#f3f4f6"},children:t.jsx("div",{style:{width:"100%",maxWidth:"420px",padding:"0 16px"},children:e})})}export{n as G};
