@@ -72,7 +72,31 @@ sudo npm install -g puppeteer --unsafe-perm=true --allow-root
 curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
 ```
 
-## 6. Install Node.js v20.9.0 and npm
+## 6. Install Node.js and npm
+
+### Option A: System-wide Installation (Recommended for Web Servers)
+
+This method installs Node.js system-wide, making it accessible to all users including the web server (www-data).
+
+```bash
+# Add NodeSource repository for Node.js LTS
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+
+# Install Node.js and npm system-wide
+sudo apt-get install -y nodejs
+
+# Verify installation
+node -v  # Should output v18.x.x or v20.x.x
+npm -v   # Should output 9.x.x or 10.x.x
+
+# Check paths (should be /usr/bin/node and /usr/bin/npm)
+which node
+which npm
+```
+
+### Option B: User-specific Installation via NVM (Optional)
+
+If you also want NVM for user-specific Node.js versions:
 
 ```bash
 # Install Node.js using NVM (Node Version Manager)
@@ -90,6 +114,8 @@ nvm use 20.9.0
 node -v  # Should output v20.9.0
 npm -v   # Should output 10.x.x
 ```
+
+**Important Note:** If you use NVM for development but need PDF generation to work via web server, you MUST also install Node.js system-wide (Option A) because the web server (www-data user) cannot access NVM installations.
 
 ## 7. Install MySQL Server
 
@@ -229,7 +255,53 @@ php artisan migrate
 php artisan db:seed
 ```
 
-## 16. Set Proper Permissions
+## 16. Set Up PDF Generation Environment
+
+**Critical Step:** The application uses Browsershot with Puppeteer for PDF generation. This requires proper setup for the web server user.
+
+```bash
+# Create Puppeteer cache directory for www-data user
+sudo mkdir -p /var/www/.cache/puppeteer
+sudo chown -R www-data:www-data /var/www/.cache
+
+# Install Puppeteer as www-data user (required for web server PDF generation)
+sudo -u www-data npm install puppeteer
+
+# Verify Puppeteer installation
+sudo -u www-data npx puppeteer browsers install chrome
+
+# Test Node.js access for www-data user
+sudo -u www-data which node  # Should output /usr/bin/node
+sudo -u www-data which npm   # Should output /usr/bin/npm
+```
+
+### PDF Generation Troubleshooting
+
+If PDF generation fails with 500 errors, run this diagnostic:
+
+```bash
+# Test PDF generation as www-data user
+sudo -u www-data php -r "
+try {
+    \$nodePath = exec('which node 2>/dev/null');
+    \$npmPath = exec('which npm 2>/dev/null');
+    echo 'Node.js path: ' . (\$nodePath ?: 'NOT FOUND') . PHP_EOL;
+    echo 'npm path: ' . (\$npmPath ?: 'NOT FOUND') . PHP_EOL;
+    echo 'Puppeteer cache: ' . (is_dir('/var/www/.cache/puppeteer') ? 'EXISTS' : 'MISSING') . PHP_EOL;
+} catch (Exception \$e) {
+    echo 'Error: ' . \$e->getMessage() . PHP_EOL;
+}
+"
+```
+
+**Common Issues and Solutions:**
+
+1. **Node.js not found by www-data:** Install Node.js system-wide (see Step 6, Option A)
+2. **Puppeteer Chrome binary missing:** Run `sudo -u www-data npx puppeteer browsers install chrome`
+3. **Permission denied errors:** Ensure `/var/www/.cache` is owned by www-data
+4. **Memory issues:** Increase PHP memory_limit in `/etc/php/8.2/fpm/php.ini`
+
+## 17. Set Proper File Permissions
 
 ```bash
 # Set proper ownership
@@ -245,13 +317,13 @@ sudo chmod -R 775 /var/www/onc-land-purchase-tracking-system/storage
 sudo chmod -R 775 /var/www/onc-land-purchase-tracking-system/bootstrap/cache
 ```
 
-## 17. Set Up Symbolic Link for Storage
+## 18. Set Up Symbolic Link for Storage
 
 ```bash
 php artisan storage:link
 ```
 
-## 18. Configure Web Server (Apache)
+## 19. Configure Web Server (Apache)
 
 If you're using Apache:
 
@@ -291,7 +363,7 @@ sudo a2ensite cambodia-land-tracker.conf
 sudo systemctl restart apache2
 ```
 
-## 19. Configure Web Server (Nginx)
+## 20. Configure Web Server (Nginx)
 
 If you prefer Nginx:
 
@@ -346,7 +418,7 @@ sudo ln -s /etc/nginx/sites-available/onc-land-purchase-tracking-system /etc/ngi
 sudo systemctl restart nginx
 ```
 
-## 20. Set Up Queue Worker (Optional but Recommended)
+## 21. Set Up Queue Worker (Optional but Recommended)
 
 For background processing tasks:
 
@@ -383,7 +455,7 @@ sudo supervisorctl update
 sudo supervisorctl start all
 ```
 
-## 21. Set Up Scheduled Tasks
+## 22. Set Up Scheduled Tasks
 
 Add Laravel's scheduler to the crontab:
 
@@ -397,7 +469,7 @@ Add the following line:
 * * * * * cd /var/www/onc-land-purchase-tracking-system && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-## 22. Verify Installation
+## 23. Verify Installation
 
 Open your browser and navigate to your server's domain or IP address. You should see the Cambodia Land Tracker login page.
 
@@ -411,6 +483,58 @@ If the database was seeded with default users, you can log in with:
 **Important:** Change the default password immediately after your first login!
 
 ## Troubleshooting
+
+### PDF Generation 500 Errors
+
+**Problem:** PDF generation fails with 500 errors when accessing `/api/deposit-contracts/{id}/print-pdf`
+
+**Root Cause:** The web server (www-data user) cannot access Node.js/npm installed via NVM in user directories.
+
+**Solution Applied:**
+
+1. **Install Node.js system-wide** (in addition to NVM):
+
+    ```bash
+    # Add NodeSource repository
+    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+    sudo apt-get install -y nodejs
+
+    # Verify system-wide installation
+    sudo -u www-data which node  # Should output /usr/bin/node
+    sudo -u www-data which npm   # Should output /usr/bin/npm
+    ```
+
+2. **Set up Puppeteer for www-data user**:
+
+    ```bash
+    # Create cache directory
+    sudo mkdir -p /var/www/.cache/puppeteer
+    sudo chown -R www-data:www-data /var/www/.cache
+
+    # Install Puppeteer Chrome binary for www-data
+    sudo -u www-data npx puppeteer browsers install chrome
+    ```
+
+3. **Restart web services**:
+    ```bash
+    sudo systemctl restart apache2  # or nginx
+    sudo systemctl restart php8.2-fpm
+    ```
+
+**Verification:**
+
+```bash
+# Test PDF generation as www-data user
+sudo -u www-data php artisan tinker --execute="
+try {
+    echo 'Node.js: ' . exec('which node') . PHP_EOL;
+    echo 'npm: ' . exec('which npm') . PHP_EOL;
+    echo 'Puppeteer cache: ' . (is_dir('/var/www/.cache/puppeteer') ? 'EXISTS' : 'MISSING') . PHP_EOL;
+} catch (Exception \$e) {
+    echo 'Error: ' . \$e->getMessage() . PHP_EOL;
+}
+"
+```
 
 ### Permission Issues
 
@@ -434,7 +558,7 @@ tail -f /var/www/onc-land-purchase-tracking-system/storage/logs/laravel.log
 For Apache:
 
 ```bash
-tail -f /var/log/apache2/           onc-land-purchase-tracking-system-error.log
+tail -f /var/log/apache2/onc-land-purchase-tracking-system-error.log
 ```
 
 For Nginx:
