@@ -29,7 +29,7 @@ class KhmerPDFService
             Storage::disk('local')->makeDirectory('contracts');
             $pdfPath = storage_path('app/contracts/' . $filename);
             
-            // Generate PDF using Browsershot with optimized settings
+            // Generate PDF using Browsershot with optimized settings for Khmer Unicode
             Browsershot::html($wrappedHTML)
                 ->setNodeBinary('/opt/homebrew/bin/node')
                 ->setNpmBinary('/opt/homebrew/bin/npm')
@@ -46,9 +46,12 @@ class KhmerPDFService
                     '--disable-default-apps',
                     '--disable-extensions',
                     '--disable-web-security',
-                    '--disable-features=TranslateUI'
+                    '--disable-features=TranslateUI',
+                    '--font-render-hinting=none',
+                    '--disable-font-subpixel-positioning'
                 ])
                 ->setOption('viewport', ['width' => 794, 'height' => 1123])
+                ->waitUntilNetworkIdle()
                 ->save($pdfPath);
             
             return $pdfPath;
@@ -77,245 +80,23 @@ class KhmerPDFService
             return $this->getContractTemplate($contractType);
         }
         
+        // Ensure UTF-8 encoding for content
+        if (!mb_check_encoding($content, 'UTF-8')) {
+            $content = mb_convert_encoding($content, 'UTF-8', 'auto');
+        }
+        
+        $title = ($contractType === 'sale_contract' ? 'កិច្ចសន្យាលក់ដី' : 'កិច្ចសន្យាកក់ប្រាក់ទិញដី');
+        
         return '<!DOCTYPE html>
 <html lang="km">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>' . ($contractType === 'sale_contract' ? 'កិច្ចសន្យាលក់ដី' : 'កិច្ចសន្យាកក់ប្រាក់ទិញដី') . '</title>
+    <title>' . $title . '</title>
     
     <style>
-        
-        /* Simplified font declarations - no external loading */
-        
-        * {
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: "Khmer OS", "DejaVu Sans", serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20mm;
-            background: white;
-            color: #000;
-            font-size: 14px;
-            font-weight: 400;
-        }
-        
-        .document-container {
-            max-width: 100%;
-            margin: 0 auto;
-            background: white;
-            font-family: "Khmer OS", "DejaVu Sans", serif;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #333;
-            padding-bottom: 20px;
-        }
-        
-        .kingdom-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            font-family: "Koh Santepheap", serif;
-        }
-        
-        .nation-religion-king {
-            font-size: 14px;
-            margin-bottom: 5px;
-            font-family: "Koh Santepheap", serif;
-        }
-        
-        .contract-title {
-            font-size: 20px;
-            font-weight: 900;
-            margin: 20px 0;
-            text-decoration: underline;
-            font-family: "Koh Santepheap", serif;
-        }
-        
-        .section {
-            margin-bottom: 25px;
-        }
-        
-        .section-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #ccc;
-            padding-bottom: 5px;
-            font-family: "Koh Santepheap", serif;
-        }
-        
-        .party-info {
-            background: #f9f9f9;
-            padding: 15px;
-            border-left: 4px solid #1890ff;
-            margin-bottom: 15px;
-        }
-        
-        .party-title {
-            font-weight: 700;
-            font-size: 15px;
-            margin-bottom: 10px;
-            color: #1890ff;
-            font-family: "Koh Santepheap", serif;
-        }
-        
-        .info-row {
-            margin-bottom: 8px;
-            display: flex;
-            align-items: flex-start;
-        }
-        
-        .info-label {
-            font-weight: 600;
-            min-width: 120px;
-            margin-right: 10px;
-            font-family: "Koh Santepheap", serif;
-        }
-        
-        .info-value {
-            flex: 1;
-            border-bottom: 1px dotted #999;
-            min-height: 20px;
-            padding-bottom: 2px;
-            font-family: "Koh Santepheap", serif;
-        }
-        
-        .land-details {
-            background: #f0f8f0;
-            padding: 15px;
-            border-left: 4px solid #52c41a;
-            margin-bottom: 15px;
-        }
-        
-        .payment-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-            font-family: "Koh Santepheap", serif;
-        }
-        
-        .payment-table th,
-        .payment-table td {
-            border: 1px solid #333;
-            padding: 10px;
-            text-align: center;
-            font-family: "Koh Santepheap", serif;
-        }
-        
-        .payment-table th {
-            background: #f0f0f0;
-            font-weight: 700;
-        }
-        
-        .terms-section {
-            background: #fff9e6;
-            padding: 20px;
-            border: 1px solid #ffd666;
-            border-radius: 5px;
-        }
-        
-        .terms-title {
-            font-weight: 700;
-            font-size: 16px;
-            margin-bottom: 15px;
-            color: #d48806;
-            font-family: "Koh Santepheap", serif;
-        }
-        
-        .term-item {
-            margin-bottom: 12px;
-            padding-left: 20px;
-            position: relative;
-            font-family: "Koh Santepheap", serif;
-            line-height: 1.8;
-        }
-        
-        .term-item:before {
-            content: "•";
-            position: absolute;
-            left: 0;
-            font-weight: bold;
-        }
-        
-        .signatures {
-            margin-top: 40px;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            page-break-inside: avoid;
-        }
-        
-        .signature-block {
-            text-align: center;
-            min-width: 200px;
-            margin-bottom: 30px;
-            font-family: "Koh Santepheap", serif;
-        }
-        
-        .signature-title {
-            font-weight: 700;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 5px;
-            font-family: "Koh Santepheap", serif;
-        }
-        
-        .signature-line {
-            border-bottom: 1px solid #333;
-            height: 60px;
-            margin: 20px 0 10px 0;
-        }
-        
-        .date-location {
-            text-align: right;
-            margin-bottom: 30px;
-            font-style: italic;
-            font-family: "Koh Santepheap", serif;
-        }
-        
-        .highlight {
-            background: #fff2e6;
-            padding: 2px 4px;
-            border-radius: 3px;
-        }
-        
-        /* Ensure Khmer text renders properly */
-        p, div, span, td, th, li, h1, h2, h3, h4, h5, h6, strong, b, em, i {
-            font-family: "Khmer OS", "DejaVu Sans", serif;
-            line-height: 1.6;
-        }
-        
-        /* Print optimizations */
-        @media print {
-            body {
-                padding: 0;
-                margin: 0;
-            }
-            
-            .document-container {
-                max-width: none;
-            }
-            
-            .signatures {
-                page-break-inside: avoid;
-            }
-        }
-        
-        /* Page break handling */
-        .page-break {
-            page-break-before: always;
-        }
-        
-        .no-break {
-            page-break-inside: avoid;
-        }
+        ' . $this->getUnifiedStylesForContract($contractType) . '
     </style>
 </head>
 <body>
@@ -421,252 +202,454 @@ class KhmerPDFService
         
         $template = file_get_contents($templatePath);
         
+        // Ensure UTF-8 encoding
+        if (!mb_check_encoding($template, 'UTF-8')) {
+            $template = mb_convert_encoding($template, 'UTF-8', 'auto');
+        }
+        
         // Replace {{UNIFIED_STYLES}} with the CSS from the wrapWithTemplate method
-        $css = $this->getUnifiedStyles();
+        $css = $this->getUnifiedStylesForContract($contractType);
         $template = str_replace('{{UNIFIED_STYLES}}', $css, $template);
         
         return $template;
     }
 
     /**
-     * Get unified CSS styles for contract templates.
+     * Get unified CSS styles for contract templates (for template files).
      *
      * @return string
      */
     private function getUnifiedStyles()
     {
-        return '
-        /* Simplified font declarations - no external loading */
-        
-        * {
-            box-sizing: border-box;
+        return $this->getDepositContractStyles();
+    }
+
+    /**
+     * Get unified CSS styles based on contract type.
+     *
+     * @param string $contractType
+     * @return string
+     */
+    private function getUnifiedStylesForContract($contractType = 'deposit_contract')
+    {
+        if ($contractType === 'sale_contract') {
+            return $this->getSaleContractStyles();
+        } else {
+            return $this->getDepositContractStyles();
         }
+    }
+
+
+    /**
+     * Get complete deposit contract styles (print-ready).
+     *
+     * @return string
+     */
+    public function getDepositContractStyles()
+    {
+        return '<style>
+        @import url("https://fonts.googleapis.com/css2?family=Koh+Santepheap:wght@100;300;400;700;900&display=swap");
         
         body {
-            font-family: "Khmer OS", "DejaVu Sans", serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20mm;
-            background: white;
-            color: #000;
-            font-size: 14px;
-            font-weight: 400;
+            font-family: "Koh Santepheap", "Khmer OS", "Hanuman", serif !important;
+            font-size: 14pt !important;
+            line-height: 1.6 !important;
+            padding: 40px 20px !important;
+            margin: 0 !important;
+            background: white !important;
+            color: #000 !important;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+            text-rendering: optimizeLegibility !important;
         }
         
         .document-container {
-            max-width: 100%;
-            margin: 0 auto;
-            background: white;
-            font-family: "Khmer OS", "DejaVu Sans", serif;
+            box-shadow: none !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
         }
         
         .header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #333;
-            padding-bottom: 20px;
+            text-align: center !important;
+            margin-bottom: 30px !important;
         }
-        
+
         .kingdom-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            font-family: "Koh Santepheap", serif;
+            font-size: 18pt !important;
+            font-weight: 700 !important;
+            margin-bottom: 5px !important;
+            text-align: center !important;
         }
-        
+
         .nation-religion-king {
-            font-size: 14px;
-            margin-bottom: 5px;
-            font-family: "Koh Santepheap", serif;
+            font-size: 18pt !important;
+            font-weight: 700 !important;
+            margin-bottom: 5px !important;
+            text-align: center !important;
         }
-        
+
         .contract-title {
-            font-size: 20px;
-            font-weight: 900;
-            margin: 20px 0;
-            text-decoration: underline;
-            font-family: "Koh Santepheap", serif;
+            font-size: 16pt !important;
+            font-weight: 700 !important;
+            margin: 15px 0 !important;
+            text-decoration: underline !important;
+            text-underline-offset: 3px !important;
+            text-align: center !important;
         }
-        
-        .section {
-            margin-bottom: 25px;
+
+        p {
+            margin: 12px 0 !important;
+            text-align: justify !important;
+            text-indent: 40px !important;
+            line-height: 1.6 !important;
         }
-        
-        .section-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #ccc;
-            padding-bottom: 5px;
-            font-family: "Koh Santepheap", serif;
+
+        .indent-text {
+            text-indent: 50px !important;
         }
-        
-        .party-info {
-            background: #f9f9f9;
-            padding: 15px;
-            border-left: 4px solid #1890ff;
-            margin-bottom: 15px;
+
+        strong {
+            font-weight: 700 !important;
         }
-        
-        .party-title {
-            font-weight: 700;
-            font-size: 15px;
-            margin-bottom: 10px;
-            color: #1890ff;
-            font-family: "Koh Santepheap", serif;
+
+        table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            margin: 20px 0 !important;
         }
-        
-        .info-row {
-            margin-bottom: 8px;
-            display: flex;
-            align-items: flex-start;
+
+        table td, table th {
+            border: 1px solid #000 !important;
+            padding: 8px 12px !important;
+            text-align: left !important;
+            font-size: 13pt !important;
         }
-        
-        .info-label {
-            font-weight: 600;
-            min-width: 120px;
-            margin-right: 10px;
-            font-family: "Koh Santepheap", serif;
+
+        table th {
+            font-weight: 700 !important;
+            background-color: #f5f5f5 !important;
         }
-        
-        .info-value {
-            flex: 1;
-            border-bottom: 1px dotted #999;
-            min-height: 20px;
-            padding-bottom: 2px;
-            font-family: "Koh Santepheap", serif;
+
+        /* Fingerprint section styles - matching React component */
+        .fingerprint-section {
+            margin-top: 40px !important;
+            page-break-inside: avoid !important;
         }
-        
-        .land-details {
-            background: #f0f8f0;
-            padding: 15px;
-            border-left: 4px solid #52c41a;
-            margin-bottom: 15px;
+
+        .fingerprint-row {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: flex-end !important;
+            margin-top: 30px !important;
         }
-        
-        .payment-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-            font-family: "Koh Santepheap", serif;
+
+        .fingerprint-group {
+            flex: 1 !important;
+            text-align: center !important;
+            margin: 0 10px !important;
         }
-        
-        .payment-table th,
-        .payment-table td {
-            border: 1px solid #333;
-            padding: 10px;
-            text-align: center;
-            font-family: "Koh Santepheap", serif;
+
+        .fingerprint-label {
+            font-size: 12pt !important;
+            margin-bottom: 10px !important;
+            font-weight: 600 !important;
         }
-        
-        .payment-table th {
-            background: #f0f0f0;
-            font-weight: 700;
+
+        .fingerprint-box {
+            width: 80px !important;
+            height: 120px !important;
+            margin: 10px auto !important;
+            border: 1px solid #000 !important;
         }
-        
-        .terms-section {
-            background: #fff9e6;
-            padding: 20px;
-            border: 1px solid #ffd666;
-            border-radius: 5px;
-        }
-        
-        .terms-title {
-            font-weight: 700;
-            font-size: 16px;
-            margin-bottom: 15px;
-            color: #d48806;
-            font-family: "Koh Santepheap", serif;
-        }
-        
-        .term-item {
-            margin-bottom: 12px;
-            padding-left: 20px;
-            position: relative;
-            font-family: "Koh Santepheap", serif;
-            line-height: 1.8;
-        }
-        
-        .term-item:before {
-            content: "•";
-            position: absolute;
-            left: 0;
-            font-weight: bold;
-        }
-        
-        .signatures {
-            margin-top: 40px;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            page-break-inside: avoid;
-        }
-        
-        .signature-block {
-            text-align: center;
-            min-width: 200px;
-            margin-bottom: 30px;
-            font-family: "Koh Santepheap", serif;
-        }
-        
-        .signature-title {
-            font-weight: 700;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 5px;
-            font-family: "Koh Santepheap", serif;
-        }
-        
+
         .signature-line {
-            border-bottom: 1px solid #333;
-            height: 60px;
-            margin: 20px 0 10px 0;
+            margin-top: 15px !important;
+            padding-top: 5px !important;
+            border-top: 1px dotted #333 !important;
+            font-size: 11pt !important;
+            min-height: 20px !important;
         }
-        
+
+        /* Additional classes from React component */
+        .party-info {
+            margin: 15px 0 !important;
+            background: none !important;
+            border: none !important;
+            padding: 0 !important;
+        }
+
+        .party-info p {
+            margin: 0 !important;
+            text-align: justify !important;
+            line-height: 1.6 !important;
+            text-indent: 50px !important;
+            word-wrap: break-word !important;
+        }
+
+        .contract-intro {
+            text-align: center !important;
+            margin: 25px 0 !important;
+            font-weight: 600 !important;
+        }
+
+        .contract-intro p {
+            text-align: center !important;
+            text-indent: 0 !important;
+            margin: 0 !important;
+        }
+
+        .land-section {
+            margin: 20px 0 !important;
+            text-align: justify !important;
+        }
+
+        .land-section p {
+            text-indent: 40px !important;
+            margin: 15px 0 !important;
+            line-height: 1.6 !important;
+        }
+
+        .land-details, .conditions {
+            list-style: none !important;
+            padding-left: 0 !important;
+            margin: 15px 0 !important;
+        }
+
+        .land-details li, .conditions li {
+            margin: 10px 0 !important;
+            padding-left: 50px !important;
+            text-indent: -30px !important;
+            line-height: 1.6 !important;
+            text-align: justify !important;
+        }
+
+        .land-details li:before, .conditions li:before {
+            content: "- " !important;
+            font-weight: bold !important;
+            margin-right: 10px !important;
+        }
+
         .date-location {
-            text-align: right;
-            margin-bottom: 30px;
-            font-style: italic;
-            font-family: "Koh Santepheap", serif;
+            text-align: justify !important;
+            margin: 20px 0 !important;
+        }
+
+        .date-location p {
+            text-indent: 40px !important;
+            line-height: 1.6 !important;
+        }
+
+        .additional-terms {
+            margin: 20px 0 !important;
+            text-align: justify !important;
+        }
+
+        .additional-terms p {
+            text-indent: 40px !important;
+            line-height: 1.6 !important;
+        }
+
+        .contract-date {
+            margin: 30px 0 !important;
+        }
+
+        .contract-date p {
+            text-align: center !important;
+            font-weight: 600 !important;
+            text-indent: 0 !important;
+            margin: 0 !important;
+        }
+
+        /* Ensure all elements use proper Khmer typography */
+        p, div, span, td, th, li, h1, h2, h3, h4, h5, h6 {
+            font-family: "Koh Santepheap", "Khmer OS", "Hanuman", serif !important;
+            letter-spacing: 0.3px !important;
+        }
+        </style>';
+    }
+
+    /**
+     * Get complete sale contract styles (print-ready).
+     *
+     * @return string
+     */
+    private function getSaleContractStyles()
+    {
+        return '
+        @import url("https://fonts.googleapis.com/css2?family=Koh+Santepheap:wght@100;300;400;700;900&display=swap");
+
+        * {
+            -webkit-print-color-adjust: exact !important;
+            color-adjust: exact !important;
         }
         
-        .highlight {
-            background: #fff2e6;
-            padding: 2px 4px;
-            border-radius: 3px;
+        body {
+            font-family: "Koh Santepheap", "Khmer OS", "Hanuman", serif !important;
+            font-size: 14pt !important;
+            line-height: 1.6 !important;
+            padding: 20px 5px !important;
+            margin: 0 !important;
+            background: white !important;
+            color: #000 !important;
         }
         
-        /* Ensure Khmer text renders properly */
-        p, div, span, td, th, li, h1, h2, h3, h4, h5, h6, strong, b, em, i {
-            font-family: "Khmer OS", "DejaVu Sans", serif;
-            line-height: 1.6;
+        .document-container {
+            box-shadow: none !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
         }
         
-        /* Print optimizations */
-        @media print {
-            body {
-                padding: 0;
-                margin: 0;
-            }
-            
-            .document-container {
-                max-width: none;
-            }
-            
-            .signatures {
-                page-break-inside: avoid;
-            }
+        .indent-text {
+            text-indent: 50px !important;
         }
         
-        /* Page break handling */
-        .page-break {
-            page-break-before: always;
+        .header {
+            text-align: center !important;
+            margin-bottom: 30px !important;
         }
-        
-        .no-break {
-            page-break-inside: avoid;
+
+        .kingdom-title {
+            font-size: 18pt !important;
+            font-weight: 700 !important;
+            margin-bottom: 5px !important;
+            text-align: center !important;
+        }
+
+        .nation-religion-king {
+            font-size: 14pt !important;
+            margin-bottom: 5px !important;
+            text-align: center !important;
+        }
+
+        .contract-title {
+            font-size: 16pt !important;
+            font-weight: 700 !important;
+            margin: 15px 0 !important;
+            text-decoration: underline !important;
+            text-underline-offset: 3px !important;
+            text-align: center !important;
+        }
+
+        .party-info {
+            margin: 15px 0 !important;
+            background: none !important;
+            border: none !important;
+            padding: 0 !important;
+        }
+
+        .party-info p {
+            margin: 0 !important;
+            text-align: justify !important;
+            line-height: 1.6 !important;
+            text-indent: 50px !important;
+            word-wrap: break-word !important;
+        }
+
+        .contract-intro {
+            text-align: center !important;
+            margin: 25px 0 !important;
+            font-weight: 600 !important;
+        }
+
+        .contract-intro p {
+            text-align: center !important;
+            text-indent: 0 !important;
+            margin: 0 !important;
+        }
+
+        .land-section {
+            margin: 20px 0 !important;
+            text-align: justify !important;
+        }
+
+        .land-section p {
+            text-indent: 40px !important;
+            margin: 15px 0 !important;
+            line-height: 1.6 !important;
+        }
+
+        .land-details, .conditions {
+            list-style: none !important;
+            padding-left: 0 !important;
+            margin: 15px 0 !important;
+        }
+
+        .land-details li, .conditions li {
+            margin: 10px 0 !important;
+            padding-left: 50px !important;
+            text-indent: -30px !important;
+            line-height: 1.6 !important;
+            text-align: justify !important;
+        }
+
+        .land-details li:before, .conditions li:before {
+            content: "-" !important;
+            font-weight: bold !important;
+            margin-right: 10px !important;
+        }
+
+        strong {
+            font-weight: 700 !important;
+        }
+
+        table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            margin: 20px 0 !important;
+        }
+
+        table td, table th {
+            border: 1px solid #000 !important;
+            padding: 8px 12px !important;
+            text-align: left !important;
+            font-size: 13pt !important;
+        }
+
+        table th {
+            font-weight: 700 !important;
+            background-color: #f5f5f5 !important;
+        }
+
+        /* Sale contract uses .signatures instead of .fingerprint-section */
+        .signatures {
+            margin-top: 40px !important;
+            page-break-inside: avoid !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: flex-start !important;
+            flex-wrap: nowrap !important;
+            gap: 10px !important;
+        }
+
+        .signature-block {
+            flex: 1 !important;
+            text-align: center !important;
+            margin-bottom: 30px !important;
+            min-width: 0 !important;
+        }
+
+        .signature-title {
+            font-weight: bold !important;
+            margin-bottom: 60px !important;
+            font-size: 12pt !important;
+        }
+
+        p {
+            margin: 12px 0 !important;
+            text-align: justify !important;
+            line-height: 1.6 !important;
+        }
+
+        p, div, span, td, th, li, h1, h2, h3, h4, h5, h6 {
+            font-family: "Koh Santepheap", "Khmer OS", "Hanuman", serif !important;
+            letter-spacing: 0.3px !important;
         }';
     }
+
 
     /**
      * Test Khmer Unicode rendering with complex subscripts.

@@ -21,48 +21,37 @@
         <div class="party-info">
             {{buyers_content}}
         </div>
-
+        <p style="text-align: center;">និង </p>
         <!-- Seller Information -->
         <div class="party-info">
             {{sellers_content}}
         </div>
+        <p class="indent-text">ភាគីនីមួយៗ តទៅនេះហៅកាត់ថា "ភាគី" ឬ "គូភាគី" ។ </p>
 
         <!-- Contract Introduction -->
         <div class="contract-intro">
-            <p>អ្នកទាំងពីរនាក់ខាងលើនេះ បានព្រមព្រៀងគ្នាធ្វើកិច្ចសន្យាកក់ប្រាក់ទិញដីនេះ ដូចខាងក្រោម ៖</p>
+            <p>គូភាគី បានព្រមព្រៀងគ្នា ដូចខាងក្រោម ៖</p>
         </div>
-
+        {{deposit_content}}
         <!-- Land Information -->
         <div class="land-section">
-            <p><strong>កម្ម "ក"</strong> អ្នកលក់បានព្រមព្រៀងលក់ដីចំនួន <span class="fill-text">{{land_size}}</span> ម៉ែត្រការ៉េ នៅទីតាំង <span class="fill-text">{{land_location}}</span> ក្បាលដី <span class="fill-text">{{land_plot_number}}</span> ។</p>
-            
             <ul class="land-details">
-                <li>ដីដែលមានលក្ខណៈបុព្វកម្មសិទ្ធិស្របច្បាប់លេខ <span class="fill-text">{{land_title_number}}</span> ចេញថ្ងៃទី <span class="fill-text">{{land_title_date}}</span> ។</li>
-                <li>តម្លៃដីនេះ បានកំណត់ថាមួយម៉ែត្រការ៉េ ថ្លៃ USD <span class="fill-text">{{price_per_sqm}}</span> ដូច្នេះដីទាំងអស់ ថ្លៃ USD <span class="fill-text">{{total_price}}</span> ។</li>
-                <li>កម្ម "ខ" ក្នុងនាមជាអ្នកទិញដីបានព្រមព្រៀងទិញដីដែលមានលក្ខណៈដូចខាងលើ ។</li>
-                <li>កម្ម "ក" និង កម្ម "ខ" ទាំងពីរនាក់បានព្រមព្រៀងគ្នាថា កម្ម "ខ" នឹងបង់ប្រាក់កក់ចំនួន USD <span class="fill-text">{{deposit_amount}}</span> ជូនកម្ម "ក" ក្នុងថ្ងៃធ្វើកិច្ចសន្យានេះ ។</li>
+                {{lands_content}}
+                <li>ករណីបាត់ដី បន្ទាប់ពីវាស់ដោយសុរិយាដី បានវាស់បញ្ជាក់ទៅព្រំជិតខាង៖</li>
+                <li>ភាគី "ខ" ត្រូវដោះស្រាយជាមួយព្រំអ្នកជិតខាង អោយបានត្រឹមត្រូវតាមសុរិយាដីកំណត់ </li>
+                <li>ករណី ភាគី "ខ" មិនអាចដោះស្រាយជាមួយព្រំអ្នកជិតខាង អោយបានត្រឹមត្រូវតាមសុរិយាដីកំណត់ នោះចំនួនការ៉េដីដែលបាត់ ត្រូវកាត់លុយទៅតាមជាក់ស្តែងក្នុងអត្រាតម្លៃ តាមតម្លៃដីដែលបានកំណត់ខាងលើ ។</li>
             </ul>
             
-            <p><strong>បើសិនជាកម្ម "ខ" មិនអាចបង់ប្រាក់នៅសល់បានទាន់កាលកំណត់</strong> ដូចខាងក្រោម ៖</p>
+            <p><strong>លក្ខខណ្ឌនៃការទួទាត់ប្រាក់ និងលក្ខខណ្ឌផ្សេងៗ៖</strong></p>
             
             <ul class="conditions">
-                <li>ប្រសិនបើកម្ម "ខ" មិនអាចបង់ប្រាក់នៅសល់ក្នុងរយៈពេលកំណត់ កម្ម "ក" មានសិទ្ធិរក្សាប្រាក់កក់ទាំងអស់ ដែលបានទទួលរួចហើយ ។</li>
+                <li>លក្ខខណ្ឌទិញលក់ និងការទួទាត់ គោរពទៅតាមកិច្ចសន្យាចាស់ដែលធ្លាប់បានទិញលក់ហើយ ទាំងដំណាក់កាលទូទាត់រយៈពេលទូទាត់ និងភាគរយចំនួនលុយក្នុងការទូទាត់ដំណាក់កាលនីមួយៗ ។</li>
             </ul>
 
-        <!-- Contract Date and Location -->
-        <div class="date-location">
-            <p>ធ្វើកិច្ចសន្យានេះនៅថ្ងៃទី <span class="fill-text">{{contract_day}}</span> ខែ <span class="fill-text">{{contract_month}}</span> ឆ្នាំ <span class="fill-text">{{contract_year}}</span> នៅទីតាំង <span class="fill-text">{{contract_location}}</span> ។</p>
-        </div>
-        
-        <!-- Additional Terms -->
-        <div class="additional-terms">
-            <p>ចំពោះកិច្ចសន្យានេះ សូមទាំងពីរភាគីបានយល់ដឹងច្បាស់លាស់ពីលក្ខខណ្ឌនីមួយៗដែលបានកំណត់ក្នុងកិច្ចសន្យានេះ ហើយបានព្រមព្រៀងគ្នាធ្វើតាម ។</p>
-        </div>
+        {{deposit_terms_content}}
 
         <!-- Date and Location -->
-        <div class="contract-date">
-            <p style="text-align: center; margin: 30px 0;"><strong>ធ្វើនៅ ភ្នំពេញ, ថ្ងៃទី {{contract_day}} ខែ {{contract_month}} ឆ្នាំ {{contract_year}}</strong></p>
-        </div>
+        <p style="text-align: right; margin: 30px 0;"><strong>ធ្វើនៅ ភ្នំពេញ, ថ្ងៃទី {{current_date}}</strong></p>
 
         <!-- Fingerprint Signatures Section -->
         <div class="fingerprint-section">

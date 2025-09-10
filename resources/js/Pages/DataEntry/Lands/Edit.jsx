@@ -14,6 +14,7 @@ import LandForm from '@/Components/LandForm';
 import FrontImageUpload from '@/Components/FrontImageUpload';
 import BackImageUpload from '@/Components/BackImageUpload';
 import axios from 'axios';
+import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 const { Step } = Steps;
@@ -89,26 +90,10 @@ export default function LandEdit({ land, documents }) {
     const handleSubmit = async (formData) => {
         setLoading(true);
         try {
-            // Prepare files array with front and back images
-            const files = [];
-            if (frontImage) {
-                files.push({
-                    ...frontImage,
-                    isDisplay: true, // Front image is always the display image
-                    type: 'front'
-                });
-            }
-            if (backImage) {
-                files.push({
-                    ...backImage,
-                    isDisplay: false,
-                    type: 'back'
-                });
-            }
-            
             const submitData = {
                 ...formData,
-                files: files
+                frontImage: frontImage,
+                backImage: backImage
             };
             
             // Submit data

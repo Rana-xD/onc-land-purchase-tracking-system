@@ -3,12 +3,12 @@
 /* Base body styles */
 body {
   font-family: 'Koh Santepheap', 'Khmer OS', 'Hanuman', serif !important;
-  line-height: 2.2;
+  line-height: 1.6;
   margin: 0;
-  padding: 40px 60px;
+  padding: 40px 20px;
   background: white;
   color: #000;
-  font-size: 13pt;
+  font-size: 14pt;
   max-width: 210mm;
   margin: 0 auto;
   -webkit-font-smoothing: antialiased;
@@ -48,11 +48,11 @@ p {
   margin: 12px 0;
   text-align: justify;
   text-indent: 40px;
-  line-height: 2.2;
+  line-height: 1.6;
 }
 
 /* Contract introduction text */
-.contract-intro {
+.contract-intro p {
   text-align: center;
   margin: 25px 0;
   font-weight: 600;
@@ -67,7 +67,7 @@ p {
 /* Party information styling */
 .party-info {
   margin: 15px 0;
-  line-height: 2.2;
+  line-height: 1.6;
   background: none;
   border: none;
   padding: 0;
@@ -101,7 +101,7 @@ strong {
   padding-left: 50px;
   text-indent: -30px;
   text-align: justify;
-  line-height: 2.2;
+  line-height: 1.6;
 }
 
 /* Bullet points */
@@ -114,7 +114,7 @@ ul li {
   margin: 12px 0;
   padding-left: 50px;
   text-indent: -30px;
-  line-height: 2.2;
+  line-height: 1.6;
 }
 
 ul li:before {
@@ -134,7 +134,7 @@ table td, table th {
   border: 1px solid #000;
   padding: 8px 12px;
   text-align: left;
-  font-size: 13pt;
+  font-size: 14pt;
 }
 
 table th {
@@ -202,7 +202,8 @@ table th {
 }
 
 .nation-religion-king {
-  font-size: 14pt;
+  font-size: 18pt;
+  font-weight: 700 !important;
   margin-bottom: 8px;
   text-align: center;
 }
@@ -232,7 +233,7 @@ table th {
 
 .info-row {
   margin-bottom: 12px;
-  line-height: 2.2;
+  line-height: 1.6;
 }
 
 .info-label {
@@ -252,7 +253,7 @@ table th {
   padding-left: 50px;
   text-indent: -30px;
   text-align: justify;
-  line-height: 2.2;
+  line-height: 1.6;
 }
 
 .signatures {
@@ -277,6 +278,44 @@ p, div, span, td, th, li, h1, h2, h3, h4, h5, h6 {
   background: white;
   padding: 0;
   box-shadow: none;
+}
+
+/* Fingerprint section styles */
+.fingerprint-row {
+  margin-top: 30px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-end !important;
+  gap: 10px !important;
+}
+
+.fingerprint-group {
+  flex: 1 !important;
+  text-align: center !important;
+  font-size: 14pt !important;
+  line-height: 1.6 !important;
+}
+
+.fingerprint-label {
+  font-weight: 700 !important;
+  margin-bottom: 20px !important;
+  display: block !important;
+  font-size: 14pt !important;
+}
+
+.fingerprint-box {
+  width: 120px !important;
+  height: 120px !important;
+  margin: 0 auto 10px auto !important;
+  display: block !important;
+}
+
+.signature-line {
+  width: 120px !important;
+  height: 2px !important;
+  border-bottom: 1px dotted #000 !important;
+  margin: 10px auto !important;
+  display: block !important;
 }
 
 /* Print styles */

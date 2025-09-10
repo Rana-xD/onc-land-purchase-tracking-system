@@ -2,7 +2,7 @@ import { Head, usePage } from '@inertiajs/react';
 import React, { useState, useEffect, useRef } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import { Card, Button, Space, Typography, Divider, message, Steps, Modal } from 'antd';
-import { PrinterOutlined, DownloadOutlined, EditOutlined, UserOutlined, TeamOutlined, HomeOutlined, DollarOutlined, CheckCircleOutlined, EnvironmentOutlined, EyeOutlined, FileOutlined } from '@ant-design/icons';
+import { PrinterOutlined, DownloadOutlined, EditOutlined, UserOutlined, TeamOutlined, HomeOutlined, DollarOutlined, CheckCircleOutlined, EnvironmentOutlined, EyeOutlined, FileOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import AdminLayout from '@/Layouts/AdminLayout';
 import axios from 'axios';
 import html2canvas from 'html2canvas';
@@ -11,10 +11,8 @@ import jsPDF from 'jspdf';
 const { Title } = Typography;
 
 export default function DepositContractPreview({ document, populatedTemplate }) {
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [content, setContent] = useState(populatedTemplate);
-  const [previewVisible, setPreviewVisible] = useState(false);
   const editorRef = useRef(null);
 
   // Embedded CSS styles for consistent loading
@@ -25,7 +23,7 @@ export default function DepositContractPreview({ document, populatedTemplate }) 
       font-family: 'Koh Santepheap', 'Khmer OS', 'Hanuman', serif !important;
       line-height: 1.6;
       margin: 0;
-      padding: 40px 60px;
+      padding: 40px 20px;
       background: white;
       color: #000;
       font-size: 14pt;
@@ -33,7 +31,9 @@ export default function DepositContractPreview({ document, populatedTemplate }) 
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
     }
-
+    .indent-text {
+      text-indent: 50px;
+    }
     .header {
       text-align: center;
       margin-bottom: 30px;
@@ -83,7 +83,7 @@ export default function DepositContractPreview({ document, populatedTemplate }) 
     }
 
     .contract-intro p {
-      text-indent: 0;
+     text-align: center;
       margin: 0;
     }
 
@@ -120,37 +120,6 @@ export default function DepositContractPreview({ document, populatedTemplate }) 
 
     strong {
       font-weight: 700;
-    }
-
-    .date-location {
-      text-align: justify;
-      margin: 20px 0;
-    }
-
-    .date-location p {
-      text-indent: 40px;
-      line-height: 1.6;
-    }
-
-    .additional-terms {
-      margin: 20px 0;
-      text-align: justify;
-    }
-
-    .additional-terms p {
-      text-indent: 40px;
-      line-height: 1.6;
-    }
-
-    .contract-date {
-      margin: 30px 0;
-    }
-
-    .contract-date p {
-      text-align: center;
-      font-weight: 600;
-      text-indent: 0;
-      margin: 0;
     }
 
     table {
@@ -196,107 +165,18 @@ export default function DepositContractPreview({ document, populatedTemplate }) 
     }
 
     .fingerprint-box {
-      width: 80px;
+      width: 120px;
       height: 120px;
-      margin: 10px auto;
+      margin: 0 auto 10px auto;
+      display: block;
     }
 
     .signature-line {
-      margin-top: 15px;
-      padding-top: 5px;
-      border-top: 1px dotted #333;
-      font-size: 11pt;
-      min-height: 20px;
-    }
-
-    .page-break {
-      page-break-after: always;
-      margin-top: 30px;
-    }
-
-    .khmer-text {
-      letter-spacing: 0.3px;
-      word-spacing: 2px;
-    }
-
-    .indent-1 {
-      padding-left: 40px;
-    }
-
-    .indent-2 {
-      padding-left: 60px;
-    }
-
-    .term-number {
-      font-weight: 700;
-      margin-right: 10px;
-    }
-
-    .date-location {
-      text-align: center;
-      margin: 20px 0;
-      font-weight: 600;
-    }
-
-    .kingdom-title {
-      font-size: 18pt;
-      font-weight: 700;
-      text-align: center;
-    }
-
-    .nation-religion-king {
-      font-size: 20pt;
-      font-weight: 700;
-      margin-bottom: 8px;
-      text-align: center;
-    }
-
-    .contract-title {
-      font-size: 16pt;
-      font-weight: 700;
-      margin: 20px 0 15px 0;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-      text-align: center;
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 25px;
-    }
-
-    .party-title,
-    .terms-title {
-      font-weight: 700;
-      margin: 30px 0 15px 0;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-      font-size: 14pt;
-    }
-
-    .info-row {
-      margin-bottom: 12px;
-      line-height: 2.2;
-    }
-
-    .info-label {
-      font-weight: 600;
-      display: inline;
-    }
-
-    .info-value {
-      display: inline-block;
-      border-bottom: 1px dotted #333;
-      padding: 0 5px;
-      min-width: 80px;
-    }
-
-    .term-item {
-      margin: 15px 0;
-      padding-left: 50px;
-      text-indent: -30px;
-      text-align: justify;
-      line-height: 2.2;
+      width: 120px;
+      height: 2px;
+      border-bottom: 1px dotted #000;
+      margin: 10px auto;
+      display: block;
     }
 
     p {
@@ -318,11 +198,9 @@ export default function DepositContractPreview({ document, populatedTemplate }) 
       box-shadow: none;
     }
 
-    strong {
-      font-weight: 700;
-    }
-
     @media print {
+      @import url('https://fonts.googleapis.com/css2?family=Koh+Santepheap:wght@100;300;400;700;900&display=swap');
+      
       * {
         -webkit-print-color-adjust: exact !important;
         color-adjust: exact !important;
@@ -332,17 +210,157 @@ export default function DepositContractPreview({ document, populatedTemplate }) 
         font-family: 'Koh Santepheap', 'Khmer OS', 'Hanuman', serif !important;
         font-size: 14pt !important;
         line-height: 1.6 !important;
-        padding: 20mm !important;
+        padding: 40px 20px !important;
         margin: 0 !important;
         background: white !important;
         color: #000 !important;
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+        text-rendering: optimizeLegibility !important;
       }
       
       .document-container {
         box-shadow: none !important;
-        max-width: 700px !important;
+        max-width: none !important;
         padding: 0 !important;
-        margin: 0 auto !important;
+        margin: 0 !important;
+      }
+
+      h1 {
+        font-size: 18pt !important;
+        font-weight: 700 !important;
+        margin: 15px 0 10px 0 !important;
+        letter-spacing: 0.5px !important;
+        text-align: center !important;
+      }
+
+      h2 {
+        font-size: 18pt !important;
+        font-weight: 400 !important;
+        margin: 8px 0 !important;
+        text-align: center !important;
+      }
+
+      h3 {
+        font-size: 16pt !important;
+        font-weight: 700 !important;
+        text-decoration: underline !important;
+        margin: 20px 0 15px 0 !important;
+        text-underline-offset: 3px !important;
+        text-align: center !important;
+      }
+
+      p {
+        margin: 12px 0 !important;
+        text-align: justify !important;
+        text-indent: 40px !important;
+        line-height: 1.6 !important;
+      }
+
+      .contract-intro p {
+        text-align: center !important;
+        margin: 25px 0 !important;
+        font-weight: 600 !important;
+        text-indent: 0 !important;
+      }
+
+      .party-info p {
+        margin: 0 !important;
+        text-align: justify !important;
+        line-height: 1.6 !important;
+        text-indent: 50px !important;
+      }
+
+      ul {
+        list-style: none !important;
+        padding-left: 0 !important;
+      }
+
+      ul li {
+        margin: 12px 0 !important;
+        padding-left: 50px !important;
+        text-indent: -30px !important;
+        line-height: 1.6 !important;
+      }
+
+      ul li:before {
+        content: "- " !important;
+        font-weight: bold !important;
+        margin-right: 10px !important;
+      }
+
+      table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin: 20px 0 !important;
+      }
+
+      table td, table th {
+        border: 1px solid #000 !important;
+        padding: 8px 12px !important;
+        text-align: left !important;
+        font-size: 14pt !important;
+      }
+
+      table th {
+        font-weight: 700 !important;
+        background-color: #f5f5f5 !important;
+      }
+
+      .fingerprint-row {
+        margin-top: 30px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: flex-end !important;
+        gap: 10px !important;
+        page-break-inside: avoid !important;
+      }
+
+      .fingerprint-group {
+        flex: 1 !important;
+        text-align: center !important;
+        font-size: 14pt !important;
+        line-height: 1.6 !important;
+      }
+
+      .fingerprint-label {
+        font-weight: 700 !important;
+        margin-bottom: 20px !important;
+        display: block !important;
+        font-size: 14pt !important;
+      }
+
+      .fingerprint-box {
+        width: 120px !important;
+        height: 120px !important;
+        margin: 0 auto 10px auto !important;
+        display: block !important;
+      }
+
+      .signature-line {
+        width: 120px !important;
+        height: 2px !important;
+        border-bottom: 1px dotted #000 !important;
+        margin: 10px auto !important;
+        display: block !important;
+      }
+
+      .date-location {
+        text-align: center !important;
+        margin: 20px 0 !important;
+        font-weight: 600 !important;
+      }
+
+      .contract-date {
+        text-align: center !important;
+        margin: 20px 0 !important;
+        font-weight: 600 !important;
+      }
+
+      /* Ensure all elements use proper Khmer typography */
+      p, div, span, td, th, li, h1, h2, h3, h4, h5, h6 {
+        font-family: 'Koh Santepheap', 'Khmer OS', 'Hanuman', serif !important;
+        letter-spacing: 0.3px !important;
       }
       
       .header {
@@ -358,7 +376,7 @@ export default function DepositContractPreview({ document, populatedTemplate }) 
       }
       
       .nation-religion-king {
-        font-size: 14pt !important;
+        font-size: 18pt !important;
         margin-bottom: 5px !important;
         text-align: center !important;
       }
@@ -573,39 +591,9 @@ export default function DepositContractPreview({ document, populatedTemplate }) 
   };
 
   const handlePrint = () => {
-    if (!editorRef.current) {
-      message.error('Editor not ready');
-      return;
-    }
-
-    const printContent = editorRef.current.getContent();
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>កិច្ចសន្យាកក់ប្រាក់ទិញដី</title>
-        <link href="https://fonts.googleapis.com/css2?family=Koh+Santepheap:wght@100;300;400;700;900&display=swap" rel="stylesheet">
-        <style>
-          body { 
-            font-family: 'Koh Santepheap', serif; 
-            margin: 0; 
-            padding: 20px; 
-            line-height: 1.6;
-          }
-          @media print {
-            body { padding: 0; }
-          }
-        </style>
-      </head>
-      <body>
-        ${printContent}
-      </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
+    // Generate PDF first, then open in new tab for printing
+    const printUrl = `/api/deposit-contracts/${document.id}/print-pdf`;
+    window.open(printUrl, '_blank');
   };
 
   const handlePreview = () => {
@@ -664,14 +652,6 @@ export default function DepositContractPreview({ document, populatedTemplate }) 
         <Card>
           <div className="flex justify-between items-center mb-6">
             <Title level={3}>ពិនិត្យ និងកែសម្រួលកិច្ចសន្យា</Title>
-            <div className="space-x-2">
-              <Button 
-                icon={<EyeOutlined />}
-                onClick={handlePreview}
-              >
-                មើលជាមុន
-              </Button>
-            </div>
           </div>
           
           <div className="mb-4">
@@ -710,63 +690,28 @@ export default function DepositContractPreview({ document, populatedTemplate }) 
           </div>
           
           <div className="flex justify-between mt-6">
-            <Button onClick={handleBack}>
-              ត្រឡប់ក្រោយ
-            </Button>
-            
-            <div className="space-x-2">
+            <Space size="middle">
               <Button 
-                onClick={handleSave}
-                loading={saving}
-              >
-                រក្សាទុកព្រាង
-              </Button>
-              <Button 
+                type="primary" 
+                icon={<PrinterOutlined />} 
                 onClick={handlePrint}
-                disabled={loading}
+                size="large"
               >
                 បោះពុម្ព
               </Button>
+              
               <Button 
-                type="primary"
-                onClick={handleGeneratePDF}
-                loading={loading}
+                type="default" 
+                icon={<ArrowLeftOutlined />} 
+                onClick={handleBack}
+                size="large"
               >
-                បង្កើត PDF
+                ត្រឡប់ក្រោយ
               </Button>
-            </div>
+            </Space>
           </div>
         </Card>
 
-        {/* Preview Modal */}
-        <Modal
-          title="មើលជាមុនកិច្ចសន្យា"
-          open={previewVisible}
-          onCancel={() => setPreviewVisible(false)}
-          footer={[
-            <Button key="close" onClick={() => setPreviewVisible(false)}>
-              បិទ
-            </Button>,
-            <Button key="print" onClick={handlePrint}>
-              បោះពុម្ព
-            </Button>,
-            <Button key="pdf" type="primary" onClick={handleGeneratePDF} loading={loading}>
-              បង្កើត PDF
-            </Button>
-          ]}
-          width="90%"
-          style={{ top: 20 }}
-          bodyStyle={{ maxHeight: '70vh', overflow: 'auto' }}
-        >
-          <div 
-            dangerouslySetInnerHTML={{ __html: content }}
-            style={{ 
-              fontFamily: 'Koh Santepheap, serif',
-              lineHeight: 1.6,
-              fontSize: '14px'
-            }}
-          />
-        </Modal>
       </div>
     </AdminLayout>
   );

@@ -167,13 +167,15 @@ export default function SaleContractPreview({ document, populatedTemplate }) {
       margin-top: 40px;
       display: flex;
       justify-content: space-between;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
+      gap: 10px;
     }
 
-    .signature-section {
-      width: 45%;
+    .signature-block {
+      flex: 1;
       text-align: center;
       margin-bottom: 30px;
+      min-width: 0;
     }
 
     .signature-title {
@@ -392,14 +394,6 @@ export default function SaleContractPreview({ document, populatedTemplate }) {
         <Card>
           <div className="flex justify-between items-center mb-6">
             <Title level={3}>ពិនិត្យ និងកែសម្រួលកិច្ចសន្យាលក់ដី</Title>
-            <div className="space-x-2">
-              <Button 
-                icon={<EyeOutlined />}
-                onClick={handlePreview}
-              >
-                មើលជាមុន
-              </Button>
-            </div>
           </div>
           
           <div className="mb-4">

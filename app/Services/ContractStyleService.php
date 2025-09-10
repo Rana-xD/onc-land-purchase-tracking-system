@@ -37,11 +37,18 @@ class ContractStyleService
 
     /**
      * Get CSS styles for template HTML files.
+     * Uses KhmerPDFService for better management.
      *
      * @return string
      */
     public static function getTemplateStyles()
     {
-        return self::getContractCSS();
+        $cssPath = resource_path('css/deposit-contract.css');
+        
+        if (!file_exists($cssPath)) {
+            throw new \Exception('CSS file not found: ' . $cssPath);
+        }
+        
+        return file_get_contents($cssPath);
     }
 }

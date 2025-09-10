@@ -53,26 +53,10 @@ export default function Create() {
     const handleSubmit = async (formData) => {
         setLoading(true);
         try {
-            // Prepare files array with front and back images
-            const files = [];
-            if (frontImage) {
-                files.push({
-                    ...frontImage,
-                    isDisplay: true, // Front image is always the display image
-                    type: 'front'
-                });
-            }
-            if (backImage) {
-                files.push({
-                    ...backImage,
-                    isDisplay: false,
-                    type: 'back'
-                });
-            }
-            
             const submitData = {
                 ...formData,
-                files: files
+                frontImage: frontImage,
+                backImage: backImage
             };
             
             console.log('Submitting buyer data:', submitData);

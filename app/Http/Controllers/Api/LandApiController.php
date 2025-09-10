@@ -9,6 +9,7 @@ use App\Services\FileUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -122,6 +123,14 @@ class LandApiController extends Controller
             'date_of_registration' => 'required|date',
             'notes' => 'nullable|string',
             'documents' => 'nullable|array',
+            'frontImage' => 'nullable|array',
+            'frontImage.fileName' => 'nullable|string',
+            'frontImage.base64' => 'nullable|string',
+            'frontImage.mimeType' => 'nullable|string',
+            'backImage' => 'nullable|array',
+            'backImage.fileName' => 'nullable|string',
+            'backImage.base64' => 'nullable|string',
+            'backImage.mimeType' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -131,7 +140,7 @@ class LandApiController extends Controller
         try {
             DB::beginTransaction();
 
-            // Create land
+            // Create land first to get ID
             $land = Land::create([
                 'plot_number' => $request->plot_number,
                 'size' => $request->size,
@@ -139,6 +148,26 @@ class LandApiController extends Controller
                 'date_of_registration' => $request->date_of_registration,
                 'notes' => $request->notes,
             ]);
+
+            // Process images with land ID
+            $frontImagePath = null;
+            $backImagePath = null;
+            
+            if ($request->has('frontImage') && isset($request->frontImage['base64'])) {
+                $frontImagePath = $this->processImageUpload($request->frontImage, 'lands', 'front', $land->id);
+            }
+            
+            if ($request->has('backImage') && isset($request->backImage['base64'])) {
+                $backImagePath = $this->processImageUpload($request->backImage, 'lands', 'back', $land->id);
+            }
+
+            // Update land with image paths
+            if ($frontImagePath || $backImagePath) {
+                $land->update([
+                    'front_image_path' => $frontImagePath,
+                    'back_image_path' => $backImagePath,
+                ]);
+            }
 
             // Process documents if any
             if ($request->has('documents') && is_array($request->documents) && count($request->documents) > 0) {
@@ -195,6 +224,14 @@ class LandApiController extends Controller
             'date_of_registration' => 'required|date',
             'notes' => 'nullable|string',
             'documents' => 'nullable|array',
+            'frontImage' => 'nullable|array',
+            'frontImage.fileName' => 'nullable|string',
+            'frontImage.base64' => 'nullable|string',
+            'frontImage.mimeType' => 'nullable|string',
+            'backImage' => 'nullable|array',
+            'backImage.fileName' => 'nullable|string',
+            'backImage.base64' => 'nullable|string',
+            'backImage.mimeType' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -205,12 +242,35 @@ class LandApiController extends Controller
             DB::beginTransaction();
 
             $land = Land::findOrFail($id);
+            
+            // Process front and back images
+            $frontImagePath = $land->front_image_path;
+            $backImagePath = $land->back_image_path;
+            
+            if ($request->has('frontImage') && isset($request->frontImage['base64'])) {
+                // Delete old front image if exists
+                if ($frontImagePath && Storage::disk('public')->exists($frontImagePath)) {
+                    Storage::disk('public')->delete($frontImagePath);
+                }
+                $frontImagePath = $this->processImageUpload($request->frontImage, 'lands', 'front', $land->id);
+            }
+            
+            if ($request->has('backImage') && isset($request->backImage['base64'])) {
+                // Delete old back image if exists
+                if ($backImagePath && Storage::disk('public')->exists($backImagePath)) {
+                    Storage::disk('public')->delete($backImagePath);
+                }
+                $backImagePath = $this->processImageUpload($request->backImage, 'lands', 'back', $land->id);
+            }
+            
             $land->update([
                 'plot_number' => $request->plot_number,
                 'size' => $request->size,
                 'location' => $request->location,
                 'date_of_registration' => $request->date_of_registration,
                 'notes' => $request->notes,
+                'front_image_path' => $frontImagePath,
+                'back_image_path' => $backImagePath,
             ]);
 
             // Process documents if any
@@ -394,6 +454,60 @@ class LandApiController extends Controller
             if ($firstDocument) {
                 $firstDocument->update(['is_display' => true]);
             }
+        }
+    }
+
+    /**
+     * Process image upload from base64 data
+     *
+     * @param array $imageData
+     * @param string $category
+     * @param string $type
+     * @param int $recordId
+     * @return string|null
+     */
+    private function processImageUpload($imageData, $category, $type, $recordId)
+    {
+        try {
+            if (!isset($imageData['base64']) || !isset($imageData['fileName'])) {
+                return null;
+            }
+
+            // Extract base64 data (remove data:image/jpeg;base64, prefix if present)
+            $base64Data = $imageData['base64'];
+            if (strpos($base64Data, ',') !== false) {
+                $base64Data = explode(',', $base64Data)[1];
+            }
+
+            // Decode base64
+            $fileData = base64_decode($base64Data);
+            if ($fileData === false) {
+                return null;
+            }
+
+            // Generate unique filename
+            $extension = pathinfo($imageData['fileName'], PATHINFO_EXTENSION);
+            $filename = uniqid() . '.' . $extension;
+            
+            // Create directory path using ID-based structure: lands/1/front/ or lands/1/back/
+            $directory = $category . '/' . $recordId . '/' . $type;
+            $filePath = $directory . '/' . $filename;
+
+            // Ensure directory exists
+            if (!Storage::disk('public')->exists($directory)) {
+                Storage::disk('public')->makeDirectory($directory, 0755, true);
+            }
+
+            // Store the file using public disk
+            if (Storage::disk('public')->put($filePath, $fileData)) {
+                // Return the path relative to storage/app/public for database storage
+                return $filePath;
+            }
+
+            return null;
+        } catch (\Exception $e) {
+            Log::error('Error processing image upload: ' . $e->getMessage());
+            return null;
         }
     }
 }

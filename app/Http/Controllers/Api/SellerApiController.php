@@ -9,6 +9,7 @@ use App\Services\FileUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -115,7 +116,7 @@ class SellerApiController extends Controller
         try {
             DB::beginTransaction();
 
-            // Create seller
+            // Create seller first to get ID
             $seller = Seller::create([
                 'name' => $request->name,
                 'sex' => $request->sex,
@@ -124,6 +125,26 @@ class SellerApiController extends Controller
                 'address' => $request->address,
                 'phone_number' => $request->phone_number,
             ]);
+
+            // Process images with seller ID
+            $frontImagePath = null;
+            $backImagePath = null;
+            
+            if ($request->has('frontImage') && isset($request->frontImage['base64'])) {
+                $frontImagePath = $this->processImageUpload($request->frontImage, 'sellers', 'front', $seller->id);
+            }
+            
+            if ($request->has('backImage') && isset($request->backImage['base64'])) {
+                $backImagePath = $this->processImageUpload($request->backImage, 'sellers', 'back', $seller->id);
+            }
+
+            // Update seller with image paths
+            if ($frontImagePath || $backImagePath) {
+                $seller->update([
+                    'front_image_path' => $frontImagePath,
+                    'back_image_path' => $backImagePath,
+                ]);
+            }
 
             // Process documents if any
             if ($request->has('documents') && is_array($request->documents) && count($request->documents) > 0) {
@@ -181,6 +202,14 @@ class SellerApiController extends Controller
             'address' => 'required|string',
             'phone_number' => 'required|string|max:20',
             'documents' => 'nullable|array',
+            'frontImage' => 'nullable|array',
+            'frontImage.fileName' => 'nullable|string',
+            'frontImage.base64' => 'nullable|string',
+            'frontImage.mimeType' => 'nullable|string',
+            'backImage' => 'nullable|array',
+            'backImage.fileName' => 'nullable|string',
+            'backImage.base64' => 'nullable|string',
+            'backImage.mimeType' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -191,6 +220,27 @@ class SellerApiController extends Controller
             DB::beginTransaction();
 
             $seller = Seller::findOrFail($id);
+            
+            // Process front and back images
+            $frontImagePath = $seller->front_image_path; // Keep existing if no new image
+            $backImagePath = $seller->back_image_path; // Keep existing if no new image
+            
+            if ($request->has('frontImage') && isset($request->frontImage['base64'])) {
+                // Delete old front image if exists
+                if ($frontImagePath && Storage::disk('public')->exists($frontImagePath)) {
+                    Storage::disk('public')->delete($frontImagePath);
+                }
+                $frontImagePath = $this->processImageUpload($request->frontImage, 'sellers', 'front', $seller->id);
+            }
+            
+            if ($request->has('backImage') && isset($request->backImage['base64'])) {
+                // Delete old back image if exists
+                if ($backImagePath && Storage::disk('public')->exists($backImagePath)) {
+                    Storage::disk('public')->delete($backImagePath);
+                }
+                $backImagePath = $this->processImageUpload($request->backImage, 'sellers', 'back', $seller->id);
+            }
+            
             $seller->update([
                 'name' => $request->name,
                 'sex' => $request->sex,
@@ -198,6 +248,8 @@ class SellerApiController extends Controller
                 'identity_number' => $request->identity_number,
                 'address' => $request->address,
                 'phone_number' => $request->phone_number,
+                'front_image_path' => $frontImagePath,
+                'back_image_path' => $backImagePath,
             ]);
 
             // Process documents if any
@@ -381,6 +433,60 @@ class SellerApiController extends Controller
             if ($firstDocument) {
                 $firstDocument->update(['is_display' => true]);
             }
+        }
+    }
+
+    /**
+     * Process image upload from base64 data
+     *
+     * @param array $imageData
+     * @param string $category
+     * @param string $type
+     * @param int $recordId
+     * @return string|null
+     */
+    private function processImageUpload($imageData, $category, $type, $recordId)
+    {
+        try {
+            if (!isset($imageData['base64']) || !isset($imageData['fileName'])) {
+                return null;
+            }
+
+            // Extract base64 data (remove data:image/jpeg;base64, prefix if present)
+            $base64Data = $imageData['base64'];
+            if (strpos($base64Data, ',') !== false) {
+                $base64Data = explode(',', $base64Data)[1];
+            }
+
+            // Decode base64
+            $fileData = base64_decode($base64Data);
+            if ($fileData === false) {
+                return null;
+            }
+
+            // Generate unique filename
+            $extension = pathinfo($imageData['fileName'], PATHINFO_EXTENSION);
+            $filename = uniqid() . '.' . $extension;
+            
+            // Create directory path using ID-based structure: sellers/1/front/ or sellers/1/back/
+            $directory = $category . '/' . $recordId . '/' . $type;
+            $filePath = $directory . '/' . $filename;
+
+            // Ensure directory exists
+            if (!Storage::disk('public')->exists($directory)) {
+                Storage::disk('public')->makeDirectory($directory, 0755, true);
+            }
+
+            // Store the file using public disk
+            if (Storage::disk('public')->put($filePath, $fileData)) {
+                // Return the path relative to storage/app/public for database storage
+                return $filePath;
+            }
+
+            return null;
+        } catch (\Exception $e) {
+            Log::error('Error processing image upload: ' . $e->getMessage());
+            return null;
         }
     }
 }

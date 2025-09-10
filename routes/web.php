@@ -334,6 +334,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/{id}/generate', [DocumentCreationController::class, 'generate']);
             Route::post('/{id}/save-document', [\App\Http\Controllers\DocumentPreviewController::class, 'save']);
             Route::match(['GET', 'POST'], '/{id}/generate-pdf', [\App\Http\Controllers\DocumentPreviewController::class, 'generatePDF']);
+            Route::get('/{id}/print-pdf', [\App\Http\Controllers\DocumentPreviewController::class, 'printPDF']);
         });
         
         // Sale Contract API endpoints
@@ -347,6 +348,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/{id}/generate', [DocumentCreationController::class, 'generate']);
             Route::post('/{id}/save-document', [\App\Http\Controllers\DocumentPreviewController::class, 'save']);
             Route::match(['GET', 'POST'], '/{id}/generate-pdf', [\App\Http\Controllers\DocumentPreviewController::class, 'generatePDF']);
+            Route::get('/{id}/print-pdf', [\App\Http\Controllers\DocumentPreviewController::class, 'printPDF']);
         });
     });
 });
