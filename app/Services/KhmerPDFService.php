@@ -237,22 +237,20 @@ class KhmerPDFService
      */
     private function getUnifiedStyles()
     {
-        return $this->getDepositContractStyles();
+        return '<style>' . \App\Services\ContractStyleService::getTemplateStyles() . '</style>';
     }
 
     /**
      * Get unified CSS styles based on contract type.
+     * Now uses the unified CSS file for both contract types.
      *
      * @param string $contractType
      * @return string
      */
     private function getUnifiedStylesForContract($contractType = 'deposit_contract')
     {
-        if ($contractType === 'sale_contract') {
-            return $this->getSaleContractStyles();
-        } else {
-            return $this->getDepositContractStyles();
-        }
+        // Use unified CSS file for both contract types
+        return '<style>' . \App\Services\ContractStyleService::getTemplateStyles() . '</style>';
     }
 
 
@@ -442,7 +440,7 @@ class KhmerPDFService
         }
 
         .land-details li:before, .conditions li:before {
-            content: "- " !important;
+            content: "-" !important;
             font-weight: bold !important;
             margin-right: 10px !important;
         }
@@ -536,7 +534,7 @@ class KhmerPDFService
         }
 
         .nation-religion-king {
-            font-size: 14pt !important;
+            font-size: 18pt !important;
             margin-bottom: 5px !important;
             text-align: center !important;
         }
@@ -630,34 +628,214 @@ class KhmerPDFService
             background-color: #f5f5f5 !important;
         }
 
-        /* Sale contract uses .signatures instead of .fingerprint-section */
-        .signatures {
+        /* Two-column section layout */
+        .two-column-section {
+            margin: 20px 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            background: none !important;
+            line-height: 1.6 !important;
+            display: flex !important;
+            align-items: flex-start !important;
+            gap: 5px !important;
+        }
+
+        .section-label {
+            font-weight: 700 !important;
+            font-size: 14pt !important;
+            flex: 0 0 auto !important;
+            min-width: 120px !important;
+        }
+
+        .section-content {
+            flex: 1 !important;
+        }
+
+        .content-line {
+            margin: 2px 0 !important;
+            line-height: 1.6 !important;
+            display: inline !important;
+            white-space: wrap !important;
+        }
+
+        /* Party section styles - formatted as continuous text */
+        .party-section {
+            margin: 20px 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            background: none !important;
+            line-height: 1.6 !important;
+            display: flex !important;
+            align-items: baseline !important;
+            gap: 5px !important;
+        }
+
+        .party-title {
+            font-weight: 700 !important;
+            font-size: 14pt !important;
+            flex: 0 0 auto !important;
+            min-width: 120px !important;
+        }
+
+        .party-content {
+            flex: 1 !important;
+            text-align: justify !important;
+        }
+
+        .party-form-line {
+            display: inline !important;
+            line-height: 1.6 !important;
+        }
+
+        .form-label {
+            font-weight: 400 !important;
+            display: inline !important;
+        }
+
+        .form-value {
+            display: inline !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            font-weight: 400 !important;
+        }
+
+        .party-separator {
+            font-weight: 600 !important;
+            margin: 15px 0 !important;
+            text-align: center !important;
+            font-size: 14pt !important;
+        }
+
+        /* Fingerprint section styles */
+        .fingerprint-section {
             margin-top: 40px !important;
             page-break-inside: avoid !important;
+        }
+
+        .fingerprint-row {
+            margin-top: 30px !important;
+            font-size: 0 !important;
+            white-space: nowrap !important;
+        }
+
+        .fingerprint-group {
+            display: inline-block !important;
+            width: 24% !important;
+            text-align: center !important;
+            vertical-align: bottom !important;
+            font-size: 12pt !important;
+            margin-right: 1% !important;
+        }
+
+        .fingerprint-label {
+            font-weight: 700 !important;
+            margin-bottom: 20px !important;
+            display: block !important;
+            font-size: 12pt !important;
+        }
+
+        .fingerprint-box {
+            width: 80px !important;
+            height: 80px !important;
+            margin: 0 auto 10px auto !important;
+            display: block !important;
+            border: 1px solid transparent !important;
+        }
+
+        .signature-line {
+            width: 100px !important;
+            height: 2px !important;
+            border-bottom: 1px dotted #000 !important;
+            margin: 10px auto !important;
+            display: block !important;
+        }
+
+        /* Land terms section with numbered subsections */
+        .land-terms-section {
+            margin: 20px 0 !important;
+            line-height: 1.8 !important;
+        }
+
+        .term-subsection {
+            margin: 15px 0 !important;
             display: flex !important;
-            justify-content: space-between !important;
             align-items: flex-start !important;
-            flex-wrap: nowrap !important;
             gap: 10px !important;
         }
 
-        .signature-block {
-            flex: 1 !important;
-            text-align: center !important;
-            margin-bottom: 30px !important;
-            min-width: 0 !important;
+        .term-number {
+            font-weight: 700 !important;
+            font-size: 14pt !important;
+            flex: 0 0 auto !important;
+            min-width: 40px !important;
         }
 
-        .signature-title {
-            font-weight: bold !important;
-            margin-bottom: 60px !important;
-            font-size: 12pt !important;
+        .term-content {
+            flex: 1 !important;
+            text-align: justify !important;
+            line-height: 1.8 !important;
+        }
+
+        .land-detail-item {
+            margin: 8px 0 !important;
+            padding-left: 20px !important;
+            text-indent: -20px !important;
+            line-height: 1.8 !important;
+        }
+
+        .sub-item {
+            margin: 5px 0 !important;
+            padding-left: 20px !important;
+            text-indent: -20px !important;
+            line-height: 1.8 !important;
+        }
+
+        /* Payment schedule section styling */
+        .payment-schedule-section {
+            margin: 20px 0 !important;
+        }
+
+        .payment-schedule-section .two-column-section {
+            margin: 10px 0 !important;
+        }
+
+        .payment-schedule-section .section-label {
+            font-weight: 700 !important;
+            font-size: 14pt !important;
+            min-width: 140px !important;
+        }
+
+        .payment-schedule-section .content-line {
+            text-align: justify !important;
+            line-height: 1.8 !important;
+        }
+
+        /* Agreement sections */
+        .third-agreement-section,
+        .fourth-agreement-section,
+        .fifth-agreement-section,
+        .sixth-agreement-section {
+            margin: 10px 0 !important;
+        }
+
+        .obligation-item,
+        .fault-item,
+        .provision-item {
+            margin: 8px 0 !important;
+            text-align: justify !important;
+            line-height: 1.6 !important;
         }
 
         p {
             margin: 12px 0 !important;
             text-align: justify !important;
             line-height: 1.6 !important;
+        }
+
+        /* Center paragraph spacing fix */
+        p[style*="text-align: center"] {
+            margin: 15px 0 15px 0 !important;
         }
 
         p, div, span, td, th, li, h1, h2, h3, h4, h5, h6 {

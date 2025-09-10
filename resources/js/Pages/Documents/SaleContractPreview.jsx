@@ -23,6 +23,7 @@ import {
     EnvironmentOutlined,
     EyeOutlined,
     FileOutlined,
+    ArrowLeftOutlined,
 } from "@ant-design/icons";
 import AdminLayout from "@/Layouts/AdminLayout";
 import axios from "axios";
@@ -32,10 +33,8 @@ import jsPDF from "jspdf";
 const { Title } = Typography;
 
 export default function SaleContractPreview({ document, populatedTemplate }) {
-    const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [content, setContent] = useState(populatedTemplate);
-    const [previewVisible, setPreviewVisible] = useState(false);
     const editorRef = useRef(null);
 
     // Embedded CSS styles for consistent loading
@@ -489,107 +488,17 @@ export default function SaleContractPreview({ document, populatedTemplate }) {
         },
     ];
 
-    const handleSave = async () => {
-        if (!editorRef.current) return;
-
-        setSaving(true);
-        try {
-            const editorContent = editorRef.current.getContent();
-
-            const response = await axios.post(
-                `/documents/${document.id}/save`,
-                {
-                    content: editorContent,
-                },
-            );
-
-            if (response.status === 200) {
-                message.success("កិច្ចសន្យាត្រូវបានរក្សាទុកដោយជោគជ័យ");
-                setContent(editorContent);
-            }
-        } catch (error) {
-            console.error("Save error:", error);
-            message.error("មានបញ្ហាក្នុងការរក្សាទុក");
-        } finally {
-            setSaving(false);
-        }
-    };
 
     const handlePrint = () => {
-        if (!editorRef.current) return;
-
-        const printContent = editorRef.current.getContent();
-        const printWindow = window.open("", "_blank");
-
-        printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>កិច្ចសន្យាលក់ដី</title>
-        <style>${contractStyles}</style>
-      </head>
-      <body>
-        ${printContent}
-      </body>
-      </html>
-    `);
-
-        printWindow.document.close();
-        printWindow.focus();
-
-        setTimeout(() => {
-            printWindow.print();
-            printWindow.close();
-        }, 500);
+        // Generate PDF first, then open in new tab for printing
+        const printUrl = `/api/sale-contracts/${document.id}/print-pdf`;
+        window.open(printUrl, '_blank');
     };
 
-    const handleGeneratePDF = async () => {
-        if (!editorRef.current) return;
 
-        setLoading(true);
-        try {
-            const editorContent = editorRef.current.getContent();
-
-            const response = await axios.post(
-                `/documents/${document.id}/generate-pdf`,
-                {
-                    content: editorContent,
-                },
-                {
-                    responseType: "blob",
-                },
-            );
-
-            if (response.status === 200) {
-                const blob = new Blob([response.data], {
-                    type: "application/pdf",
-                });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.style.display = "none";
-                a.href = url;
-                a.download = `sale_contract_${document.id}_${new Date().toISOString().slice(0, 10)}.pdf`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-                message.success("បានបង្កើត PDF ដោយជោគជ័យ");
-            }
-        } catch (error) {
-            console.error("PDF generation error:", error);
-            message.error("មានបញ្ហាក្នុងការបង្កើត PDF");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handlePreview = () => {
-        setPreviewVisible(true);
-    };
 
     const handleBack = () => {
-        window.history.back();
+        window.location.href = route('sale-contracts.success', { id: document.id });
     };
 
     return (
@@ -672,63 +581,28 @@ export default function SaleContractPreview({ document, populatedTemplate }) {
                     </div>
 
                     <div className="flex justify-between mt-6">
-                        <Button onClick={handleBack}>ត្រឡប់ក្រោយ</Button>
-
-                        <div className="space-x-2">
-                            <Button onClick={handleSave} loading={saving}>
-                                រក្សាទុកព្រាង
-                            </Button>
-                            <Button onClick={handlePrint} disabled={loading}>
+                        <Space size="middle">
+                            <Button 
+                                type="primary" 
+                                icon={<PrinterOutlined />} 
+                                onClick={handlePrint}
+                                size="large"
+                            >
                                 បោះពុម្ព
                             </Button>
-                            <Button
-                                type="primary"
-                                onClick={handleGeneratePDF}
-                                loading={loading}
+                            
+                            <Button 
+                                type="default" 
+                                icon={<ArrowLeftOutlined />} 
+                                onClick={handleBack}
+                                size="large"
                             >
-                                បង្កើត PDF
+                                ត្រឡប់ក្រោយ
                             </Button>
-                        </div>
+                        </Space>
                     </div>
                 </Card>
 
-                {/* Preview Modal */}
-                <Modal
-                    title="មើលជាមុនកិច្ចសន្យាលក់ដី"
-                    open={previewVisible}
-                    onCancel={() => setPreviewVisible(false)}
-                    footer={[
-                        <Button
-                            key="close"
-                            onClick={() => setPreviewVisible(false)}
-                        >
-                            បិទ
-                        </Button>,
-                        <Button key="print" onClick={handlePrint}>
-                            បោះពុម្ព
-                        </Button>,
-                        <Button
-                            key="pdf"
-                            type="primary"
-                            onClick={handleGeneratePDF}
-                            loading={loading}
-                        >
-                            បង្កើត PDF
-                        </Button>,
-                    ]}
-                    width="90%"
-                    style={{ top: 20 }}
-                    bodyStyle={{ maxHeight: "70vh", overflow: "auto" }}
-                >
-                    <div
-                        dangerouslySetInnerHTML={{ __html: content }}
-                        style={{
-                            fontFamily: "Koh Santepheap, serif",
-                            lineHeight: 1.6,
-                            fontSize: "14px",
-                        }}
-                    />
-                </Modal>
             </div>
         </AdminLayout>
     );

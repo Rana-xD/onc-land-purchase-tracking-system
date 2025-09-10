@@ -5,14 +5,14 @@ namespace App\Services;
 class ContractStyleService
 {
     /**
-     * Get the unified CSS styles for deposit contracts.
+     * Get the unified CSS styles for all contract types.
      * This ensures consistency between TinyMCE editor and template preview.
      *
      * @return string
      */
     public static function getContractCSS()
     {
-        return file_get_contents(resource_path('css/deposit-contract.css'));
+        return file_get_contents(resource_path('css/contract-styles.css'));
     }
 
     /**
@@ -37,13 +37,13 @@ class ContractStyleService
 
     /**
      * Get CSS styles for template HTML files.
-     * Uses KhmerPDFService for better management.
+     * Uses unified contract styles for both deposit and sale contracts.
      *
      * @return string
      */
     public static function getTemplateStyles()
     {
-        $cssPath = resource_path('css/deposit-contract.css');
+        $cssPath = resource_path('css/contract-styles.css');
         
         if (!file_exists($cssPath)) {
             throw new \Exception('CSS file not found: ' . $cssPath);
