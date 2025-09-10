@@ -30,10 +30,26 @@ class KhmerPDFService
             $pdfPath = storage_path('app/contracts/' . $filename);
             
             // Generate PDF using Browsershot with optimized settings for Khmer Unicode
-            Browsershot::html($wrappedHTML)
-                ->setNodeBinary('/opt/homebrew/bin/node')
-                ->setNpmBinary('/opt/homebrew/bin/npm')
-                ->format('A4')
+            $browsershot = Browsershot::html($wrappedHTML);
+            
+            // Set Node.js paths based on environment
+            if (PHP_OS_FAMILY === 'Darwin') {
+                // macOS paths
+                $browsershot->setNodeBinary('/opt/homebrew/bin/node')
+                           ->setNpmBinary('/opt/homebrew/bin/npm');
+            } else {
+                // Linux/Ubuntu paths - let Browsershot auto-detect or use system paths
+                $nodePath = exec('which node');
+                $npmPath = exec('which npm');
+                if ($nodePath) {
+                    $browsershot->setNodeBinary($nodePath);
+                }
+                if ($npmPath) {
+                    $browsershot->setNpmBinary($npmPath);
+                }
+            }
+            
+            $browsershot->format('A4')
                 ->margins(20, 20, 20, 20)
                 ->showBackground()
                 ->timeout(20) // Reduced timeout for faster generation
