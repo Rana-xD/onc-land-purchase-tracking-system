@@ -1,24 +1,45 @@
-import { Head, usePage } from '@inertiajs/react';
-import React, { useState, useRef } from 'react';
-import { Editor } from '@tinymce/tinymce-react';
-import { Card, Button, Space, Typography, Divider, message, Steps, Modal } from 'antd';
-import { PrinterOutlined, DownloadOutlined, EditOutlined, UserOutlined, TeamOutlined, HomeOutlined, DollarOutlined, CheckCircleOutlined, EnvironmentOutlined, EyeOutlined, FileOutlined } from '@ant-design/icons';
-import AdminLayout from '@/Layouts/AdminLayout';
-import axios from 'axios';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import { Head, usePage } from "@inertiajs/react";
+import React, { useState, useRef } from "react";
+import { Editor } from "@tinymce/tinymce-react";
+import {
+    Card,
+    Button,
+    Space,
+    Typography,
+    Divider,
+    message,
+    Steps,
+    Modal,
+} from "antd";
+import {
+    PrinterOutlined,
+    DownloadOutlined,
+    EditOutlined,
+    UserOutlined,
+    TeamOutlined,
+    HomeOutlined,
+    DollarOutlined,
+    CheckCircleOutlined,
+    EnvironmentOutlined,
+    EyeOutlined,
+    FileOutlined,
+} from "@ant-design/icons";
+import AdminLayout from "@/Layouts/AdminLayout";
+import axios from "axios";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 const { Title } = Typography;
 
 export default function SaleContractPreview({ document, populatedTemplate }) {
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [content, setContent] = useState(populatedTemplate);
-  const [previewVisible, setPreviewVisible] = useState(false);
-  const editorRef = useRef(null);
+    const [loading, setLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [content, setContent] = useState(populatedTemplate);
+    const [previewVisible, setPreviewVisible] = useState(false);
+    const editorRef = useRef(null);
 
-  // Embedded CSS styles for consistent loading
-  const contractStyles = `
+    // Embedded CSS styles for consistent loading
+    const contractStyles = `
     @import url('https://fonts.googleapis.com/css2?family=Koh+Santepheap:wght@100;300;400;700;900&display=swap');
 
     body {
@@ -47,7 +68,7 @@ export default function SaleContractPreview({ document, populatedTemplate }) {
     }
 
     .nation-religion-king {
-      font-size: 20pt;
+      font-size: 18pt;
       font-weight: 700;
       margin-bottom: 15px;
       letter-spacing: 2px;
@@ -55,11 +76,12 @@ export default function SaleContractPreview({ document, populatedTemplate }) {
     }
 
     .contract-title {
-      font-size: 20pt;
-      font-weight: 700;
-      color: #000;
-      text-align: center;
-      margin-bottom: 20px;
+      font-size: 16pt !important;
+      font-weight: 700 !important;
+      margin: 15px 0 !important;
+      text-decoration: underline !important;
+      text-underline-offset: 3px !important;
+      text-align: center !important;
     }
 
     .document-container {
@@ -80,8 +102,169 @@ export default function SaleContractPreview({ document, populatedTemplate }) {
       margin: 0;
       text-align: justify;
       line-height: 1.6;
-      text-indent: 50px;
+      text-indent: 0;
       word-wrap: break-word;
+    }
+
+    /* Two-column flex party section structure */
+    .party-section {
+      margin: 20px 0;
+      padding: 0;
+      border: none;
+      background: none;
+      line-height: 1.6;
+      display: flex;
+      align-items: flex-start;
+      gap: 5px;
+    }
+
+    .party-title {
+      font-weight: 700;
+      font-size: 14pt;
+      flex: 0 0 auto;
+      min-width: 120px;
+    }
+
+    .party-content {
+      flex: 1;
+    }
+
+    .party-details {
+      flex: 1;
+      line-height: 1.6;
+    }
+
+    .party-form-line {
+      margin: 2px 0;
+      line-height: 1.6;
+      display: inline;
+      white-space: wrap;
+    }
+
+    .form-label {
+      font-weight: 400;
+      display: inline;
+      margin-right: 5px;
+    }
+
+    .form-value {
+      display: inline;
+      border: none;
+      padding: 0;
+      margin: 0 3px;
+      font-weight: 400;
+    }
+
+    .party-separator {
+      font-weight: 600;
+      margin: 15px 0;
+      text-align: center;
+      font-size: 14pt;
+    }
+
+    .party-designation {
+      margin-top: 15px;
+      font-weight: 600;
+      text-align: right;
+      font-style: italic;
+    }
+
+    .contract-form-field {
+      display: inline;
+      border: none;
+      padding: 0;
+      margin: 0 3px;
+      font-weight: 400;
+    }
+
+    /* Reusable two-column section layout */
+    .two-column-section {
+      margin: 20px 0;
+      padding: 0;
+      border: none;
+      background: none;
+      line-height: 1.6;
+      display: flex;
+      align-items: flex-start;
+      gap: 5px;
+    }
+
+    .section-label {
+      font-weight: 700;
+      font-size: 14pt;
+      flex: 0 0 auto;
+      min-width: 120px;
+    }
+
+    .section-content {
+      flex: 1;
+    }
+
+    .content-line {
+      margin: 2px 0;
+      line-height: 1.6;
+      display: inline;
+      white-space: wrap;
+    }
+
+    /* Land terms section with numbered subsections */
+    .land-terms-section {
+      margin: 20px 0;
+      line-height: 1.8;
+    }
+
+    .term-subsection {
+      margin: 15px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .term-number {
+      font-weight: 700;
+      font-size: 14pt;
+      flex: 0 0 auto;
+      min-width: 40px;
+    }
+
+    .term-content {
+      flex: 1;
+      text-align: justify;
+      line-height: 1.8;
+    }
+
+    .land-detail-item {
+      margin: 8px 0;
+      padding-left: 20px;
+      text-indent: -20px;
+      line-height: 1.8;
+    }
+
+    .sub-item {
+      margin: 5px 0;
+      padding-left: 20px;
+      text-indent: -20px;
+      line-height: 1.8;
+    }
+
+    /* Payment schedule section styling */
+    .payment-schedule-section {
+      margin: 20px 0;
+    }
+
+    .payment-schedule-section .two-column-section {
+      margin: 10px 0;
+    }
+
+    .payment-schedule-section .section-label {
+      font-weight: 700;
+      font-size: 14pt;
+      min-width: 140px;
+    }
+
+    .payment-schedule-section .content-line {
+      text-align: justify;
+      line-height: 1.8;
     }
 
     .contract-intro {
@@ -188,28 +371,52 @@ export default function SaleContractPreview({ document, populatedTemplate }) {
       margin: 60px 0 10px 0;
     }
 
+    /* Fingerprint section styles */
     .fingerprint-section {
-      margin-top: 40px;
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
+      margin-top: 30px !important;
+      width: 100% !important;
+    }
+
+    .fingerprint-row {
+      margin-top: 30px !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: flex-start !important;
+      gap: 20px !important;
+      width: 100% !important;
+      flex-wrap: nowrap !important;
+    }
+
+    .fingerprint-group {
+      flex: 1 !important;
+      text-align: center !important;
+      font-size: 14pt !important;
+      line-height: 1.6 !important;
+      min-width: 0 !important;
+      max-width: 25% !important;
+    }
+
+    .fingerprint-label {
+      font-weight: 700 !important;
+      margin-bottom: 20px !important;
+      display: block !important;
+      font-size: 14pt !important;
     }
 
     .fingerprint-box {
-      width: 45%;
-      text-align: center;
-      margin-bottom: 20px;
+      width: 80px !important;
+      height: 80px !important;
+      margin: 0 auto 10px auto !important;
+      display: block !important;
+      border: 1px solid transparent !important;
     }
 
-    .fingerprint-title {
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-
-    .fingerprint-area {
-      border: 1px solid #000;
-      height: 80px;
-      margin: 10px 0;
+    .signature-line {
+      width: 100px !important;
+      height: 2px !important;
+      border-bottom: 1px dotted #000 !important;
+      margin: 10px auto !important;
+      display: block !important;
     }
 
     @media print {
@@ -246,72 +453,75 @@ export default function SaleContractPreview({ document, populatedTemplate }) {
     }
   `;
 
-  // Get current step for navigation
-  const currentStep = 4; // Document preview step
-  
-  const steps = [
-    {
-      title: 'ជ្រើសរើសអ្នកទិញ',
-      status: 'finish',
-      icon: <UserOutlined />,
-    },
-    {
-      title: 'ជ្រើសរើសអ្នកលក់',
-      status: 'finish',
-      icon: <TeamOutlined />,
-    },
-    {
-      title: 'ជ្រើសរើសដី',
-      status: 'finish',
-      icon: <EnvironmentOutlined />,
-    },
-    {
-      title: 'ការបង់ប្រាក់',
-      status: 'finish',
-      icon: <DollarOutlined />,
-    },
-    {
-      title: 'ពិនិត្យកិច្ចសន្យា',
-      status: 'process',
-      icon: <FileOutlined />,
-    },
-    {
-      title: 'បញ្ចប់',
-      status: 'wait',
-      icon: <CheckCircleOutlined />,
-    },
-  ];
+    // Get current step for navigation
+    const currentStep = 4; // Document preview step
 
-  const handleSave = async () => {
-    if (!editorRef.current) return;
-    
-    setSaving(true);
-    try {
-      const editorContent = editorRef.current.getContent();
-      
-      const response = await axios.post(`/documents/${document.id}/save`, {
-        content: editorContent
-      });
+    const steps = [
+        {
+            title: "ជ្រើសរើសអ្នកទិញ",
+            status: "finish",
+            icon: <UserOutlined />,
+        },
+        {
+            title: "ជ្រើសរើសអ្នកលក់",
+            status: "finish",
+            icon: <TeamOutlined />,
+        },
+        {
+            title: "ជ្រើសរើសដី",
+            status: "finish",
+            icon: <EnvironmentOutlined />,
+        },
+        {
+            title: "ការបង់ប្រាក់",
+            status: "finish",
+            icon: <DollarOutlined />,
+        },
+        {
+            title: "ពិនិត្យកិច្ចសន្យា",
+            status: "process",
+            icon: <FileOutlined />,
+        },
+        {
+            title: "បញ្ចប់",
+            status: "wait",
+            icon: <CheckCircleOutlined />,
+        },
+    ];
 
-      if (response.status === 200) {
-        message.success('កិច្ចសន្យាត្រូវបានរក្សាទុកដោយជោគជ័យ');
-        setContent(editorContent);
-      }
-    } catch (error) {
-      console.error('Save error:', error);
-      message.error('មានបញ្ហាក្នុងការរក្សាទុក');
-    } finally {
-      setSaving(false);
-    }
-  };
+    const handleSave = async () => {
+        if (!editorRef.current) return;
 
-  const handlePrint = () => {
-    if (!editorRef.current) return;
-    
-    const printContent = editorRef.current.getContent();
-    const printWindow = window.open('', '_blank');
-    
-    printWindow.document.write(`
+        setSaving(true);
+        try {
+            const editorContent = editorRef.current.getContent();
+
+            const response = await axios.post(
+                `/documents/${document.id}/save`,
+                {
+                    content: editorContent,
+                },
+            );
+
+            if (response.status === 200) {
+                message.success("កិច្ចសន្យាត្រូវបានរក្សាទុកដោយជោគជ័យ");
+                setContent(editorContent);
+            }
+        } catch (error) {
+            console.error("Save error:", error);
+            message.error("មានបញ្ហាក្នុងការរក្សាទុក");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handlePrint = () => {
+        if (!editorRef.current) return;
+
+        const printContent = editorRef.current.getContent();
+        const printWindow = window.open("", "_blank");
+
+        printWindow.document.write(`
       <!DOCTYPE html>
       <html>
       <head>
@@ -324,172 +534,202 @@ export default function SaleContractPreview({ document, populatedTemplate }) {
       </body>
       </html>
     `);
-    
-    printWindow.document.close();
-    printWindow.focus();
-    
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 500);
-  };
 
-  const handleGeneratePDF = async () => {
-    if (!editorRef.current) return;
-    
-    setLoading(true);
-    try {
-      const editorContent = editorRef.current.getContent();
-      
-      const response = await axios.post(`/documents/${document.id}/generate-pdf`, {
-        content: editorContent
-      }, {
-        responseType: 'blob'
-      });
+        printWindow.document.close();
+        printWindow.focus();
 
-      if (response.status === 200) {
-        const blob = new Blob([response.data], { type: 'application/pdf' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = `sale_contract_${document.id}_${new Date().toISOString().slice(0, 10)}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-        message.success('បានបង្កើត PDF ដោយជោគជ័យ');
-      }
-    } catch (error) {
-      console.error('PDF generation error:', error);
-      message.error('មានបញ្ហាក្នុងការបង្កើត PDF');
-    } finally {
-      setLoading(false);
-    }
-  };
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 500);
+    };
 
-  const handlePreview = () => {
-    setPreviewVisible(true);
-  };
+    const handleGeneratePDF = async () => {
+        if (!editorRef.current) return;
 
-  const handleBack = () => {
-    window.history.back();
-  };
+        setLoading(true);
+        try {
+            const editorContent = editorRef.current.getContent();
 
-  return (
-    <AdminLayout>
-      <Head title="ពិនិត្យ និងកែសម្រួលកិច្ចសន្យាលក់ដី" />
-      
-      <div className="container mx-auto py-6">
-        <Card className="mb-6">
-          <Steps 
-            current={currentStep} 
-            items={steps} 
-            responsive={true} 
-            className="site-navigation-steps" 
-            size="small"
-          />
-        </Card>
-        
-        <Card>
-          <div className="flex justify-between items-center mb-6">
-            <Title level={3}>ពិនិត្យ និងកែសម្រួលកិច្ចសន្យាលក់ដី</Title>
-          </div>
-          
-          <div className="mb-4">
-            <Editor
-              apiKey={import.meta.env.VITE_TINYMCE_API_KEY || "no-api-key"}
-              onInit={(evt, editor) => editorRef.current = editor}
-              initialValue={content}
-              init={{
-                height: 800,
-                menubar: false,
-                plugins: [
-                  'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                  'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                  'insertdatetime', 'media', 'table', 'help', 'wordcount'
-                ],
-                toolbar: 'undo redo | blocks | ' +
-                  'bold italic forecolor backcolor | alignleft aligncenter ' +
-                  'alignright alignjustify | bullist numlist outdent indent | ' +
-                  'removeformat | table | preview | help',
-                content_css: false,
-                content_style: contractStyles,
-                font_formats: 'Koh Santepheap=Koh Santepheap,serif;Hanuman=Hanuman,serif;Khmer OS=Khmer OS,serif;',
-                extended_valid_elements: 'span[class|style],div[class|style],p[class|style],table[class|style],td[class|style],th[class|style]',
-                valid_children: '+body[style]',
-                verify_html: false,
-                entity_encoding: 'raw',
-                directionality: 'ltr',
-                setup: (editor) => {
-                  editor.on('change', () => {
-                    const newContent = editor.getContent();
-                    setContent(newContent);
-                  });
-                }
-              }}
-            />
-          </div>
-          
-          <div className="flex justify-between mt-6">
-            <Button onClick={handleBack}>
-              ត្រឡប់ក្រោយ
-            </Button>
-            
-            <div className="space-x-2">
-              <Button 
-                onClick={handleSave}
-                loading={saving}
-              >
-                រក្សាទុកព្រាង
-              </Button>
-              <Button 
-                onClick={handlePrint}
-                disabled={loading}
-              >
-                បោះពុម្ព
-              </Button>
-              <Button 
-                type="primary"
-                onClick={handleGeneratePDF}
-                loading={loading}
-              >
-                បង្កើត PDF
-              </Button>
+            const response = await axios.post(
+                `/documents/${document.id}/generate-pdf`,
+                {
+                    content: editorContent,
+                },
+                {
+                    responseType: "blob",
+                },
+            );
+
+            if (response.status === 200) {
+                const blob = new Blob([response.data], {
+                    type: "application/pdf",
+                });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.style.display = "none";
+                a.href = url;
+                a.download = `sale_contract_${document.id}_${new Date().toISOString().slice(0, 10)}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                message.success("បានបង្កើត PDF ដោយជោគជ័យ");
+            }
+        } catch (error) {
+            console.error("PDF generation error:", error);
+            message.error("មានបញ្ហាក្នុងការបង្កើត PDF");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handlePreview = () => {
+        setPreviewVisible(true);
+    };
+
+    const handleBack = () => {
+        window.history.back();
+    };
+
+    return (
+        <AdminLayout>
+            <Head title="ពិនិត្យ និងកែសម្រួលកិច្ចសន្យាលក់ដី" />
+
+            <div className="container mx-auto py-6">
+                <Card className="mb-6">
+                    <Steps
+                        current={currentStep}
+                        items={steps}
+                        responsive={true}
+                        className="site-navigation-steps"
+                        size="small"
+                    />
+                </Card>
+
+                <Card>
+                    <div className="flex justify-between items-center mb-6">
+                        <Title level={3}>
+                            ពិនិត្យ និងកែសម្រួលកិច្ចសន្យាលក់ដី
+                        </Title>
+                    </div>
+
+                    <div className="mb-4">
+                        <Editor
+                            apiKey={
+                                import.meta.env.VITE_TINYMCE_API_KEY ||
+                                "no-api-key"
+                            }
+                            onInit={(evt, editor) =>
+                                (editorRef.current = editor)
+                            }
+                            initialValue={content}
+                            init={{
+                                height: 800,
+                                menubar: false,
+                                plugins: [
+                                    "advlist",
+                                    "autolink",
+                                    "lists",
+                                    "link",
+                                    "image",
+                                    "charmap",
+                                    "preview",
+                                    "anchor",
+                                    "searchreplace",
+                                    "visualblocks",
+                                    "code",
+                                    "fullscreen",
+                                    "insertdatetime",
+                                    "media",
+                                    "table",
+                                    "help",
+                                    "wordcount",
+                                ],
+                                toolbar:
+                                    "undo redo | blocks | " +
+                                    "bold italic forecolor backcolor | alignleft aligncenter " +
+                                    "alignright alignjustify | bullist numlist outdent indent | " +
+                                    "removeformat | table | preview | help",
+                                content_css: false,
+                                content_style: contractStyles,
+                                font_formats:
+                                    "Koh Santepheap=Koh Santepheap,serif;Hanuman=Hanuman,serif;Khmer OS=Khmer OS,serif;",
+                                extended_valid_elements:
+                                    "span[class|style],div[class|style],p[class|style],table[class|style],td[class|style],th[class|style]",
+                                valid_children: "+body[style]",
+                                verify_html: false,
+                                entity_encoding: "raw",
+                                directionality: "ltr",
+                                setup: (editor) => {
+                                    editor.on("change", () => {
+                                        const newContent = editor.getContent();
+                                        setContent(newContent);
+                                    });
+                                },
+                            }}
+                        />
+                    </div>
+
+                    <div className="flex justify-between mt-6">
+                        <Button onClick={handleBack}>ត្រឡប់ក្រោយ</Button>
+
+                        <div className="space-x-2">
+                            <Button onClick={handleSave} loading={saving}>
+                                រក្សាទុកព្រាង
+                            </Button>
+                            <Button onClick={handlePrint} disabled={loading}>
+                                បោះពុម្ព
+                            </Button>
+                            <Button
+                                type="primary"
+                                onClick={handleGeneratePDF}
+                                loading={loading}
+                            >
+                                បង្កើត PDF
+                            </Button>
+                        </div>
+                    </div>
+                </Card>
+
+                {/* Preview Modal */}
+                <Modal
+                    title="មើលជាមុនកិច្ចសន្យាលក់ដី"
+                    open={previewVisible}
+                    onCancel={() => setPreviewVisible(false)}
+                    footer={[
+                        <Button
+                            key="close"
+                            onClick={() => setPreviewVisible(false)}
+                        >
+                            បិទ
+                        </Button>,
+                        <Button key="print" onClick={handlePrint}>
+                            បោះពុម្ព
+                        </Button>,
+                        <Button
+                            key="pdf"
+                            type="primary"
+                            onClick={handleGeneratePDF}
+                            loading={loading}
+                        >
+                            បង្កើត PDF
+                        </Button>,
+                    ]}
+                    width="90%"
+                    style={{ top: 20 }}
+                    bodyStyle={{ maxHeight: "70vh", overflow: "auto" }}
+                >
+                    <div
+                        dangerouslySetInnerHTML={{ __html: content }}
+                        style={{
+                            fontFamily: "Koh Santepheap, serif",
+                            lineHeight: 1.6,
+                            fontSize: "14px",
+                        }}
+                    />
+                </Modal>
             </div>
-          </div>
-        </Card>
-
-        {/* Preview Modal */}
-        <Modal
-          title="មើលជាមុនកិច្ចសន្យាលក់ដី"
-          open={previewVisible}
-          onCancel={() => setPreviewVisible(false)}
-          footer={[
-            <Button key="close" onClick={() => setPreviewVisible(false)}>
-              បិទ
-            </Button>,
-            <Button key="print" onClick={handlePrint}>
-              បោះពុម្ព
-            </Button>,
-            <Button key="pdf" type="primary" onClick={handleGeneratePDF} loading={loading}>
-              បង្កើត PDF
-            </Button>
-          ]}
-          width="90%"
-          style={{ top: 20 }}
-          bodyStyle={{ maxHeight: '70vh', overflow: 'auto' }}
-        >
-          <div 
-            dangerouslySetInnerHTML={{ __html: content }}
-            style={{ 
-              fontFamily: 'Koh Santepheap, serif',
-              lineHeight: 1.6,
-              fontSize: '14px'
-            }}
-          />
-        </Modal>
-      </div>
-    </AdminLayout>
-  );
+        </AdminLayout>
+    );
 }
