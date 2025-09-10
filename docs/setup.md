@@ -37,13 +37,42 @@ php8.2-xml php8.2-zip php8.2-bcmath php8.2-intl php8.2-mysql php8.2-sqlite3 \
 php8.2-gd php8.2-fpm php8.2-redis php8.2-dom php8.2-fileinfo php8.2-tokenizer
 ```
 
-## 4. Install Composer (PHP Dependency Manager)
+## 4. Install PDF Generation Dependencies
+
+The application uses both DomPDF and Browsershot for PDF generation. Install the required system dependencies:
+
+```bash
+# Install Chrome/Chromium for Browsershot PDF generation
+wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+sudo apt update
+sudo apt install -y google-chrome-stable
+
+# Install Chrome dependencies for headless operation
+sudo apt install -y \
+    libnss3 \
+    libatk-bridge2.0-0 \
+    libdrm2 \
+    libxkbcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libgbm1 \
+    libxss1 \
+    libasound2
+
+# Install Puppeteer globally (used by Browsershot)
+sudo npm install -g puppeteer --unsafe-perm=true --allow-root
+```
+
+**Note:** The PDF generation functionality requires Chrome/Chromium to be installed for proper rendering of complex layouts and Khmer fonts. Simply running `composer install` alone is not sufficient.
+
+## 5. Install Composer (PHP Dependency Manager)
 
 ```bash
 curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
 ```
 
-## 5. Install Node.js v20.9.0 and npm
+## 6. Install Node.js v20.9.0 and npm
 
 ```bash
 # Install Node.js using NVM (Node Version Manager)
@@ -62,7 +91,7 @@ node -v  # Should output v20.9.0
 npm -v   # Should output 10.x.x
 ```
 
-## 6. Install MySQL Server
+## 7. Install MySQL Server
 
 ```bash
 sudo apt install -y mysql-server
@@ -75,7 +104,7 @@ sudo systemctl start mysql
 sudo systemctl enable mysql
 ```
 
-## 7. Create MySQL Database and User
+## 8. Create MySQL Database and User
 
 ```bash
 sudo mysql -e "CREATE DATABASE onc_land_tracker CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
@@ -86,7 +115,7 @@ sudo mysql -e "FLUSH PRIVILEGES;"
 
 Replace `'your_secure_password'` with a strong password.
 
-## 8. Generate SSH Key and Add to GitHub
+## 9. Generate SSH Key and Add to GitHub
 
 ```bash
 # Generate SSH key (press Enter to accept default file location, then enter a secure passphrase)
@@ -121,7 +150,7 @@ ssh -T git@github.com
 
 You should see a message like: "Hi username! You've successfully authenticated, but GitHub does not provide shell access."
 
-## 9. Clone the Repository
+## 10. Clone the Repository
 
 ```bash
 # Navigate to your desired location
@@ -134,13 +163,13 @@ git clone git@github.com:yourusername/cambodia-land-tracker.git
 cd cambodia-land-tracker
 ```
 
-## 10. Install PHP Dependencies
+## 11. Install PHP Dependencies
 
 ```bash
 composer install --no-dev --optimize-autoloader
 ```
 
-## 11. Set Up Environment Configuration
+## 12. Set Up Environment Configuration
 
 ```bash
 # Copy the example environment file
@@ -150,7 +179,7 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-## 12. Configure the .env File
+## 13. Configure the .env File
 
 Edit the `.env` file to set your database and application configuration:
 
@@ -180,7 +209,7 @@ Also update the timezone to Cambodia's timezone:
 APP_TIMEZONE=Asia/Phnom_Penh
 ```
 
-## 13. Install Node.js Dependencies and Build Assets
+## 14. Install Node.js Dependencies and Build Assets
 
 ```bash
 # Install dependencies
@@ -190,7 +219,7 @@ npm install
 npm run build
 ```
 
-## 14. Run Database Migrations and Seed Data
+## 15. Run Database Migrations and Seed Data
 
 ```bash
 # Run migrations
@@ -200,7 +229,7 @@ php artisan migrate
 php artisan db:seed
 ```
 
-## 15. Set Proper Permissions
+## 16. Set Proper Permissions
 
 ```bash
 # Set proper ownership
@@ -216,13 +245,13 @@ sudo chmod -R 775 /var/www/onc-land-purchase-tracking-system/storage
 sudo chmod -R 775 /var/www/onc-land-purchase-tracking-system/bootstrap/cache
 ```
 
-## 16. Set Up Symbolic Link for Storage
+## 17. Set Up Symbolic Link for Storage
 
 ```bash
 php artisan storage:link
 ```
 
-## 17. Configure Web Server (Apache)
+## 18. Configure Web Server (Apache)
 
 If you're using Apache:
 
@@ -262,7 +291,7 @@ sudo a2ensite cambodia-land-tracker.conf
 sudo systemctl restart apache2
 ```
 
-## 18. Configure Web Server (Nginx)
+## 19. Configure Web Server (Nginx)
 
 If you prefer Nginx:
 
@@ -317,7 +346,7 @@ sudo ln -s /etc/nginx/sites-available/onc-land-purchase-tracking-system /etc/ngi
 sudo systemctl restart nginx
 ```
 
-## 19. Set Up Queue Worker (Optional but Recommended)
+## 20. Set Up Queue Worker (Optional but Recommended)
 
 For background processing tasks:
 
@@ -354,7 +383,7 @@ sudo supervisorctl update
 sudo supervisorctl start all
 ```
 
-## 20. Set Up Scheduled Tasks
+## 21. Set Up Scheduled Tasks
 
 Add Laravel's scheduler to the crontab:
 
@@ -368,7 +397,7 @@ Add the following line:
 * * * * * cd /var/www/onc-land-purchase-tracking-system && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-## 21. Verify Installation
+## 22. Verify Installation
 
 Open your browser and navigate to your server's domain or IP address. You should see the Cambodia Land Tracker login page.
 
