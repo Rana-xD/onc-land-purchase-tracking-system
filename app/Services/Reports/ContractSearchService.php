@@ -31,7 +31,7 @@ class ContractSearchService
             'documentCreation.buyers.buyer',
             'documentCreation.sellers.seller',
             'land',
-        ])->whereHas('documentCreation', function($query) use ($contractId) {
+        ])->whereHas('documentCreation', function ($query) use ($contractId) {
             $query->where('document_code', $contractId);
         })->first();
 
@@ -64,7 +64,7 @@ class ContractSearchService
                 'total_price' => $documentLand->total_price ?? 'N/A',
             ];
         })->toArray();
-        
+
         // Get all buyers associated with the contract
         $buyers = $contract->documentCreation->buyers->map(function ($documentBuyer) {
             return [
@@ -74,7 +74,7 @@ class ContractSearchService
                 'address' => $documentBuyer->buyer->address ?? 'N/A',
             ];
         })->toArray();
-        
+
         // Get all sellers associated with the contract
         $sellers = $contract->documentCreation->sellers->map(function ($documentSeller) {
             return [
@@ -117,6 +117,9 @@ class ContractSearchService
                 'status' => $contract->status,
             ],
             'payment_steps' => $paymentSteps,
+            // Add document_id and contract_type for acceptance contract links
+            'document_id' => $contract->documentCreation->id,
+            'contract_type' => $contract->documentCreation->contract_type,
         ];
     }
 }

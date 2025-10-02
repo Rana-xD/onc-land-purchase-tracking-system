@@ -404,7 +404,7 @@ class DocumentPreviewController extends Controller
 
             // Convert English numbers to Khmer in time description if present
             if ($timeDescription) {
-                $timeDescription = preg_replace_callback('/\d+/', function($matches) {
+                $timeDescription = preg_replace_callback('/\d+/', function ($matches) {
                     return KhmerNumberHelper::convertToKhmer($matches[0]);
                 }, $timeDescription);
             }
@@ -435,34 +435,34 @@ class DocumentPreviewController extends Controller
     private function generateThirdAgreementContent(DocumentCreation $document)
     {
         $content = '<div class="third-agreement-section">';
-        
+
         // Obligation 1 - Development rights
         $content .= '<div class="obligation-item">';
         $content .= '- ភាគី "ខ" យល់ព្រមអនុញ្ញាតឲ្យភាគី "ក" មានសិទ្ធិឈួសឆាយចាក់ដីបំពេញ បំបែកក្បាលដី បង្រួមក្បាលដី ប្ដូរប្រភេទដី ធ្វើការអភិវឌ្ឍជាបុរី និងលក់ឲ្យអតិថិជនបាន បន្ទាប់ពីភាគី "ក" ទូទាត់ប្រាក់ដំណាក់កាលទី១ឲ្យភាគី "ខ" រួចរាល់។';
         $content .= '</div>';
-        
+
         // Obligation 2 - Transfer costs
         $content .= '<div class="obligation-item">';
         $content .= '- ភាគី "ខ" ជាអ្នកចំណាយទាំងស្រុង(សេវាសុរិយោដី និងបង់ពន្ធ)សម្រាប់ការផ្ទេរកម្មសិទ្ធិ (កាត់ឈ្មោះ) មក ភាគី "ក" ឬមកឈ្មោះដែលភាគី "ក" ចាត់តាំង ។ ការចំណាយលើការកាត់ប្លង់ កាត់ចេញពីការទូទាត់ប្រាក់ដំណាក់កាលទី២។';
         $content .= '</div>';
-        
+
         // Obligation 3 - Document handover
         $content .= '<div class="obligation-item">';
         $content .= '- បន្ទាប់ពីភាគី "ក" ទូទាត់ប្រាក់ដំណាក់កាលទី១ឲ្យភាគី "ខ" រួចរាល់ ភាគី "ខ" ត្រូវប្រគល់ប័ណ្ណកម្មសិទ្ធិច្បាប់ដើម និងឯកសារពាក់ព័ន្ធការលក់ទិញដីនេះ ទាំងអស់ជូនភាគី "ក" ឬមន្រ្តីសុយោដីដែលភាគី "ក" បានសហការ សម្រាប់រៀបចំបំពេញបែបបទផ្ទេកម្មសិទ្ធិ។ បន្ទាប់ពីផ្ទេកម្មសិទ្ធិរួចភាគី "ក" ជាអ្នកគ្រប់គ្រង វិញ្ញាបនបត្រសម្គាល់ម្ចាស់អចលនវត្ថុ ។';
         $content .= '</div>';
-        
+
         // Obligation 4 - Legal guarantee
         $content .= '<div class="obligation-item">';
         $content .= '- ភាគី "ខ" ធានាថាដីដែលជាកម្មវត្ថុនៃការលក់ទិញនេះ ពិតជាកម្មសិទ្ធិស្របច្បាប់របស់ខ្លួន និងមិនមានវិវាទ ឬជម្លោះជាមួយអ្នកណាឡើយ មិនមែនជាទ្រព្យដាក់ធានាបំណុល មិនធ្វើអំណោយឬបណ្តាំមរតក ឬមិនមានជាប់រក្សាការពារពីតុលាការ និងមិនមានផ្នូរខ្មោចឡើយ។';
         $content .= '</div>';
-        
+
         // Obligation 5 - Third party disputes
         $content .= '<div class="obligation-item">';
         $content .= '- ភាគី "ក" ទទួលខុសត្រូវទាំងស្រុងក្នុងការដោះស្រាយ ឬចំណាយ ប្រសិនបើមានអ្នកណាមួយ (តតិយជន) មកធ្វើការតវ៉ា ឬរារាំង ឬទប់ស្កាត់មិនអាចផ្ទេកម្មសិទិ្ធមកអ្នកទិញ ឬមកឈ្មោះដែលភាគី "ខ" ចាត់តាំងបាន ។';
         $content .= '</div>';
-        
+
         $content .= '</div>';
-        
+
         return $content;
     }
 
@@ -475,24 +475,24 @@ class DocumentPreviewController extends Controller
     private function generateFourthAgreementContent(DocumentCreation $document)
     {
         $content = '<div class="fourth-agreement-section">';
-        
+
         // Obligation 1 - Payment obligation
         $content .= '<div class="obligation-item">';
         $content .= '- ភាគី "ក" ត្រូវទូទាត់ប្រាក់ថ្លៃដីជូន ភាគី "ខ" ដោយគ្មានការយឺតយ៉ាវតាមកាលកំណត់ដូចចែងក្នុងប្រការ ២.២ ខាងលើ ។ ករណីភាគី "ក" ទូទាត់យឺតយ៉ាវ ភាគី "ក" ត្រូវបង់ប្រាក់ពិន័យ១% ( មួយភាគរយ )ក្នុងមួយខែនៃប្រាក់ដែលបានបង់យឺតយាវឲ្យភាគី "ខ" ។';
         $content .= '</div>';
-        
+
         // Obligation 2 - Legal development
         $content .= '<div class="obligation-item">';
         $content .= '- ធានាធ្វើការអភិវឌ្ឍលើដីដោយស្របតាមច្បាប់ជាធរមាន។';
         $content .= '</div>';
-        
+
         // Obligation 3 - Access facilitation
         $content .= '<div class="obligation-item">';
         $content .= '- ភាគី"ក " ត្រូវបង្កភាពងាយស្រួលដល់ភាគី "ខ" ចូលជួបនិងសាកសួពត៍មាន។';
         $content .= '</div>';
-        
+
         $content .= '</div>';
-        
+
         return $content;
     }
 
@@ -505,19 +505,19 @@ class DocumentPreviewController extends Controller
     private function generateFifthAgreementContent(DocumentCreation $document)
     {
         $content = '<div class="fifth-agreement-section">';
-        
+
         // Section 5.1 - Seller faults
         $content .= '<div class="fault-item">';
         $content .= '៥.១ កំហុសរបស់អ្នកលក់៖ ភាគី "ខ" មិនអាចរំលាយកិច្ចសន្យាលក់ទិញនេះបានជាដាច់ខាត។ ករណីភាគី "ខ" ចង់រំលាយកិច្ចសន្យានេះវិញ បែរជាឈប់លក់ នោះភាគី "ខ" សុខចិត្តបង់សំណងស្មើរនឹង៣ដង នៃប្រាក់ដែលបានទទួល បូករួមទាំងការខូចខាតទាំងអស់ផ្សេងទៀតដែលកើតមានឡើងដោយសាកំហុសរបស់ភាគី"ខ" ។';
         $content .= '</div>';
-        
+
         // Section 5.2 - Buyer faults
         $content .= '<div class="fault-item">';
         $content .= '៥.២ កំហុសរបស់អ្នកទិញ៖ បើភាគី "ក" ប្រែក្រលាស់ជាឈប់ទិញដីពីភាគី "ខ" វិញ នោះប្រាក់កក់ និងប្រាក់ដែលភាគី "ក" បានបង់ជូនភាគី "ខ" ត្រូវទុកជាប្រយោជន៏របស់ភាគី "ខ" ។';
         $content .= '</div>';
-        
+
         $content .= '</div>';
-        
+
         return $content;
     }
 
@@ -530,24 +530,24 @@ class DocumentPreviewController extends Controller
     private function generateSixthAgreementContent(DocumentCreation $document)
     {
         $content = '<div class="sixth-agreement-section">';
-        
+
         // Section 6.1 - Contract respect
         $content .= '<div class="provision-item">';
         $content .= '៦.១ - គូភាគីសន្យាគោរពយ៉ាងម៉ឺងម៉ាត់នូវរាល់ខដែលមានចែងក្នុងកិច្ចសន្យានេះ ។';
         $content .= '</div>';
-        
+
         // Section 6.2 - Breach consequences
         $content .= '<div class="provision-item">';
         $content .= '៦.២ - ករណីមានការអនុវត្តន៏ផ្ទុយ ឬរំលោពបំពានលើលក្ខខណ្ឌណាមួយនៃកិច្ចសន្យានេះ ភាគីដែលបំពានត្រូវទទួលខុសត្រូវចំពោះមុខច្បាប់ជាធរមាន ហើយរាល់សោហ៊ុយចំណាយទាក់ទងក្នុងការដោះស្រាយវិវាទ ជាបន្ទុករបស់ភាគីដែលបានរំលោភបំពានកិច្ចសន្យានេះ ។';
         $content .= '</div>';
-        
+
         // Section 6.3 - Contract validity and copies
         $content .= '<div class="provision-item">';
         $content .= '៦.៣ - កិច្ចសន្យានេះធ្វើឡើងដោយគូភាគីបានព្រមព្រៀងគ្នាយ៉ាងពិតប្រាកដ ពុំមានការបង្ខិតបង្ខំណាមួយឡើយ ហើយមានប្រសិទ្ទភាពអនុត្តន៏ចាប់ពីថ្ងៃចុះកិច្ចសន្យានេះតទៅ ។ កិច្ចសន្យានេះត្រូវធ្វើឡើងចំនួន០២( ពីរ )ច្បាប់ដើម ជាភាសាខ្មែរមានតម្លៃស្មើគ្នាចំពោះមុខច្បាប់ និងតម្កល់ទុកនូវគូភាគីម្នាក់មួយច្បាប់ដើម ។';
         $content .= '</div>';
-        
+
         $content .= '</div>';
-        
+
         return $content;
     }
 
@@ -1010,6 +1010,179 @@ class DocumentPreviewController extends Controller
                 'message' => 'មានបញ្ហាក្នុងការបង្កើត PDF: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Show acceptance contract preview.
+     *
+     * @param  int  $documentId
+     * @param  int  $paymentStepId
+     * @return \Inertia\Response
+     */
+    public function showAcceptanceContract($documentId, $paymentStepId)
+    {
+        $document = DocumentCreation::with([
+            'buyers.buyer',
+            'sellers.seller', 
+            'lands.land',
+            'paymentSteps'
+        ])->findOrFail($documentId);
+
+        $paymentStep = $document->paymentSteps()->findOrFail($paymentStepId);
+
+        // Check if user is authenticated
+        if (!Auth::check()) {
+            abort(403, 'Unauthorized');
+        }
+
+        try {
+            // Use the proper method to prepare the fully populated template
+            $populatedTemplate = $this->prepareAcceptanceDocument($document, $paymentStep);
+
+            return Inertia::render('Documents/AcceptanceContractPreview', [
+                'document' => $document,
+                'paymentStep' => $paymentStep,
+                'populatedTemplate' => $populatedTemplate,
+            ]);
+        } catch (\Exception $e) {
+            // Log the error and return empty template as fallback
+            logger('Error preparing acceptance contract: ' . $e->getMessage());
+            
+            return Inertia::render('Documents/AcceptanceContractPreview', [
+                'document' => $document,
+                'paymentStep' => $paymentStep,
+                'populatedTemplate' => '<p>Error loading template: ' . $e->getMessage() . '</p>',
+            ]);
+        }
+    }
+
+    /**
+     * Generate acceptance contract PDF.
+     *
+     * @param  Request  $request
+     * @param  int  $id
+     * @param  int  $paymentStepId
+     * @return \Illuminate\Http\Response
+     */
+    public function generateAcceptanceContractPDF(Request $request, $id, $paymentStepId)
+    {
+        try {
+            $document = DocumentCreation::with([
+                'buyers',
+                'sellers',
+                'lands',
+                'paymentSteps'
+            ])->findOrFail($id);
+
+            $paymentStep = $document->paymentSteps()->findOrFail($paymentStepId);
+
+            // Generate acceptance contract PDF
+            $populatedTemplate = $this->prepareAcceptanceDocument($document, $paymentStep);
+
+            $filename = "acceptance_contract_{$document->document_code}_{$paymentStep->step_number}_" . now()->format('Y_m_d_H_i_s') . '.pdf';
+
+            $pdfService = new KhmerPDFService();
+            
+            // Check if this is for printing (inline display) or download
+            $isDownload = $request->has('download') || $request->method() === 'POST';
+            
+            if ($isDownload) {
+                // For download
+                return $pdfService->generateAndDownload($populatedTemplate, $filename, 'acceptance_contract');
+            } else {
+                // For printing (inline display)
+                $pdfPath = $pdfService->generateFromHTML($populatedTemplate, $filename, 'acceptance_contract');
+                return response()->file($pdfPath, [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'inline; filename="' . $filename . '"'
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'មានបញ្ហាក្នុងការបង្កើត PDF: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Prepare acceptance contract document with payment step data.
+     *
+     * @param  DocumentCreation  $document
+     * @param  PaymentStep  $paymentStep
+     * @return string
+     */
+    private function prepareAcceptanceDocument(DocumentCreation $document, $paymentStep)
+    {
+        $templatePath = resource_path('templates/acceptance_contract.html');
+
+        if (!file_exists($templatePath)) {
+            throw new \Exception('Acceptance contract template not found: ' . $templatePath);
+        }
+
+        $template = file_get_contents($templatePath);
+
+        // Ensure template is UTF-8 encoded
+        if (!mb_check_encoding($template, 'UTF-8')) {
+            $template = mb_convert_encoding($template, 'UTF-8', 'auto');
+        }
+
+        // Inject unified CSS styles into the template
+        $styles = ContractStyleService::getTemplateStyles();
+        $template = str_replace('{{UNIFIED_STYLES}}', $styles, $template);
+
+        $data = $this->prepareAcceptanceContractData($document, $paymentStep);
+
+        return $this->populateTemplate($template, $data);
+    }
+
+    /**
+     * Prepare template data for acceptance contract.
+     *
+     * @param  DocumentCreation  $document
+     * @param  PaymentStep  $paymentStep
+     * @return array
+     */
+    private function prepareAcceptanceContractData(DocumentCreation $document, $paymentStep)
+    {
+        // Get existing template data
+        $baseData = $this->prepareTemplateData($document);
+
+        // Calculate payment step specific data
+        $totalPaidAmount = $document->paymentSteps()
+            ->where('step_number', '<=', $paymentStep->step_number)
+            ->where('status', 'paid')
+            ->sum('amount');
+
+        $totalLandPrice = floatval($document->total_land_price ?? 0);
+        $remainingAmount = $totalLandPrice - $totalPaidAmount;
+
+        // Add acceptance contract specific data
+        $acceptanceData = [
+            'payment_step_number' => KhmerNumberHelper::convertToKhmer($paymentStep->step_number),
+            'payment_amount' => KhmerNumberHelper::formatNumberForDisplay($paymentStep->amount),
+            'payment_amount_khmer' => KhmerNumberHelper::convertCurrencyToKhmer($paymentStep->amount),
+            'total_paid_amount' => KhmerNumberHelper::formatNumberForDisplay($totalPaidAmount),
+            'total_paid_amount_khmer' => KhmerNumberHelper::convertCurrencyToKhmer($totalPaidAmount),
+            'total_land_price' => KhmerNumberHelper::formatNumberForDisplay($totalLandPrice),
+            'total_land_price_khmer' => KhmerNumberHelper::convertCurrencyToKhmer($totalLandPrice),
+            'remaining_amount' => KhmerNumberHelper::formatNumberForDisplay($remainingAmount),
+            'remaining_amount_khmer' => KhmerNumberHelper::convertCurrencyToKhmer($remainingAmount),
+            'original_contract_date' => $document->created_at->format('d/m/Y'),
+            'payment_step_specific_terms' => $this->generatePaymentStepSpecificTerms($document),
+        ];
+
+        return array_merge($baseData, $acceptanceData);
+    }
+
+    /**
+     * Generate payment step specific terms.
+     *
+     * @param  DocumentCreation  $document
+     * @return string
+     */
+    private function generatePaymentStepSpecificTerms(DocumentCreation $document)
+    {
+        return '<li>ការបង់ប្រាក់នេះត្រូវបានទទួលស្គាល់ជាផ្លូវការតាមកិច្ចសន្យាដើម</li>';
     }
 
     /**

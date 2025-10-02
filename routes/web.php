@@ -33,13 +33,13 @@ Route::get('/', function () {
 // Dashboard accessible to all authenticated users
 Route::middleware(['auth', 'verified', 'web'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     // Dashboard API endpoints
     Route::prefix('api/dashboard')->group(function () {
         Route::get('/payment-overview', [DashboardController::class, 'paymentOverview']);
         Route::get('/upcoming-payments', [DashboardController::class, 'upcomingPayments']);
     });
-    
+
     // Contract Documents API endpoints
     Route::prefix('api/reports')->group(function () {
         Route::get('/contract-documents', [ContractDocumentController::class, 'index']);
@@ -52,29 +52,29 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
-    
+
     // User routes
-    
+
     // User routes with role-based access control
     Route::middleware('role:admin,manager')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
-        
+
         // Administrator and manager routes
     });
-    
+
     // User management page - with auth middleware only
     Route::middleware('auth')->get('/user-management', function () {
         return Inertia::render('Users/UserManagement');
     })->name('users.management');
-    
+
     // Reports Routes
     Route::middleware(['auth', 'role:admin,manager'])->prefix('reports')->name('reports.')->group(function () {
         Route::get('/monthly', [MonthlyReportController::class, 'index'])->name('monthly');
         Route::get('/payment-status', [PaymentStatusReportController::class, 'index'])->name('payment-status');
         Route::get('/contracts', [ContractReportController::class, 'index'])->name('contracts');
     });
-    
+
     // Role and Permission Management routes
     Route::middleware('auth')->prefix('roles')->name('roles.')->group(function () {
         Route::get('/', [\App\Http\Controllers\RoleController::class, 'index'])->name('index');
@@ -86,22 +86,22 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{role}', [\App\Http\Controllers\RoleController::class, 'destroy'])->name('destroy');
         Route::patch('/{role}/toggle-status', [\App\Http\Controllers\RoleController::class, 'toggleStatus'])->name('toggle-status');
     });
-    
+
     // Simple test routes
     Route::get('/test-page', function () {
         return Inertia::render('Dashboard');
     });
-    
+
     Route::get('/test-contract-upload', function () {
         return Inertia::render('Test/ContractDocumentUploadTest');
     });
-    
+
     Route::get('/test-khmer-pdf', [\App\Http\Controllers\DocumentPreviewController::class, 'testKhmerPDF']);
-    
+
     // Document Creation routes - Web UI routes (Inertia)
     Route::get('/documents', [\App\Http\Controllers\DocumentCreationController::class, 'index'])->name('documents.index');
     Route::get('/documents/{contract_id}', [ReportController::class, 'documentReportByContract'])->name('documents.show');
-    
+
     // Reports routes
     Route::prefix('reports')->name('reports.')->middleware('\App\Http\Middleware\CheckRole:admin,manager,staff')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
@@ -109,16 +109,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/monthly', [ReportController::class, 'monthlyReport'])->name('monthly');
         Route::get('/yearly', [ReportController::class, 'yearlyReport'])->name('yearly');
         Route::get('/payment-status', [ReportController::class, 'paymentStatusReport'])->name('payment-status');
-        
+
         // Payment Status Report API endpoints
         Route::post('/payment-status/data', [\App\Http\Controllers\Reports\PaymentStatusReportController::class, 'getPaymentStatusData']);
         Route::post('/payment-status/export', [\App\Http\Controllers\Reports\PaymentStatusReportController::class, 'exportPaymentStatusReport']);
-        
+
         // Yearly Report API endpoints
         Route::post('/yearly/data', [\App\Http\Controllers\Reports\YearlyReportController::class, 'getYearlyData']);
         Route::post('/yearly/export', [\App\Http\Controllers\Reports\YearlyReportController::class, 'exportYearlyReport']);
     });
-    
+
     // Commission routes
     Route::prefix('commissions')->name('commissions.')->middleware('\App\Http\Middleware\CheckRole:admin,manager,staff')->group(function () {
         Route::get('/', [CommissionController::class, 'index'])->name('index');
@@ -127,7 +127,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/post-purchase/{commission}/payment-steps', [CommissionController::class, 'managePaymentSteps'])->name('post-purchase.payment-steps');
         Route::get('/post-purchase/create', [CommissionController::class, 'createPostPurchase'])->name('post-purchase.create');
         Route::get('/post-purchase/{commission}/edit', [CommissionController::class, 'editPostPurchase'])->name('post-purchase.edit');
-        
+
         // Pre-purchase Commission API routes
         Route::prefix('api/pre-purchase')->group(function () {
             Route::get('/', [\App\Http\Controllers\PrePurchaseCommissionController::class, 'index']);
@@ -137,7 +137,7 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{commission}', [\App\Http\Controllers\PrePurchaseCommissionController::class, 'destroy']);
             Route::patch('/{commission}/mark-paid', [\App\Http\Controllers\PrePurchaseCommissionController::class, 'markAsPaid']);
         });
-        
+
         // Post-purchase Commission API routes
         Route::prefix('api/post-purchase')->group(function () {
             Route::get('/', [\App\Http\Controllers\PostPurchaseCommissionController::class, 'index']);
@@ -147,7 +147,7 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{commission}', [\App\Http\Controllers\PostPurchaseCommissionController::class, 'destroy']);
             Route::get('/{commission}/payment-steps', [\App\Http\Controllers\PostPurchaseCommissionController::class, 'getPaymentSteps']);
         });
-        
+
         // Payment Step API routes
         Route::prefix('api/payment-steps')->group(function () {
             Route::patch('/{paymentStep}/mark-paid', [\App\Http\Controllers\CommissionPaymentStepController::class, 'markAsPaid']);
@@ -156,7 +156,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/statistics', [\App\Http\Controllers\CommissionPaymentStepController::class, 'getStatistics']);
         });
     });
-    
+
     // Deposit Contracts routes
     Route::prefix('deposit-contracts')->name('deposit-contracts.')->middleware('\App\Http\Middleware\CheckRole:admin,manager,staff')->group(function () {
         Route::get('/', [\App\Http\Controllers\DocumentCreationController::class, 'depositContractsIndex'])->name('index');
@@ -173,7 +173,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [\App\Http\Controllers\DocumentCreationController::class, 'destroy'])->defaults('type', 'deposit_contract')->name('destroy');
         Route::get('/{id}', [\App\Http\Controllers\DocumentCreationController::class, 'show'])->defaults('type', 'deposit_contract')->name('show');
     });
-    
+
     // Sale Contracts routes
     Route::prefix('sale-contracts')->name('sale-contracts.')->middleware('\App\Http\Middleware\CheckRole:admin,manager,staff')->group(function () {
         Route::get('/', [\App\Http\Controllers\DocumentCreationController::class, 'saleContractsIndex'])->name('index');
@@ -190,11 +190,11 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [\App\Http\Controllers\DocumentCreationController::class, 'destroy'])->defaults('type', 'sale_contract')->name('destroy');
         Route::get('/{id}', [\App\Http\Controllers\DocumentCreationController::class, 'show'])->defaults('type', 'sale_contract')->name('show');
     });
-    
+
     // Data Entry routes
     Route::prefix('data-entry')->name('data-entry.')->middleware('\App\Http\Middleware\CheckRole:admin,manager,staff')->group(function () {
         Route::get('/', [DataEntryController::class, 'index'])->name('index');
-        
+
         // Buyer routes
         Route::prefix('buyers')->name('buyers.')->group(function () {
             Route::get('/', [DataEntryController::class, 'buyersIndex'])->name('index');
@@ -202,7 +202,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/{id}/edit', [DataEntryController::class, 'buyersEdit'])->name('edit');
             Route::get('/{id}', [DataEntryController::class, 'buyersShow'])->name('show');
         });
-        
+
         // Seller routes
         Route::prefix('sellers')->name('sellers.')->group(function () {
             Route::get('/', [DataEntryController::class, 'sellersIndex'])->name('index');
@@ -210,7 +210,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/{id}/edit', [DataEntryController::class, 'sellersEdit'])->name('edit');
             Route::get('/{id}', [DataEntryController::class, 'sellersShow'])->name('show');
         });
-        
+
         // Land routes
         Route::prefix('lands')->name('lands.')->group(function () {
             Route::get('/', [DataEntryController::class, 'landsIndex'])->name('index');
@@ -219,14 +219,14 @@ Route::middleware('auth')->group(function () {
             Route::get('/{id}', [DataEntryController::class, 'landsShow'])->name('show');
         });
     });
-    
+
     // Administrator-only routes
     Route::middleware('role:admin')->group(function () {
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
-    
+
     // API Routes
     Route::prefix('api')->middleware(['auth', 'verified', '\App\Http\Middleware\CheckRole:admin,manager,staff'])->group(function () {
         // User management endpoints
@@ -238,7 +238,7 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}', [UserApiController::class, 'destroy']);
             Route::post('/{id}/toggle-status', [UserApiController::class, 'toggleStatus']);
         });
-        
+
         // Role management endpoints
         Route::prefix('roles')->group(function () {
             Route::get('/', [\App\Http\Controllers\Api\RoleApiController::class, 'index']);
@@ -250,13 +250,13 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}', [\App\Http\Controllers\Api\RoleApiController::class, 'destroy']);
             Route::post('/{id}/toggle-status', [\App\Http\Controllers\Api\RoleApiController::class, 'toggleStatus']);
         });
-        
+
         // File Upload endpoints
         Route::prefix('files')->group(function () {
             Route::post('/upload-temp', [FileUploadController::class, 'uploadTemp']);
             Route::delete('/delete-temp', [FileUploadController::class, 'deleteTemp']);
         });
-        
+
         // Reports API endpoints
         Route::prefix('reports')->group(function () {
             // Document Report
@@ -265,13 +265,13 @@ Route::middleware('auth')->group(function () {
                 Route::post('/search', [\App\Http\Controllers\Reports\DocumentReportController::class, 'search']);
                 Route::get('/export/{contractId}', [\App\Http\Controllers\Reports\DocumentReportController::class, 'export']);
             });
-            
+
             // Monthly Report
             Route::prefix('monthly')->group(function () {
                 Route::post('/data', [\App\Http\Controllers\Reports\MonthlyReportController::class, 'getMonthlyData']);
                 Route::post('/export', [\App\Http\Controllers\Reports\MonthlyReportController::class, 'exportMonthlyReport']);
             });
-            
+
             // Payment Steps
             Route::prefix('payment-steps')->group(function () {
                 Route::get('/{paymentStepId}', [\App\Http\Controllers\Reports\PaymentStepController::class, 'show']);
@@ -281,7 +281,7 @@ Route::middleware('auth')->group(function () {
                 Route::post('/{stepId}/mark-as-paid', [\App\Http\Controllers\Reports\PaymentStepController::class, 'markAsPaid']);
                 Route::post('/{stepId}/mark-as-unpaid', [\App\Http\Controllers\Reports\PaymentStepController::class, 'markAsUnpaid']);
             });
-            
+
             // Contract Documents
             Route::prefix('contract-documents')->group(function () {
                 Route::post('/{contractId}/upload', [\App\Http\Controllers\Reports\ContractDocumentController::class, 'upload']);
@@ -289,7 +289,7 @@ Route::middleware('auth')->group(function () {
                 Route::delete('/{documentId}', [\App\Http\Controllers\Reports\ContractDocumentController::class, 'delete']);
             });
         });
-        
+
         // Data Entry - Buyer endpoints
         Route::prefix('buyers')->group(function () {
             Route::get('/', [BuyerApiController::class, 'index']);
@@ -299,7 +299,7 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}', [BuyerApiController::class, 'destroy']);
             Route::put('/{id}/documents/{documentId}/set-display', [BuyerApiController::class, 'setDisplayDocument']);
         });
-        
+
         // Data Entry - Seller endpoints
         Route::prefix('sellers')->group(function () {
             Route::get('/', [SellerApiController::class, 'index']);
@@ -309,7 +309,7 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}', [SellerApiController::class, 'destroy']);
             Route::put('/{id}/documents/{documentId}/set-display', [SellerApiController::class, 'setDisplayDocument']);
         });
-        
+
         // Data Entry - Land endpoints
         Route::prefix('lands')->group(function () {
             Route::get('/', [LandApiController::class, 'index']);
@@ -319,10 +319,10 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{id}', [LandApiController::class, 'destroy']);
             Route::put('/{id}/documents/{documentId}/set-display', [LandApiController::class, 'setDisplayDocument']);
         });
-        
+
         // Common Document API endpoints
         Route::get('/documents', [DocumentCreationController::class, 'index']);
-        
+
         // Deposit Contract API endpoints
         Route::prefix('deposit-contracts')->group(function () {
             Route::post('/create', [DocumentCreationController::class, 'apiCreateDepositContract']);
@@ -335,8 +335,10 @@ Route::middleware('auth')->group(function () {
             Route::post('/{id}/save-document', [\App\Http\Controllers\DocumentPreviewController::class, 'save']);
             Route::match(['GET', 'POST'], '/{id}/generate-pdf', [\App\Http\Controllers\DocumentPreviewController::class, 'generatePDF']);
             Route::get('/{id}/print-pdf', [\App\Http\Controllers\DocumentPreviewController::class, 'printPDF']);
+            Route::get('/{id}/payment-step/{paymentStepId}/acceptance-contract', [\App\Http\Controllers\DocumentPreviewController::class, 'showAcceptanceContract']);
+            Route::match(['GET', 'POST'], '/{id}/payment-step/{paymentStepId}/generate-acceptance-contract-pdf', [\App\Http\Controllers\DocumentPreviewController::class, 'generateAcceptanceContractPDF']);
         });
-        
+
         // Sale Contract API endpoints
         Route::prefix('sale-contracts')->group(function () {
             Route::post('/create', [DocumentCreationController::class, 'apiCreateSaleContract']);
@@ -349,6 +351,8 @@ Route::middleware('auth')->group(function () {
             Route::post('/{id}/save-document', [\App\Http\Controllers\DocumentPreviewController::class, 'save']);
             Route::match(['GET', 'POST'], '/{id}/generate-pdf', [\App\Http\Controllers\DocumentPreviewController::class, 'generatePDF']);
             Route::get('/{id}/print-pdf', [\App\Http\Controllers\DocumentPreviewController::class, 'printPDF']);
+            Route::get('/{id}/payment-step/{paymentStepId}/acceptance-contract', [\App\Http\Controllers\DocumentPreviewController::class, 'showAcceptanceContract']);
+            Route::match(['GET', 'POST'], '/{id}/payment-step/{paymentStepId}/generate-acceptance-contract-pdf', [\App\Http\Controllers\DocumentPreviewController::class, 'generateAcceptanceContractPDF']);
         });
     });
 });
@@ -363,4 +367,4 @@ Route::middleware(['auth', 'web'])->prefix('archive')->group(function () {
 });
 
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

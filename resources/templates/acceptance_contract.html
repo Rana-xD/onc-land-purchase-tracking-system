@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="km">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>លិខិតទទួល-ប្រគល់ប្រាក់</title>
+        <style>
+            {{UNIFIED_STYLES}}
+        </style>
+    </head>
+    <body>
+        <div class="document-container">
+            <!-- Header -->
+            <div class="header">
+                <div class="kingdom-title">ព្រះរាជាណាចក្រកម្ពុជា</div>
+                <div class="nation-religion-king">ជាតិ សាសនា ព្រះមហាក្សត្រ</div>
+                <div class="contract-title">លិខិតទទួល-ប្រគល់ប្រាក់</div>
+            </div>
+
+            <!-- Buyer Information -->
+            <div class="party-info">{{buyers_content}}</div>
+            <p style="text-align: center">និង</p>
+            <!-- Seller Information -->
+            <div class="party-info">{{sellers_content}}</div>
+            <p class="indent-text">
+                ភាគីនីមួយៗ តទៅនេះហៅកាត់ថា "ភាគី" ឬ "គូភាគី" ។
+            </p>
+
+            <!-- Contract Introduction -->
+            <div class="contract-intro">
+                <p>
+                    គូភាគីបានព្រមព្រៀងគ្នាក្នុងការទទួលយកប្រាក់បង់ប្រាក់ដំណាក់កាលទី{{payment_step_number}}
+                    ដូចខាងក្រោម៖
+                </p>
+            </div>
+
+            <!-- Payment Acceptance Content -->
+            <div class="payment-acceptance-section">
+                <p class="indent-text">
+                    ភាគី "ក" បានបង់ប្រាក់ចំនួន USD
+                    {{payment_amount}}({{payment_amount_khmer}}) ជូនភាគី "ខ"
+                    សម្រាប់ការទិញលក់ដីដូចខាងក្រោម៖
+                </p>
+            </div>
+
+            <!-- Land Information -->
+            <div class="land-section">
+                <ul class="land-details">
+                    {{lands_content}}
+                    <li>
+                        ការបង់ប្រាក់នេះគឺជាដំណាក់កាលទី{{payment_step_number}}
+                        នៃកិច្ចសន្យាទិញលក់ដីដែលបានចុះហត្ថលេខានៅថ្ងៃទី
+                        {{original_contract_date}}
+                    </li>
+                    <li>
+                        បន្ទាប់ពីការទូទាត់នេះ ភាគី "ក" បានបង់ប្រាក់សរុបចំនួន USD
+                        {{total_paid_amount}}({{total_paid_amount_khmer}})
+                        ចេញពីតម្លៃដីសរុប USD
+                        {{total_land_price}}({{total_land_price_khmer}})
+                    </li>
+                    <li>
+                        ចំនួនប្រាក់នៅសល់ដែលត្រូវបង់គឺ USD
+                        {{remaining_amount}}({{remaining_amount_khmer}})
+                    </li>
+                </ul>
+
+                <p>
+                    <strong
+                        >លក្ខខណ្ឌនៃការទទួលយកប្រាក់និងការបន្តកិច្ចសន្យា៖</strong
+                    >
+                </p>
+
+                <ul class="conditions">
+                    <li>
+                        ភាគី "ខ" បញ្ជាក់ថាបានទទួលប្រាក់ពីភាគី "ក"
+                        ត្រឹមត្រូវតាមចំនួនដែលបានកំណត់ខាងលើ
+                    </li>
+                    <li>
+                        ការបង់ប្រាក់នេះគឺស្របតាមកាលកំណត់
+                        និងលក្ខខណ្ឌដែលបានកំណត់នៅក្នុងកិច្ចសន្យាដើម
+                    </li>
+                    <li>
+                        កិច្ចសន្យាដើមនៅតែមានប្រសិទ្ធភាពពេញលេញ
+                        និងភាគីទាំងពីរត្រូវគោរពតាមលក្ខខណ្ឌដែលបានកំណត់
+                    </li>
+                    {{payment_step_specific_terms}}
+                </ul>
+            </div>
+
+            <!-- Date and Location -->
+            <p style="text-align: right; margin: 30px 0">
+                <strong>ធ្វើនៅ ភ្នំពេញ, ថ្ងៃទី {{current_date}}</strong>
+            </p>
+
+            <!-- Fingerprint Signatures Section -->
+            <div class="fingerprint-section">
+                <div class="fingerprint-row">
+                    <div class="fingerprint-group">
+                        <div class="fingerprint-label">ភាគីអ្នកទិញ</div>
+                        <div class="fingerprint-box"></div>
+                        <div class="signature-line"></div>
+                    </div>
+
+                    <div class="fingerprint-group">
+                        <div class="fingerprint-label">សាក្សីភាគីអ្នកទិញ</div>
+                        <div class="fingerprint-box"></div>
+                        <div class="signature-line"></div>
+                    </div>
+
+                    <div class="fingerprint-group">
+                        <div class="fingerprint-label">សាក្សីភាគីអ្នកលក់</div>
+                        <div class="fingerprint-box"></div>
+                        <div class="signature-line"></div>
+                    </div>
+
+                    <div class="fingerprint-group">
+                        <div class="fingerprint-label">ភាគីអ្នកលក់</div>
+                        <div class="fingerprint-box"></div>
+                        <div class="signature-line"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
